@@ -1,0 +1,278 @@
+<?php
+
+namespace App\Modules\Inventories\Products\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Modules\Inventories\Products\Models\Product;
+use App\Modules\Inventories\Products\Models\ProductQuestion;
+use App\Modules\Inventories\Products\Models\ProductReview;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class StorefrontProductController extends Controller
+{
+    public function index(Request $request): Response
+    {
+        $products = Product::query()
+            ->with(['brand:id,name,slug','categories:id,name,slug'])
+            ->whereIn('status',['Published','Active'])
+            ->where('visibility','Public')
+            ->when($request->string('search')->trim()->toString(), fn($query,$search)=>$query->where(fn($query)=>$query->where('title','like',"%{$search}%")->orWhere('sku','like',"%{$search}%")))
+            ->when($request->string('category')->trim()->toString(), fn($query,$slug)=>$query->whereHas('categories',fn($query)=>$query->where('slug',$slug)))
+            ->when($request->string('brand')->trim()->toString(), fn($query,$slug)=>$query->whereHas('brand',fn($query)=>$query->where('slug',$slug)))
+            ->latest('published_at')->latest('id')->paginate(16)->withQueryString();
+        $products->through(fn(Product $product)=>$this->cardData($product));
+
+        return Inertia::render('app/modules/storefront/products/pages/Index', [
+            'products'=>$products,
+            'filters'=>$request->only(['search','category','brand']),
+            'categories'=>\App\Modules\Inventories\Categories\Models\Category::where('is_active',true)->orderBy('name')->get(['id','name','slug']),
+            'brands'=>\App\Modules\Inventories\Brands\Models\Brand::where('is_active',true)->orderBy('name')->get(['id','name','slug']),
+        ]);
+    }
+
+    public function show(Request $request, string $slug): Response|RedirectResponse
+    {
+        $product = Product::with(['brand:id,name,slug','unit:id,name','categories:id,parent_id,name,slug','images','specifications','approvedReviews.images','questions' => fn ($q) => $q->where('status','approved')->latest(),'faqs','bulkPrices'])
+            ->where('slug', $slug)->whereIn('status', ['Published','Active'])->where('visibility', 'Public')->first();
+        if (!$product) {
+            $redirect = DB::table('product_url_redirects')->where('old_slug', $slug)->first();
+            if ($redirect && ($target = Product::find($redirect->product_id))) return redirect()->route('storefront.products.show', $target->slug, 301);
+            abort(404);
+        }
+
+        DB::table('recently_viewed_products')->updateOrInsert(
+            ['product_id'=>$product->id, 'user_id'=>$request->user()?->id, 'session_id'=>$request->user() ? null : $request->session()->getId()],
+            ['viewed_at'=>now()]
+        );
+        $reviews = $product->approvedReviews;
+        $breakdown = collect(range(1,5))->mapWithKeys(fn ($star) => [$star => $reviews->where('rating',$star)->count()]);
+        $categoryIds = $product->categories->pluck('id');
+        $related = Product::with('brand:id,name')->whereKeyNot($product->id)->whereIn('status',['Published','Active'])->where('visibility','Public')
+            ->where(fn ($q) => $q->where('brand_id',$product->brand_id)->orWhereHas('categories', fn ($q) => $q->whereIn('categories.id',$categoryIds)))
+            ->limit(8)->get();
+        $recentIds = DB::table('recently_viewed_products')->where($request->user() ? 'user_id' : 'session_id', $request->user()?->id ?? $request->session()->getId())->where('product_id','!=',$product->id)->latest('viewed_at')->limit(8)->pluck('product_id');
+
+        return Inertia::render('app/modules/storefront/products/pages/Show', [
+            'product' => $this->productData($product),
+            'reviews' => $reviews->map(fn ($review) => ['id'=>$review->id,'rating'=>$review->rating,'title'=>$review->title,'description'=>$review->description,'customerName'=>$review->customer_name,'verified'=>$review->verified_purchase,'helpful'=>$review->helpful_count,'adminReply'=>$review->admin_reply,'date'=>$review->created_at->format('M j, Y'),'images'=>$review->images->map(fn ($image) => '/storage/'.$image->path)]),
+            'rating' => ['average'=>round((float)$reviews->avg('rating'),1),'total'=>$reviews->count(),'breakdown'=>$breakdown],
+            'questions' => $product->questions,
+            'related' => $related->map(fn ($item) => $this->cardData($item)),
+            'recentlyViewed' => Product::whereIn('id',$recentIds)->get()->map(fn ($item) => $this->cardData($item)),
+            'inWishlist' => $request->user() ? DB::table('wishlists')->where(['user_id'=>$request->user()->id,'product_id'=>$product->id])->exists() : false,
+        ]);
+    }
+
+    public function cart(Request $request, Product $product): JsonResponse
+    {
+        $data = $request->validate(['quantity'=>['required','integer','min:1']]);
+        abort_unless(in_array($product->status,['Published','Active']) && $product->visibility === 'Public', 404);
+        $max = min($product->stock_quantity, $product->max_order_quantity ?: $product->stock_quantity);
+        if ($data['quantity'] < $product->min_order_quantity || $data['quantity'] > $max || (($data['quantity']-$product->min_order_quantity) % max(1,$product->quantity_step)) !== 0) return response()->json(['message'=>'Selected quantity is not available.'],422);
+        $unitPrice = (float)($product->bulkPrices()->where('min_quantity','<=',$data['quantity'])->where(fn($q)=>$q->whereNull('max_quantity')->orWhere('max_quantity','>=',$data['quantity']))->orderByDesc('min_quantity')->value('unit_price') ?? $product->current_price);
+        $cart = $request->session()->get('cart', []);
+        $cart[$product->id] = ['product_id'=>$product->id,'quantity'=>$data['quantity'],'unit_price'=>$unitPrice,'title'=>$product->title,'slug'=>$product->slug];
+        $request->session()->put('cart',$cart);
+        return response()->json(['message'=>'Product added to cart.','count'=>collect($cart)->sum('quantity'),'item'=>$cart[$product->id]]);
+    }
+
+    public function cartPage(Request $request): Response
+    {
+        return Inertia::render('app/modules/storefront/cart/pages/Index', $this->cartSummary($request));
+    }
+
+    public function updateCart(Request $request, Product $product): JsonResponse
+    {
+        $data = $request->validate(['quantity' => ['required', 'integer', 'min:1']]);
+        $cart = $request->session()->get('cart', []);
+        abort_unless(isset($cart[$product->id]), 404);
+
+        $max = min($product->stock_quantity, $product->max_order_quantity ?: $product->stock_quantity);
+        if ($data['quantity'] < $product->min_order_quantity || $data['quantity'] > $max || (($data['quantity'] - $product->min_order_quantity) % max(1, $product->quantity_step)) !== 0) {
+            return response()->json(['message' => 'Selected quantity is not available.'], 422);
+        }
+
+        $cart[$product->id]['quantity'] = $data['quantity'];
+        $cart[$product->id]['unit_price'] = (float) ($product->bulkPrices()->where('min_quantity', '<=', $data['quantity'])->where(fn ($query) => $query->whereNull('max_quantity')->orWhere('max_quantity', '>=', $data['quantity']))->orderByDesc('min_quantity')->value('unit_price') ?? $product->current_price);
+        $request->session()->put('cart', $cart);
+
+        return response()->json(['message' => 'Cart updated.', ...$this->cartSummary($request)]);
+    }
+
+    public function removeCart(Request $request, Product $product): JsonResponse
+    {
+        $cart = $request->session()->get('cart', []);
+        unset($cart[$product->id]);
+        $request->session()->put('cart', $cart);
+
+        return response()->json(['message' => 'Item removed from cart.', ...$this->cartSummary($request)]);
+    }
+
+    public function checkout(Request $request): Response
+    {
+        $summary = $this->cartSummary($request);
+        if (empty($summary['items'])) {
+            return redirect()->route('storefront.cart')->with('success', 'Your cart is empty.');
+        }
+
+        return Inertia::render('app/modules/storefront/checkout/pages/Index', $summary);
+    }
+
+    public function placeOrder(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'customer_name' => ['required', 'string', 'max:120'],
+            'phone' => ['required', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'address' => ['required', 'string', 'max:1000'],
+            'city' => ['required', 'string', 'max:120'],
+            'note' => ['nullable', 'string', 'max:2000'],
+            'payment_method' => ['required', Rule::in(['cod'])],
+        ]);
+        $cart = $request->session()->get('cart', []);
+        if (!$cart) return redirect()->route('storefront.cart')->with('success', 'Your cart is empty.');
+
+        $orderNumber = null;
+        $orderId = null;
+        DB::transaction(function () use ($cart, $data, $request, &$orderNumber, &$orderId): void {
+            $products = Product::query()->whereIn('id', array_keys($cart))->lockForUpdate()->get()->keyBy('id');
+            $subtotal = 0;
+            foreach ($cart as $line) {
+                $product = $products->get($line['product_id']);
+                if (!$product || !in_array($product->status, ['Published', 'Active']) || $product->stock_quantity < $line['quantity']) {
+                    abort(422, 'One or more items are no longer available.');
+                }
+                $subtotal += $line['quantity'] * $line['unit_price'];
+            }
+
+            $orderNumber = '#ORD'.str_pad((string) ((int) DB::table('orders')->max('id') + 1), 2, '0', STR_PAD_LEFT);
+            $orderId = DB::table('orders')->insertGetId([
+                'order_number' => $orderNumber,
+                'user_id' => $request->user()?->id,
+                'customer_name' => $data['customer_name'], 'phone' => $data['phone'], 'email' => $data['email'] ?? null,
+                'address' => $data['address'], 'city' => $data['city'], 'note' => $data['note'] ?? null,
+                'payment_method' => $data['payment_method'], 'payment_status' => 'pending', 'status' => 'pending',
+                'subtotal' => $subtotal, 'shipping_total' => 0, 'total' => $subtotal,
+                'created_at' => now(), 'updated_at' => now(),
+            ]);
+            foreach ($cart as $line) {
+                $product = $products->get($line['product_id']);
+                DB::table('order_items')->insert(['order_id' => $orderId, 'product_id' => $product->id, 'product_title' => $product->title, 'sku' => $product->sku, 'unit_price' => $line['unit_price'], 'quantity' => $line['quantity'], 'line_total' => $line['quantity'] * $line['unit_price'], 'created_at' => now(), 'updated_at' => now()]);
+                $product->decrement('stock_quantity', $line['quantity']);
+            }
+        });
+        $request->session()->forget('cart');
+
+        return redirect()->route('storefront.order.success', $orderId);
+    }
+
+    public function orderSuccess(Request $request, int $order): Response
+    {
+        $order = DB::table('orders')->find($order);
+        abort_unless($order, 404);
+
+        return Inertia::render('app/modules/storefront/checkout/pages/Success', ['order' => $order]);
+    }
+
+    public function wishlist(Request $request, Product $product): JsonResponse
+    {
+        $existing = DB::table('wishlists')->where(['user_id'=>$request->user()->id,'product_id'=>$product->id]);
+        if ($existing->exists()) { $existing->delete(); $active=false; } else { DB::table('wishlists')->insert(['user_id'=>$request->user()->id,'product_id'=>$product->id,'created_at'=>now(),'updated_at'=>now()]); $active=true; }
+        return response()->json(['active'=>$active]);
+    }
+
+    public function wishlistPage(Request $request): Response
+    {
+        $ids=DB::table('wishlists')->where('user_id',$request->user()->id)->latest()->pluck('product_id');
+        return Inertia::render('app/modules/storefront/products/pages/ProductList',['title'=>'My Wishlist','products'=>Product::with('brand:id,name')->whereIn('id',$ids)->get()->map(fn($item)=>$this->cardData($item))]);
+    }
+
+    public function comparePage(Request $request): Response
+    {
+        $query=DB::table('compare_products')->where($request->user()?'user_id':'session_id',$request->user()?->id??$request->session()->getId())->latest()->limit(4);
+        $products=Product::with(['brand:id,name','specifications'])->whereIn('id',$query->pluck('product_id'))->get();
+        return Inertia::render('app/modules/storefront/products/pages/ProductList',['title'=>'Compare Products','compare'=>true,'products'=>$products->map(fn($item)=>[...$this->cardData($item),'specifications'=>$item->specifications,'warranty'=>$item->warranty,'stock'=>$item->stock_quantity])]);
+    }
+
+    public function helpful(Request $request, ProductReview $review): JsonResponse
+    {
+        abort_unless($review->status==='approved',404);
+        $key=['review_id'=>$review->id,'user_id'=>$request->user()?->id,'session_id'=>$request->user() ? null : $request->session()->getId()];
+        if(DB::table('product_review_votes')->where($key)->exists()) return response()->json(['message'=>'You already marked this review helpful.','helpful'=>$review->helpful_count]);
+        DB::transaction(function()use($key,$review){DB::table('product_review_votes')->insert([...$key,'created_at'=>now(),'updated_at'=>now()]);$review->increment('helpful_count');});
+        return response()->json(['message'=>'Thanks for your feedback.','helpful'=>$review->fresh()->helpful_count]);
+    }
+
+    public function compare(Request $request, Product $product): JsonResponse
+    {
+        $key = ['product_id'=>$product->id,'user_id'=>$request->user()?->id,'session_id'=>$request->user() ? null : $request->session()->getId()];
+        $query=DB::table('compare_products')->where($key); if($query->exists()){$query->delete();$active=false;}else{DB::table('compare_products')->insert([...$key,'created_at'=>now(),'updated_at'=>now()]);$active=true;}
+        return response()->json(['active'=>$active]);
+    }
+
+    public function notify(Request $request, Product $product): JsonResponse
+    {
+        $data=$request->validate(['email'=>['nullable','email','required_without:phone'],'phone'=>['nullable','string','max:20','required_without:email']]);
+        DB::table('stock_notifications')->insert(['product_id'=>$product->id,'user_id'=>$request->user()?->id,'email'=>$data['email']??null,'phone'=>$data['phone']??null,'created_at'=>now(),'updated_at'=>now()]);
+        return response()->json(['message'=>'We will notify you when this product is available.'],201);
+    }
+
+    public function review(Request $request, Product $product): JsonResponse
+    {
+        $data=$request->validate(['rating'=>['required','integer','between:1,5'],'title'=>['nullable','string','max:150'],'description'=>['required','string','max:5000'],'customer_name'=>['required','string','max:120'],'customer_email'=>['nullable','email'],'video_url'=>['nullable','url','max:255']]);
+        $verified=false; // Order linkage is intentionally required before granting this badge.
+        ProductReview::create([...$data,'product_id'=>$product->id,'user_id'=>$request->user()?->id,'verified_purchase'=>$verified,'status'=>'pending']);
+        return response()->json(['message'=>'Your review was submitted for approval.'],201);
+    }
+
+    public function question(Request $request, Product $product): JsonResponse
+    {
+        $data=$request->validate(['customer_name'=>['required','string','max:120'],'customer_email'=>['nullable','email'],'question'=>['required','string','max:2000']]);
+        ProductQuestion::create([...$data,'product_id'=>$product->id,'user_id'=>$request->user()?->id,'status'=>'pending']);
+        return response()->json(['message'=>'Your question was submitted for approval.'],201);
+    }
+
+    private function cartSummary(Request $request): array
+    {
+        $cart = $request->session()->get('cart', []);
+        $products = Product::query()->whereIn('id', array_keys($cart))->get()->keyBy('id');
+        $items = collect($cart)->map(function (array $line) use ($products): ?array {
+            $product = $products->get($line['product_id']);
+            if (!$product) return null;
+            $quantity = min((int) $line['quantity'], max(0, (int) $product->stock_quantity));
+            if (!$quantity) return null;
+            $price = (float) $product->current_price;
+            return ['product_id' => $product->id, 'title' => $product->title, 'slug' => $product->slug, 'quantity' => $quantity, 'unit_price' => $price, 'line_total' => $quantity * $price, 'stock_quantity' => $product->stock_quantity, 'image' => $product->featured_image_path ? '/storage/'.$product->featured_image_path : null];
+        })->filter()->values();
+
+        return ['items' => $items, 'subtotal' => $items->sum('line_total'), 'cartCount' => $items->sum('quantity')];
+    }
+
+    private function cardData(Product $item): array { return ['id'=>$item->id,'title'=>$item->title,'slug'=>$item->slug,'image'=>$item->featured_image_path?'/storage/'.$item->featured_image_path:null,'price'=>$item->current_price,'regularPrice'=>(float)$item->regular_price,'discount'=>$item->discount_percentage,'stockStatus'=>$item->stock_status,'brand'=>$item->brand?->name]; }
+    private function productData(Product $p): array
+    {
+        $groups = $p->specifications
+            ->groupBy(fn ($specification) => $specification->group_title ?: 'General Specifications')
+            ->map(fn ($items, $title) => ['title' => $title, 'items' => $items->values()])
+            ->values();
+
+        return [...$p->toArray(), 'specifications' => [], 'specification_groups' => $groups, 'featured_image_url'=>$this->mediaUrl($p->featured_image_path),'gallery_urls'=>collect($p->gallery??[])->filter()->map(fn($path)=>$this->mediaUrl($path))->values(),'og_image_url'=>$this->mediaUrl($p->og_image_path),'twitter_image_url'=>$this->mediaUrl($p->twitter_image_path)];
+    }
+
+    private function mediaUrl(?string $path): ?string
+    {
+        if (!$path) return null;
+        $normalizedPath = ltrim(str_replace('\\', '/', preg_replace('#^/?storage/#', '', $path)), '/');
+        $version = is_file(storage_path('app/public/'.$normalizedPath)) ? filemtime(storage_path('app/public/'.$normalizedPath)) : 1;
+        $encodedPath = collect(explode('/', $normalizedPath))->map(fn ($segment) => rawurlencode($segment))->implode('/');
+
+        return '/storage/'.$encodedPath.'?v='.$version;
+    }
+}
