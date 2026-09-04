@@ -55,7 +55,7 @@ class HandleInertiaRequests extends Middleware
             : null;
 
         return [
-            'name' => $settings?->website_name ?: config('app.name', 'Commerce'),
+            'name' => $settings?->website_name ?: null,
             'logo' => $assetUrl($settings?->logo_path),
             'favicon' => $assetUrl($settings?->favicon_path),
             'seoTitle' => $settings?->seo_title,
