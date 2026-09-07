@@ -12,7 +12,7 @@ export default function CategoryShow({ category, products }) {
     return (
         <StorefrontLayout>
             <Seo
-                title={category.seo_title || category.name}
+                title={category.seo_title || undefined}
                 description={category.meta_description || plainDescription.slice(0, 160)}
                 image={category.image_url}
                 schema={{
@@ -23,7 +23,7 @@ export default function CategoryShow({ category, products }) {
                     url: typeof window === 'undefined' ? '' : window.location.href,
                 }}
             />
-            <Head><link rel="canonical" href={canonical} /><meta name="robots" content={category.meta_robots || 'index,follow'} /><meta property="og:title" content={category.og_title || category.seo_title || category.name} /><meta property="og:description" content={category.og_description || category.meta_description || plainDescription.slice(0, 160)} /><meta property="og:url" content={canonical} /></Head>
+            <Head><link rel="canonical" href={canonical} /><meta name="robots" content={category.meta_robots || 'index,follow'} /><meta property="og:title" content={category.og_title || category.seo_title || ''} /><meta property="og:description" content={category.og_description || category.meta_description || plainDescription.slice(0, 160)} /><meta property="og:url" content={canonical} /></Head>
             <div className="border-b border-slate-200 bg-slate-50">
                 <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
                     <nav className="flex items-center gap-3 text-sm font-medium text-slate-600" aria-label="Breadcrumb">

@@ -29,9 +29,15 @@ class StorefrontProductController extends Controller
             ->latest('published_at')->latest('id')->paginate(16)->withQueryString();
         $products->through(fn(Product $product)=>$this->cardData($product));
 
+        $categorySlug = $request->string('category')->trim()->toString();
+        $brandSlug = $request->string('brand')->trim()->toString();
+        $listingSeo = $brandSlug
+            ? \App\Modules\Inventories\Brands\Models\Brand::query()->where('slug', $brandSlug)->first(['seo_title', 'meta_description', 'meta_robots', 'canonical_url', 'og_title', 'og_description'])
+            : ($categorySlug ? \App\Modules\Inventories\Categories\Models\Category::query()->where('slug', $categorySlug)->first(['seo_title', 'meta_description', 'meta_robots', 'canonical_url', 'og_title', 'og_description']) : null);
         return Inertia::render('app/modules/storefront/products/pages/Index', [
             'products'=>$products,
             'filters'=>$request->only(['search','category','brand']),
+            'listingSeo'=>$listingSeo,
             'categories'=>\App\Modules\Inventories\Categories\Models\Category::where('is_active',true)->orderBy('name')->get(['id','name','slug']),
             'brands'=>\App\Modules\Inventories\Brands\Models\Brand::where('is_active',true)->orderBy('name')->get(['id','name','slug']),
         ]);
