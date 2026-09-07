@@ -15,6 +15,8 @@ use Inertia\Response;
 
 class BrandController extends Controller
 {
+    public function __construct(private readonly RichTextSanitizer $sanitizer) {}
+
     public function index(Request $request): Response
     {
         $search = $request->string('search')->trim()->toString();
