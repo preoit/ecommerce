@@ -60,6 +60,8 @@ class ModulePageService
                 'note' => $order->note,
                 'amount' => 'BDT '.number_format((float) $order->total, 2),
                 'status' => str($order->status)->replace('_', ' ')->title()->toString(),
+                'viewed' => $order->viewed_at !== null,
+                'hasStockShortage' => (bool) ($order->has_stock_shortage ?? false),
                 'date' => $createdAt->toDateString(),
                 'time' => $createdAt->format('h:i A'),
             ];
