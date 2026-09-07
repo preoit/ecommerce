@@ -23,10 +23,13 @@ class WebsiteSettingController extends Controller
         return Inertia::render('app/modules/settings/pages/Index', [
             'website' => [
                 'name' => $settings->website_name,
+                'logoPath' => $settings->logo_path,
                 'logo' => $settings->logo_path ? '/image/'.rawurlencode(basename($settings->logo_path)) : null,
+                'faviconPath' => $settings->favicon_path,
                 'favicon' => $settings->favicon_path ? '/image/'.rawurlencode(basename($settings->favicon_path)) : null,
                 'seoTitle' => $settings->seo_title,
                 'seoDescription' => $settings->seo_description,
+                'seoImagePath' => $settings->seo_image_path,
                 'seoImage' => $settings->seo_image_path ? '/image/'.rawurlencode(basename($settings->seo_image_path)) : null,
             ],
             'media' => WebsiteMedia::latest()->get()->filter(fn (WebsiteMedia $file): bool => Storage::disk('public')->exists($file->path))->map(fn (WebsiteMedia $file): array => [

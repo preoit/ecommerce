@@ -36,6 +36,10 @@ class WebsiteMediaFlowTest extends TestCase
         ])->assertSessionHasNoErrors();
 
         $settings = WebsiteSetting::findOrFail(1);
+        $this->actingAs($user)->get(route('settings.website'))->assertInertia(fn ($page) => $page
+            ->where('website.logoPath', $upload['path'])
+            ->where('website.faviconPath', $upload['path'])
+            ->where('media.0.path', $upload['path']));
         $this->assertSame($upload['path'], $settings->logo_path);
         $this->get('/')->assertInertia(fn ($page) => $page
             ->where('website.logo', fn ($url) => str_starts_with($url, '/image/brand-logo.png?v='))
