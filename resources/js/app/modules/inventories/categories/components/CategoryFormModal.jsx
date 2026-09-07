@@ -123,7 +123,12 @@ export default function CategoryFormModal({ open, onClose, parentOptions, catego
                         </select>
                     </FormField>}
                     {(entityLabel === 'category' || entityLabel === 'brand') && <FormField label="Short description" htmlFor="category-short-description" hint={entityLabel === 'category' ? 'Shown near the breadcrumb on the category page.' : `A short customer-facing summary of this ${entityLabel}.`} error={form.errors.short_description}>
-                        <textarea id="category-short-description" value={form.data.short_description} onChange={(event) => form.setData('short_description', event.target.value)} className="block min-h-24 w-full rounded-md border-slate-300 text-sm shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-violet-500" placeholder={`A short summary of this ${entityLabel}.`} maxLength="500" />
+                        <RichTextEditor
+                            id="category-short-description"
+                            value={form.data.short_description}
+                            onChange={(description) => form.setData('short_description', description)}
+                            placeholder={`A short summary of this ${entityLabel}.`}
+                        />
                     </FormField>}
                     {entityLabel !== 'unit' && <><FormField label={entityLabel === 'category' ? 'Long description' : 'Brand description'} htmlFor="category-description" hint={entityLabel === 'category' ? 'Shown below the product list and pagination.' : 'Describe this brand for customers.'} error={form.errors.description}>
                         <RichTextEditor

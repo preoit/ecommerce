@@ -32,7 +32,7 @@ export default function CategoryShow({ category, products }) {
                     </nav>
                     <div className="mt-5">
                         <h1 className="text-[22px] font-medium leading-7 text-violet-700">{category.name}</h1>
-                        {category.short_description && <p className="mt-2 max-w-none text-sm font-normal leading-6 text-slate-700">{category.short_description}</p>}
+                        {category.short_description && <div className="rich-text-content mt-2 max-w-none text-sm font-normal leading-6 text-slate-700" dangerouslySetInnerHTML={{ __html: category.short_description }} />}
                     </div>
                 </div>
             </div>

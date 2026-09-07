@@ -116,15 +116,19 @@ class CategoryManagementTest extends TestCase
         $this->actingAs(User::factory()->create())->post(route('inventories.categories.store'), [
             'name' => 'Safe Content',
             'slug' => 'safe-content',
+            'short_description' => '<p><strong>Short summary</strong></p><script>alert(3)</script>',
             'description' => '<h2>Useful details</h2><script>alert(1)</script><p onclick="alert(2)">Safe copy</p>',
         ])->assertSessionHasNoErrors();
 
         $description = Category::query()->where('slug', 'safe-content')->value('description');
+        $shortDescription = Category::query()->where('slug', 'safe-content')->value('short_description');
 
         $this->assertStringContainsString('<h2>Useful details</h2>', $description);
         $this->assertStringContainsString('<p>Safe copy</p>', $description);
         $this->assertStringNotContainsString('<script', $description);
         $this->assertStringNotContainsString('onclick', $description);
+        $this->assertStringContainsString('<strong>Short summary</strong>', $shortDescription);
+        $this->assertStringNotContainsString('<script', $shortDescription);
     }
 
     public function test_authenticated_user_can_update_a_category(): void

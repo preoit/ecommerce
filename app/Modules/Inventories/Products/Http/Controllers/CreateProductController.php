@@ -23,28 +23,28 @@ class CreateProductController extends Controller
 
     public function storeBrand(Request $request): JsonResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'slug' => ['nullable', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'], 'short_description' => ['nullable', 'string', 'max:500'], 'description' => ['nullable', 'string'], 'image_path' => ['nullable', 'string', 'max:255']]);
+        $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'slug' => ['nullable', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'], 'short_description' => ['nullable', 'string', 'max:5000'], 'description' => ['nullable', 'string'], 'image_path' => ['nullable', 'string', 'max:255']]);
         $baseSlug = Str::slug($data['slug'] ?? $data['name']) ?: 'brand';
         $slug = $baseSlug;
         $suffix = 2;
         while (Brand::withTrashed()->where('slug', $slug)->exists()) {
             $slug = $baseSlug.'-'.$suffix++;
         }
-        $brand = Brand::create(['name' => $data['name'], 'slug' => $slug, 'short_description' => $data['short_description'] ?? null, 'description' => $data['description'] ?? null, 'image_path' => $data['image_path'] ?? null, 'is_active' => true]);
+        $brand = Brand::create(['name' => $data['name'], 'slug' => $slug, 'short_description' => $this->sanitizer->sanitize($data['short_description'] ?? null), 'description' => $this->sanitizer->sanitize($data['description'] ?? null), 'image_path' => $data['image_path'] ?? null, 'is_active' => true]);
 
         return response()->json(['category' => ['id' => $brand->id, 'name' => $brand->name, 'slug' => $brand->slug]], 201);
     }
 
     public function storeCategory(Request $request): JsonResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'parent_id' => ['nullable', 'integer', 'exists:categories,id'], 'slug' => ['nullable', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'], 'short_description' => ['nullable', 'string', 'max:500'], 'description' => ['nullable', 'string'], 'image_path' => ['nullable', 'string', 'max:255']]);
+        $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'parent_id' => ['nullable', 'integer', 'exists:categories,id'], 'slug' => ['nullable', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'], 'short_description' => ['nullable', 'string', 'max:5000'], 'description' => ['nullable', 'string'], 'image_path' => ['nullable', 'string', 'max:255']]);
         $baseSlug = Str::slug($data['slug'] ?? $data['name']) ?: 'category';
         $slug = $baseSlug;
         $suffix = 2;
         while (Category::withTrashed()->where('slug', $slug)->exists()) {
             $slug = $baseSlug.'-'.$suffix++;
         }
-        $category = Category::create(['name' => $data['name'], 'parent_id' => $data['parent_id'] ?? null, 'slug' => $slug, 'short_description' => $data['short_description'] ?? null, 'description' => $data['description'] ?? null, 'image_path' => $data['image_path'] ?? null, 'is_active' => true]);
+        $category = Category::create(['name' => $data['name'], 'parent_id' => $data['parent_id'] ?? null, 'slug' => $slug, 'short_description' => $this->sanitizer->sanitize($data['short_description'] ?? null), 'description' => $this->sanitizer->sanitize($data['description'] ?? null), 'image_path' => $data['image_path'] ?? null, 'is_active' => true]);
 
         return response()->json(['category' => ['id' => $category->id, 'name' => $category->name, 'parent_id' => $category->parent_id, 'children' => []]], 201);
     }

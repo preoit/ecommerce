@@ -87,9 +87,10 @@ class CategoryService
     {
         $imagePath = $request->validated('image_path') ?: $this->storeCategoryImage->execute($request->file('image'));
 
+        $shortDescription = $this->richTextSanitizer->sanitize($request->validated('short_description'));
         $description = $this->richTextSanitizer->sanitize($request->validated('description'));
 
-        return $this->createCategory->execute(CategoryData::fromRequest($request, $description), $imagePath);
+        return $this->createCategory->execute(CategoryData::fromRequest($request, $shortDescription, $description), $imagePath);
     }
 
     public function update(StoreCategoryRequest $request, Category $category): Category
@@ -106,9 +107,10 @@ class CategoryService
             $imagePath = $newImagePath;
         }
 
+        $shortDescription = $this->richTextSanitizer->sanitize($request->validated('short_description'));
         $description = $this->richTextSanitizer->sanitize($request->validated('description'));
         $category->update([
-            ...CategoryData::fromRequest($request, $description)->toArray(),
+            ...CategoryData::fromRequest($request, $shortDescription, $description)->toArray(),
             'image_path' => $imagePath,
         ]);
 

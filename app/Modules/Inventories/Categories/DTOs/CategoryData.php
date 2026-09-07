@@ -14,7 +14,7 @@ readonly class CategoryData
         public ?string $description,
     ) {}
 
-    public static function fromRequest(StoreCategoryRequest $request, ?string $description): self
+    public static function fromRequest(StoreCategoryRequest $request, ?string $shortDescription, ?string $description): self
     {
         $validated = $request->validated();
 
@@ -22,7 +22,7 @@ readonly class CategoryData
             name: $validated['name'],
             slug: $validated['slug'],
             parentId: isset($validated['parent_id']) ? (int) $validated['parent_id'] : null,
-            shortDescription: $validated['short_description'] ?? null,
+            shortDescription: $shortDescription,
             description: $description,
         );
     }
