@@ -5,7 +5,7 @@ import Seo from '@/app/components/Seo';
 import StorefrontLayout from '@/app/layouts/StorefrontLayout';
 
 const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
-const mediaUrl = (path) => path ? `/storage/${String(path).replace(/^\/?storage\//, '').split('/').map(encodeURIComponent).join('/')}` : null;
+const mediaUrl = (path) => path ? `/image/${encodeURIComponent(String(path).replace(/\\/g, '/').split('/').pop())}` : null;
 const retryImage = (event) => {
     const image = event.currentTarget;
 

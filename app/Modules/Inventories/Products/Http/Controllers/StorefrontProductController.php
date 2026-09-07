@@ -61,7 +61,7 @@ class StorefrontProductController extends Controller
 
         return Inertia::render('app/modules/storefront/products/pages/Show', [
             'product' => $this->productData($product),
-            'reviews' => $reviews->map(fn ($review) => ['id'=>$review->id,'rating'=>$review->rating,'title'=>$review->title,'description'=>$review->description,'customerName'=>$review->customer_name,'verified'=>$review->verified_purchase,'helpful'=>$review->helpful_count,'adminReply'=>$review->admin_reply,'date'=>$review->created_at->format('M j, Y'),'images'=>$review->images->map(fn ($image) => '/storage/'.$image->path)]),
+            'reviews' => $reviews->map(fn ($review) => ['id'=>$review->id,'rating'=>$review->rating,'title'=>$review->title,'description'=>$review->description,'customerName'=>$review->customer_name,'verified'=>$review->verified_purchase,'helpful'=>$review->helpful_count,'adminReply'=>$review->admin_reply,'date'=>$review->created_at->format('M j, Y'),'images'=>$review->images->map(fn ($image) => '/image/'.rawurlencode(basename($image->path)))]),
             'rating' => ['average'=>round((float)$reviews->avg('rating'),1),'total'=>$reviews->count(),'breakdown'=>$breakdown],
             'questions' => $product->questions,
             'related' => $related->map(fn ($item) => $this->cardData($item)),
@@ -249,13 +249,13 @@ class StorefrontProductController extends Controller
             $quantity = min((int) $line['quantity'], max(0, (int) $product->stock_quantity));
             if (!$quantity) return null;
             $price = (float) $product->current_price;
-            return ['product_id' => $product->id, 'title' => $product->title, 'slug' => $product->slug, 'quantity' => $quantity, 'unit_price' => $price, 'line_total' => $quantity * $price, 'stock_quantity' => $product->stock_quantity, 'image' => $product->featured_image_path ? '/storage/'.$product->featured_image_path : null];
+            return ['product_id' => $product->id, 'title' => $product->title, 'slug' => $product->slug, 'quantity' => $quantity, 'unit_price' => $price, 'line_total' => $quantity * $price, 'stock_quantity' => $product->stock_quantity, 'image' => $product->featured_image_path ? '/image/'.rawurlencode(basename($product->featured_image_path)) : null];
         })->filter()->values();
 
         return ['items' => $items, 'subtotal' => $items->sum('line_total'), 'cartCount' => $items->sum('quantity')];
     }
 
-    private function cardData(Product $item): array { return ['id'=>$item->id,'title'=>$item->title,'slug'=>$item->slug,'image'=>$item->featured_image_path?'/storage/'.$item->featured_image_path:null,'price'=>$item->current_price,'regularPrice'=>(float)$item->regular_price,'discount'=>$item->discount_percentage,'stockStatus'=>$item->stock_status,'brand'=>$item->brand?->name]; }
+    private function cardData(Product $item): array { return ['id'=>$item->id,'title'=>$item->title,'slug'=>$item->slug,'image'=>$item->featured_image_path?'/image/'.rawurlencode(basename($item->featured_image_path)):null,'price'=>$item->current_price,'regularPrice'=>(float)$item->regular_price,'discount'=>$item->discount_percentage,'stockStatus'=>$item->stock_status,'brand'=>$item->brand?->name]; }
     private function productData(Product $p): array
     {
         $groups = $p->specifications
@@ -273,6 +273,6 @@ class StorefrontProductController extends Controller
         $version = is_file(storage_path('app/public/'.$normalizedPath)) ? filemtime(storage_path('app/public/'.$normalizedPath)) : 1;
         $encodedPath = collect(explode('/', $normalizedPath))->map(fn ($segment) => rawurlencode($segment))->implode('/');
 
-        return '/storage/'.$encodedPath.'?v='.$version;
+        return '/image/'.rawurlencode(basename($normalizedPath)).'?v='.$version;
     }
 }
