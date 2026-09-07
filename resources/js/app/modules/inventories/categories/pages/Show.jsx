@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { House, Image } from 'lucide-react';
 import Seo from '@/app/components/Seo';
 import StorefrontLayout from '@/app/layouts/StorefrontLayout';
@@ -6,13 +6,14 @@ import StorefrontLayout from '@/app/layouts/StorefrontLayout';
 const money = (value) => `৳${Number(value || 0).toLocaleString('en-BD')}`;
 
 export default function CategoryShow({ category, products }) {
-    const plainDescription = category.short_description || category.description?.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || `Shop ${category.name} products.`;
+    const plainDescription = (category.short_description || category.description || `Shop ${category.name} products.`).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const canonical = category.canonical_url || route('storefront.categories.show', category.slug);
 
     return (
         <StorefrontLayout>
             <Seo
-                title={category.name}
-                description={plainDescription.slice(0, 160)}
+                title={category.seo_title || category.name}
+                description={category.meta_description || plainDescription.slice(0, 160)}
                 image={category.image_url}
                 schema={{
                     '@context': 'https://schema.org',
@@ -22,6 +23,7 @@ export default function CategoryShow({ category, products }) {
                     url: typeof window === 'undefined' ? '' : window.location.href,
                 }}
             />
+            <Head><link rel="canonical" href={canonical} /><meta name="robots" content={category.meta_robots || 'index,follow'} /><meta property="og:title" content={category.og_title || category.seo_title || category.name} /><meta property="og:description" content={category.og_description || category.meta_description || plainDescription.slice(0, 160)} /><meta property="og:url" content={canonical} /></Head>
             <div className="border-b border-slate-200 bg-slate-50">
                 <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
                     <nav className="flex items-center gap-3 text-sm font-medium text-slate-600" aria-label="Breadcrumb">

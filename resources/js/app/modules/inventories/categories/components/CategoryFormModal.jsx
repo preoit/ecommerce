@@ -20,6 +20,13 @@ export default function CategoryFormModal({ open, onClose, parentOptions, catego
         short_description: category?.short_description || '',
         description: category?.description || '',
         image_path: category?.image_path || null,
+        seo_title: category?.seo_title || '',
+        meta_description: category?.meta_description || '',
+        focus_keyword: category?.focus_keyword || '',
+        canonical_url: category?.canonical_url || '',
+        meta_robots: category?.meta_robots || 'index,follow',
+        og_title: category?.og_title || '',
+        og_description: category?.og_description || '',
     });
 
     const close = () => {
@@ -142,7 +149,19 @@ export default function CategoryFormModal({ open, onClose, parentOptions, catego
                         <CategoryImageUpload onChange={(imagePath) => form.setData('image_path', imagePath)} />
                     </FormField></>}
                 </div>
-                <div className="flex items-center justify-end gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:px-6">
+                {(entityLabel === 'category' || entityLabel === 'brand') && <section className="mx-5 mb-5 rounded-xl border border-violet-100 bg-violet-50/40 p-4 sm:mx-6">
+                    <h3 className="font-bold text-slate-800">SEO Settings</h3>
+                    <p className="mt-1 text-xs text-slate-500">Control search results and social sharing. Empty fields use the name and short description.</p>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                        <FormField label="SEO title" htmlFor="entity-seo-title" error={form.errors.seo_title}><input id="entity-seo-title" value={form.data.seo_title} onChange={(event) => form.setData('seo_title', event.target.value)} className={inputClasses} maxLength="160" placeholder={`${entityLabel} SEO title`} /></FormField>
+                        <FormField label="Focus keyword" htmlFor="entity-focus-keyword" error={form.errors.focus_keyword}><input id="entity-focus-keyword" value={form.data.focus_keyword} onChange={(event) => form.setData('focus_keyword', event.target.value)} className={inputClasses} placeholder="Primary search keyword" /></FormField>
+                        <div className="sm:col-span-2"><FormField label="Meta description" htmlFor="entity-meta-description" error={form.errors.meta_description}><textarea id="entity-meta-description" value={form.data.meta_description} onChange={(event) => form.setData('meta_description', event.target.value)} className="block min-h-24 w-full rounded-md border-slate-300 text-sm" maxLength="320" /></FormField></div>
+                        <FormField label="Canonical URL" htmlFor="entity-canonical-url" error={form.errors.canonical_url}><input id="entity-canonical-url" type="url" value={form.data.canonical_url} onChange={(event) => form.setData('canonical_url', event.target.value)} className={inputClasses} placeholder="Leave empty for automatic URL" /></FormField>
+                        <FormField label="Robots" htmlFor="entity-meta-robots" error={form.errors.meta_robots}><select id="entity-meta-robots" value={form.data.meta_robots} onChange={(event) => form.setData('meta_robots', event.target.value)} className={inputClasses}><option value="index,follow">Index, Follow</option><option value="noindex,follow">Noindex, Follow</option><option value="noindex,nofollow">Noindex, Nofollow</option></select></FormField>
+                        <FormField label="OG title" htmlFor="entity-og-title" error={form.errors.og_title}><input id="entity-og-title" value={form.data.og_title} onChange={(event) => form.setData('og_title', event.target.value)} className={inputClasses} maxLength="160" /></FormField>
+                        <FormField label="OG description" htmlFor="entity-og-description" error={form.errors.og_description}><textarea id="entity-og-description" value={form.data.og_description} onChange={(event) => form.setData('og_description', event.target.value)} className="block min-h-20 w-full rounded-md border-slate-300 text-sm" maxLength="320" /></FormField>
+                    </div>
+                </section>}                <div className="flex items-center justify-end gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:px-6">
                     {Object.keys(form.errors).length > 0 && <span className="mr-auto text-xs font-medium text-red-600">Fix the highlighted fields and try again.</span>}
                     <Button type="button" variant="secondary" onClick={close} disabled={form.processing || inlineProcessing}>Cancel</Button>
                     <Button type="submit" icon={Save} loading={form.processing || inlineProcessing} className="!border-violet-600 !bg-violet-600 hover:!bg-violet-700 focus-visible:!ring-violet-500">{category ? `Update ${entityLabel}` : `Save ${entityLabel}`}</Button>

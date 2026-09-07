@@ -24,6 +24,13 @@ class StoreCategoryRequest extends FormRequest
             'slug' => ['required', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::notIn(config('seo.reserved_slugs')), Rule::unique(Category::class, 'slug')->ignore($category)],
             'short_description' => ['nullable', 'string', 'max:5000'],
             'description' => ['nullable', 'string'],
+            'seo_title' => ['nullable', 'string', 'max:160'],
+            'meta_description' => ['nullable', 'string', 'max:320'],
+            'focus_keyword' => ['nullable', 'string', 'max:255'],
+            'canonical_url' => ['nullable', 'url', 'max:255'],
+            'meta_robots' => ['nullable', Rule::in(['index,follow', 'noindex,follow', 'noindex,nofollow'])],
+            'og_title' => ['nullable', 'string', 'max:160'],
+            'og_description' => ['nullable', 'string', 'max:320'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'image_path' => ['nullable', 'string', 'max:255'],
         ];
