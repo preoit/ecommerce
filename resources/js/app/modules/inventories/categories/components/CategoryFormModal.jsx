@@ -85,7 +85,7 @@ export default function CategoryFormModal({ open, onClose = () => {}, parentOpti
 
     const formContent = (
             <form onSubmit={submit}>
-                <div className="max-h-[calc(100vh-13rem)] space-y-5 overflow-y-auto px-5 py-5 sm:px-6">
+                <div className={`${page ? '' : 'max-h-[calc(100vh-13rem)] overflow-y-auto'} space-y-5 px-5 py-5 sm:px-6`}>
                     {Object.keys(form.errors).length > 0 && (
                         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
                             <p className="font-semibold">{entityLabel} could not be saved.</p>
