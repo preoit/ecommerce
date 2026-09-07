@@ -2,7 +2,7 @@
 @php
     $websiteSettings = \Illuminate\Support\Facades\Schema::hasTable('website_settings') ? \App\Modules\Settings\Models\WebsiteSetting::find(1) : null;
     $websiteName = $websiteSettings?->website_name ?: config('app.name', 'Commerce');
-    $websiteFavicon = $websiteSettings?->favicon_path ? asset('storage/'.$websiteSettings->favicon_path) : null;
+    $websiteFavicon = $websiteSettings?->favicon_path ? url('/image/'.rawurlencode(basename($websiteSettings->favicon_path))) : null;
 @endphp
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
