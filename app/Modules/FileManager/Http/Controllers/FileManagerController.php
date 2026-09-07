@@ -16,7 +16,7 @@ class FileManagerController extends Controller
     public function __invoke(): Response
     {
         return Inertia::render('app/modules/file-manager/pages/Index', [
-            'files' => WebsiteMedia::latest()->get()->map(fn (WebsiteMedia $file): array => [
+            'files' => WebsiteMedia::latest()->get()->filter(fn (WebsiteMedia $file): bool => Storage::disk('public')->exists($file->path))->map(fn (WebsiteMedia $file): array => [
                 'id' => $file->id,
                 'name' => $file->name,
                 'path' => $file->path,
@@ -34,7 +34,7 @@ class FileManagerController extends Controller
 
     public function media(): JsonResponse
     {
-        return response()->json(WebsiteMedia::latest()->get()->map(fn (WebsiteMedia $file): array => [
+        return response()->json(WebsiteMedia::latest()->get()->filter(fn (WebsiteMedia $file): bool => Storage::disk('public')->exists($file->path))->map(fn (WebsiteMedia $file): array => [
             'id' => $file->id,
             'name' => $file->name,
             'title' => $file->title,

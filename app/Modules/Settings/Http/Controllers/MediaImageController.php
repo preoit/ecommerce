@@ -16,7 +16,7 @@ class MediaImageController extends Controller
 
         return response()->file(Storage::disk('public')->path($media->path), [
             'Content-Type' => $media->mime_type,
-            'Cache-Control' => 'public, max-age=31536000, immutable',
+            'Cache-Control' => 'public, max-age=3600, must-revalidate',
         ]);
     }
 }

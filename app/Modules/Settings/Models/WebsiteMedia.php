@@ -11,6 +11,7 @@ class WebsiteMedia extends Model
     public function publicUrl(): string
     {
         // A relative URL always follows the domain currently serving the app.
-        return '/image/'.basename($this->path);
+        $version = $this->updated_at?->getTimestamp() ?? time();
+        return '/image/'.rawurlencode(basename(str_replace('\\', '/', $this->path))).'?v='.$version;
     }
 }

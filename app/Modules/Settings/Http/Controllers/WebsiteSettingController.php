@@ -29,7 +29,7 @@ class WebsiteSettingController extends Controller
                 'seoDescription' => $settings->seo_description,
                 'seoImage' => $settings->seo_image_path ? '/image/'.rawurlencode(basename($settings->seo_image_path)) : null,
             ],
-            'media' => WebsiteMedia::latest()->get()->map(fn (WebsiteMedia $file): array => [
+            'media' => WebsiteMedia::latest()->get()->filter(fn (WebsiteMedia $file): bool => Storage::disk('public')->exists($file->path))->map(fn (WebsiteMedia $file): array => [
                 'id' => $file->id,
                 'name' => $file->name,
                 'title' => $file->title,
