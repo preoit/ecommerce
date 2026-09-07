@@ -80,6 +80,8 @@ class HandleInertiaRequests extends Middleware
             'heroSecondaryImage' => $assetUrl($settings?->hero_secondary_image_path),
             'heroSecondaryLink' => $settings?->hero_secondary_link,
             'footer' => $settings?->footer_config,
+            'allowOutOfStockOrders' => (bool) ($settings?->allow_out_of_stock_orders ?? true),
+            'showStockToCustomers' => (bool) ($settings?->show_stock_to_customers ?? false),
         ];
     }
 

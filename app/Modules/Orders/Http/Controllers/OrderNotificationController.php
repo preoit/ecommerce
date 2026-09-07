@@ -17,6 +17,7 @@ class OrderNotificationController extends Controller
             'customer' => $order->customer_name,
             'total' => (float) $order->total,
             'viewed' => $order->viewed_at !== null,
+            'hasStockShortage' => (bool) $order->has_stock_shortage,
             'createdAt' => Carbon::parse($order->created_at, 'UTC')->setTimezone('Asia/Dhaka')->diffForHumans(),
         ]);
 

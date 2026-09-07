@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Inventories\Products\Models\Product;
 use App\Modules\Inventories\Products\Models\ProductQuestion;
 use App\Modules\Inventories\Products\Models\ProductReview;
+use App\Modules\Settings\Models\WebsiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -73,6 +74,7 @@ class StorefrontProductController extends Controller
             'related' => $related->map(fn ($item) => $this->cardData($item)),
             'recentlyViewed' => Product::whereIn('id',$recentIds)->get()->map(fn ($item) => $this->cardData($item)),
             'inWishlist' => $request->user() ? DB::table('wishlists')->where(['user_id'=>$request->user()->id,'product_id'=>$product->id])->exists() : false,
+            'stockSettings' => $this->stockSettings(),
         ]);
     }
 
@@ -80,7 +82,8 @@ class StorefrontProductController extends Controller
     {
         $data = $request->validate(['quantity'=>['required','integer','min:1']]);
         abort_unless(in_array($product->status,['Published','Active']) && $product->visibility === 'Public', 404);
-        $max = min($product->stock_quantity, $product->max_order_quantity ?: $product->stock_quantity);
+        $settings = $this->stockSettings();
+        $max = $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: PHP_INT_MAX) : min($product->stock_quantity, $product->max_order_quantity ?: $product->stock_quantity);
         if ($data['quantity'] < $product->min_order_quantity || $data['quantity'] > $max || (($data['quantity']-$product->min_order_quantity) % max(1,$product->quantity_step)) !== 0) return response()->json(['message'=>'Selected quantity is not available.'],422);
         $unitPrice = (float)($product->bulkPrices()->where('min_quantity','<=',$data['quantity'])->where(fn($q)=>$q->whereNull('max_quantity')->orWhere('max_quantity','>=',$data['quantity']))->orderByDesc('min_quantity')->value('unit_price') ?? $product->current_price);
         $cart = $request->session()->get('cart', []);
@@ -100,7 +103,8 @@ class StorefrontProductController extends Controller
         $cart = $request->session()->get('cart', []);
         abort_unless(isset($cart[$product->id]), 404);
 
-        $max = min($product->stock_quantity, $product->max_order_quantity ?: $product->stock_quantity);
+        $settings = $this->stockSettings();
+        $max = $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: PHP_INT_MAX) : min($product->stock_quantity, $product->max_order_quantity ?: $product->stock_quantity);
         if ($data['quantity'] < $product->min_order_quantity || $data['quantity'] > $max || (($data['quantity'] - $product->min_order_quantity) % max(1, $product->quantity_step)) !== 0) {
             return response()->json(['message' => 'Selected quantity is not available.'], 422);
         }
@@ -150,11 +154,13 @@ class StorefrontProductController extends Controller
         DB::transaction(function () use ($cart, $data, $request, &$orderNumber, &$orderId): void {
             $products = Product::query()->whereIn('id', array_keys($cart))->lockForUpdate()->get()->keyBy('id');
             $subtotal = 0;
+            $hasStockShortage = false;
             foreach ($cart as $line) {
                 $product = $products->get($line['product_id']);
-                if (!$product || !in_array($product->status, ['Published', 'Active']) || $product->stock_quantity < $line['quantity']) {
+                if (!$product || !in_array($product->status, ['Published', 'Active']) || (!$this->stockSettings()['allowOutOfStockOrders'] && $product->stock_quantity < $line['quantity'])) {
                     abort(422, 'One or more items are no longer available.');
                 }
+                $hasStockShortage = $hasStockShortage || $product->stock_quantity < $line['quantity'];
                 $subtotal += $line['quantity'] * $line['unit_price'];
             }
 
@@ -165,13 +171,14 @@ class StorefrontProductController extends Controller
                 'customer_name' => $data['customer_name'], 'phone' => $data['phone'], 'email' => $data['email'] ?? null,
                 'address' => $data['address'], 'city' => $data['city'], 'note' => $data['note'] ?? null,
                 'payment_method' => $data['payment_method'], 'payment_status' => 'pending', 'status' => 'pending',
-                'subtotal' => $subtotal, 'shipping_total' => 0, 'total' => $subtotal,
+                'subtotal' => $subtotal, 'shipping_total' => 0, 'total' => $subtotal, 'has_stock_shortage' => $hasStockShortage,
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             foreach ($cart as $line) {
                 $product = $products->get($line['product_id']);
-                DB::table('order_items')->insert(['order_id' => $orderId, 'product_id' => $product->id, 'product_title' => $product->title, 'sku' => $product->sku, 'unit_price' => $line['unit_price'], 'quantity' => $line['quantity'], 'line_total' => $line['quantity'] * $line['unit_price'], 'created_at' => now(), 'updated_at' => now()]);
-                $product->decrement('stock_quantity', $line['quantity']);
+                $shortage = max(0, $line['quantity'] - $product->stock_quantity);
+                DB::table('order_items')->insert(['order_id' => $orderId, 'product_id' => $product->id, 'product_title' => $product->title, 'sku' => $product->sku, 'unit_price' => $line['unit_price'], 'quantity' => $line['quantity'], 'line_total' => $line['quantity'] * $line['unit_price'], 'stock_shortage_quantity' => $shortage, 'created_at' => now(), 'updated_at' => now()]);
+                if ($product->stock_quantity > 0) $product->decrement('stock_quantity', min($product->stock_quantity, $line['quantity']));
             }
         });
         $request->session()->forget('cart');
@@ -249,13 +256,14 @@ class StorefrontProductController extends Controller
     {
         $cart = $request->session()->get('cart', []);
         $products = Product::query()->whereIn('id', array_keys($cart))->get()->keyBy('id');
-        $items = collect($cart)->map(function (array $line) use ($products): ?array {
+        $settings = $this->stockSettings();
+        $items = collect($cart)->map(function (array $line) use ($products, $settings): ?array {
             $product = $products->get($line['product_id']);
             if (!$product) return null;
-            $quantity = min((int) $line['quantity'], max(0, (int) $product->stock_quantity));
+            $quantity = $settings['allowOutOfStockOrders'] ? (int) $line['quantity'] : min((int) $line['quantity'], max(0, (int) $product->stock_quantity));
             if (!$quantity) return null;
             $price = (float) $product->current_price;
-            return ['product_id' => $product->id, 'title' => $product->title, 'slug' => $product->slug, 'quantity' => $quantity, 'unit_price' => $price, 'line_total' => $quantity * $price, 'stock_quantity' => $product->stock_quantity, 'image' => $product->featured_image_path ? '/image/'.rawurlencode(basename($product->featured_image_path)) : null];
+            return ['product_id' => $product->id, 'title' => $product->title, 'slug' => $product->slug, 'quantity' => $quantity, 'unit_price' => $price, 'line_total' => $quantity * $price, 'stock_quantity' => $product->stock_quantity, 'max_quantity' => $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: null) : $product->stock_quantity, 'image' => $product->featured_image_path ? '/image/'.rawurlencode(basename($product->featured_image_path)) : null];
         })->filter()->values();
 
         return ['items' => $items, 'subtotal' => $items->sum('line_total'), 'cartCount' => $items->sum('quantity')];
@@ -270,6 +278,13 @@ class StorefrontProductController extends Controller
             ->values();
 
         return [...$p->toArray(), 'specifications' => [], 'specification_groups' => $groups, 'featured_image_url'=>$this->mediaUrl($p->featured_image_path),'gallery_urls'=>collect($p->gallery??[])->filter()->map(fn($path)=>$this->mediaUrl($path))->values(),'og_image_url'=>$this->mediaUrl($p->og_image_path),'twitter_image_url'=>$this->mediaUrl($p->twitter_image_path)];
+    }
+
+    private function stockSettings(): array
+    {
+        $settings = WebsiteSetting::query()->find(1);
+
+        return ['allowOutOfStockOrders' => (bool) ($settings?->allow_out_of_stock_orders ?? true), 'showStockToCustomers' => (bool) ($settings?->show_stock_to_customers ?? false)];
     }
 
     private function mediaUrl(?string $path): ?string

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Modules\Inventories\Products\Models\Product;
+use App\Modules\Settings\Models\WebsiteSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -39,10 +40,26 @@ class ProductDetailsTest extends TestCase
 
     public function test_cart_rejects_quantity_above_stock(): void
     {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'show_stock_to_customers' => true]);
         $product = Product::create(['title'=>'Stocked','slug'=>'stocked','regular_price'=>100,'stock_quantity'=>2,'low_stock_threshold'=>1,'min_order_quantity'=>1,'quantity_step'=>1,'status'=>'Published','visibility'=>'Public']);
         $this->postJson(route('storefront.products.cart',$product),['quantity'=>3])->assertUnprocessable();
     }
 
+    public function test_out_of_stock_order_can_be_placed_and_alerts_admin_when_enabled(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => true, 'show_stock_to_customers' => false]);
+        $product = Product::create(['title'=>'Back order','slug'=>'back-order','regular_price'=>250,'stock_quantity'=>0,'min_order_quantity'=>1,'quantity_step'=>1,'status'=>'Published','visibility'=>'Public']);
+
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 2])->assertOk();
+        $this->post(route('storefront.checkout.place-order'), [
+            'customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'payment_method' => 'cod',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('orders', ['has_stock_shortage' => true]);
+        $this->assertDatabaseHas('order_items', ['product_id' => $product->id, 'quantity' => 2, 'stock_shortage_quantity' => 2]);
+        $this->actingAs(User::factory()->create())->getJson(route('orders.notifications'))->assertOk()->assertJsonPath('orders.0.hasStockShortage', true);
+        $this->assertSame(0, $product->fresh()->stock_quantity);
+    }
     public function test_indexable_product_appears_in_sitemap(): void
     {
         Product::create(['title'=>'Indexed','slug'=>'indexed','regular_price'=>100,'stock_quantity'=>1,'status'=>'Published','visibility'=>'Public','meta_robots'=>'index,follow']);

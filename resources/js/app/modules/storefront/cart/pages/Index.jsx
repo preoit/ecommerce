@@ -22,7 +22,7 @@ export default function CartPage({ items: initialItems = [], subtotal: initialSu
         return result;
     };
     const changeQuantity = async (item, quantity) => {
-        if (quantity < 1 || quantity > item.stock_quantity) return;
+        if (quantity < 1 || (item.max_quantity && quantity > item.max_quantity)) return;
         setPending(item.product_id); setNotice('');
         try { sync(await request(route('storefront.cart.update', item.product_id), 'PATCH', { quantity })); } catch (error) { setNotice(error.message); } finally { setPending(null); }
     };

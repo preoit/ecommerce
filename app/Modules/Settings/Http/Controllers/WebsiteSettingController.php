@@ -31,6 +31,8 @@ class WebsiteSettingController extends Controller
                 'seoDescription' => $settings->seo_description,
                 'seoImagePath' => $settings->seo_image_path,
                 'seoImage' => $settings->seo_image_path ? '/image/'.rawurlencode(basename($settings->seo_image_path)) : null,
+                'allowOutOfStockOrders' => (bool) $settings->allow_out_of_stock_orders,
+                'showStockToCustomers' => (bool) $settings->show_stock_to_customers,
             ],
             'media' => WebsiteMedia::latest()->get()->filter(fn (WebsiteMedia $file): bool => Storage::disk('public')->exists($file->path))->map(fn (WebsiteMedia $file): array => [
                 'id' => $file->id,
@@ -56,6 +58,8 @@ class WebsiteSettingController extends Controller
             'seo_title' => ['nullable', 'string', 'max:160'],
             'seo_description' => ['nullable', 'string', 'max:320'],
             'seo_image_path' => ['nullable', 'string', 'max:255', Rule::exists('website_media', 'path')],
+            'allow_out_of_stock_orders' => ['sometimes', 'boolean'],
+            'show_stock_to_customers' => ['sometimes', 'boolean'],
         ]);
 
         WebsiteSetting::updateOrCreate(['id' => 1], $data);
