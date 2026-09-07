@@ -1,1 +1,0 @@
-import{t as e}from"./app-D_3G1qVx.js";import{t}from"./StorefrontLayout-CdMbl6Dz.js";var n=e();function r({children:e}){return(0,n.jsx)(t,{children:(0,n.jsx)(`main`,{className:`mx-auto max-w-[1180px] px-4 py-10 sm:px-6 lg:px-8`,children:e})})}export{r as t};
