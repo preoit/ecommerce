@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Modules\Shared\Http\Controllers\ModulePageController;
