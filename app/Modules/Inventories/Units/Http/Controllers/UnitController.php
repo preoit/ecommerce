@@ -21,6 +21,26 @@ class UnitController extends Controller
         return Inertia::render('app/modules/inventories/categories/pages/Index', ['categories' => $units, 'parentOptions' => [], 'filters' => ['search' => $search], 'resource' => 'units', 'entityLabel' => 'unit']);
     }
 
+    public function create(): Response
+    {
+        return $this->form();
+    }
+
+    public function edit(Unit $unit): Response
+    {
+        return $this->form($unit);
+    }
+
+    private function form(?Unit $unit = null): Response
+    {
+        return Inertia::render('app/modules/inventories/categories/pages/Form', [
+            'category' => $unit,
+            'parentOptions' => [],
+            'resource' => 'units',
+            'entityLabel' => 'unit',
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse { return $this->save($request); }
     public function update(Request $request, Unit $unit): RedirectResponse { return $this->save($request, $unit); }
     public function destroy(Unit $unit): RedirectResponse { Storage::disk('public')->delete($unit->image_path); $unit->delete(); return to_route('inventories.units.index')->with('success', 'Unit deleted successfully.'); }
