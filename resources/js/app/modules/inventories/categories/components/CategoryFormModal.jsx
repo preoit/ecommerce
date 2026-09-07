@@ -1,16 +1,17 @@
-import { useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
 import Button from '@/app/design-system/components/Button';
 import Dialog from '@/app/design-system/components/Dialog';
 import FormField from '@/app/design-system/components/FormField';
 import RichTextEditor from '@/app/design-system/components/RichTextEditor';
+import AdminLayout from '@/app/layouts/AdminLayout';
 import CategoryImageUpload from './CategoryImageUpload';
 import { slugify } from '../utils/slugify';
 
 const inputClasses = 'block h-10 w-full rounded-md border-slate-300 text-sm shadow-sm placeholder:text-slate-400 focus:border-violet-500 focus:ring-violet-500';
 
-export default function CategoryFormModal({ open, onClose, parentOptions, category = null, resource = 'categories', entityLabel = 'category', inlineStoreUrl = null, onCreated = null }) {
+export default function CategoryFormModal({ open, onClose = () => {}, parentOptions, category = null, resource = 'categories', entityLabel = 'category', inlineStoreUrl = null, onCreated = null, page = false }) {
     const [editingPermalink, setEditingPermalink] = useState(false);
     const [inlineProcessing, setInlineProcessing] = useState(false);
     const form = useForm({
@@ -82,8 +83,7 @@ export default function CategoryFormModal({ open, onClose, parentOptions, catego
     const permalinkBase = `${window.location.origin}/`;
     const permalinkSlug = form.data.slug || `${entityLabel}-name`;
 
-    return (
-        <Dialog open={open} onClose={close} title={category ? `Edit ${entityLabel}` : `Add ${entityLabel}`} description={category ? `Update this ${entityLabel} and its catalog details.` : entityLabel === 'brand' ? 'Create a brand for your product catalog.' : entityLabel === 'unit' ? 'Create a unit for product measurement.' : 'Create a category and optionally place it under a parent category.'}>
+    const formContent = (
             <form onSubmit={submit}>
                 <div className="max-h-[calc(100vh-13rem)] space-y-5 overflow-y-auto px-5 py-5 sm:px-6">
                     {Object.keys(form.errors).length > 0 && (
@@ -167,6 +167,14 @@ export default function CategoryFormModal({ open, onClose, parentOptions, catego
                     <Button type="submit" icon={Save} loading={form.processing || inlineProcessing} className="!border-violet-600 !bg-violet-600 hover:!bg-violet-700 focus-visible:!ring-violet-500">{category ? `Update ${entityLabel}` : `Save ${entityLabel}`}</Button>
                 </div>
             </form>
-        </Dialog>
     );
+
+    const formTitle = category ? `Edit ${entityLabel}` : `Add ${entityLabel}`;
+    const formDescription = category ? `Update this ${entityLabel} and its catalog details.` : `Create a ${entityLabel} for your product catalog.`;
+
+    if (page) {
+        return <AdminLayout><Head title={formTitle} /><div className="mx-auto max-w-5xl space-y-6"><div className="flex items-center justify-between gap-4"><div><p className="text-sm font-semibold text-violet-600">Inventories</p><h1 className="text-2xl font-bold text-slate-950">{formTitle}</h1><p className="mt-1 text-sm text-slate-500">{formDescription}</p></div><Link href={route(`inventories.${resource}.index`)} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700">Back to list</Link></div><section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">{formContent}</section></div></AdminLayout>;
+    }
+
+    return <Dialog open={open} onClose={close} title={formTitle} description={formDescription}>{formContent}</Dialog>;
 }

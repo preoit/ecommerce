@@ -19,6 +19,15 @@ class CategoryController extends Controller
         return $this->categories->page($request);
     }
 
+    public function create(): Response
+    {
+        return $this->categories->form();
+    }
+
+    public function edit(Category $category): Response
+    {
+        return $this->categories->form($category);
+    }
     public function show(Category $category): Response
     {
         return $this->categories->publicPage($category);

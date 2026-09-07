@@ -37,6 +37,13 @@ class CategoryService
         ]);
     }
 
+    public function form(?Category $category = null): Response
+    {
+        return Inertia::render('app/modules/inventories/categories/pages/Form', [
+            'category' => $category,
+            'parentOptions' => $this->parentOptions(),
+        ]);
+    }
     public function publicPage(Category $category): Response
     {
         abort_unless($category->is_active, 404);

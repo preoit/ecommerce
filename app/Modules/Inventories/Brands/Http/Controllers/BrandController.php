@@ -29,6 +29,25 @@ class BrandController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return $this->form();
+    }
+
+    public function edit(Brand $brand): Response
+    {
+        return $this->form($brand);
+    }
+
+    private function form(?Brand $brand = null): Response
+    {
+        return Inertia::render('app/modules/inventories/categories/pages/Form', [
+            'category' => $brand,
+            'parentOptions' => Brand::query()->when($brand, fn ($query) => $query->whereKeyNot($brand->id))->orderBy('name')->get(['id', 'name'])->map(fn (Brand $item) => ['id' => $item->id, 'name' => $item->name, 'depth' => 0]),
+            'resource' => 'brands',
+            'entityLabel' => 'brand',
+        ]);
+    }
     public function store(Request $request): RedirectResponse { return $this->save($request); }
     public function update(Request $request, Brand $brand): RedirectResponse { return $this->save($request, $brand); }
     public function destroy(Brand $brand): RedirectResponse { if ($brand->children()->exists()) return back()->withErrors(['brand' => 'Move or delete child brands first.']); Storage::disk('public')->delete($brand->image_path); $brand->delete(); return to_route('inventories.brands.index')->with('success', 'Brand deleted successfully.'); }
