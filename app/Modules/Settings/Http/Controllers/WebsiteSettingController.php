@@ -22,11 +22,11 @@ class WebsiteSettingController extends Controller
         return Inertia::render('app/modules/settings/pages/Index', [
             'website' => [
                 'name' => $settings->website_name,
-                'logo' => $settings->logo_path ? '/storage/'.$settings->logo_path : null,
-                'favicon' => $settings->favicon_path ? '/storage/'.$settings->favicon_path : null,
+                'logo' => $settings->logo_path ? '/image/'.rawurlencode(basename($settings->logo_path)) : null,
+                'favicon' => $settings->favicon_path ? '/image/'.rawurlencode(basename($settings->favicon_path)) : null,
                 'seoTitle' => $settings->seo_title,
                 'seoDescription' => $settings->seo_description,
-                'seoImage' => $settings->seo_image_path ? '/storage/'.$settings->seo_image_path : null,
+                'seoImage' => $settings->seo_image_path ? '/image/'.rawurlencode(basename($settings->seo_image_path)) : null,
             ],
             'media' => WebsiteMedia::latest()->get()->map(fn (WebsiteMedia $file): array => [
                 'id' => $file->id,
@@ -34,7 +34,7 @@ class WebsiteSettingController extends Controller
                 'title' => $file->title,
                 'altText' => $file->alt_text,
                 'caption' => $file->caption,
-                'url' => '/storage/'.$file->path,
+                'url' => $file->publicUrl(),
                 'seoUrl' => $file->publicUrl(),
                 'path' => $file->path,
                 'mimeType' => $file->mime_type,
@@ -87,7 +87,7 @@ class WebsiteSettingController extends Controller
             'caption' => $media->caption,
             // Use the storage URL immediately after upload; it is guaranteed to be available
             // while the SEO-friendly /image URL remains available after a page refresh.
-            'url' => '/storage/'.$media->path,
+            'url' => $media->publicUrl(),
             'seoUrl' => $media->publicUrl(),
             'path' => $media->path,
             'mimeType' => $media->mime_type,

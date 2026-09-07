@@ -51,7 +51,7 @@ class HandleInertiaRequests extends Middleware
         $settings = Schema::hasTable('website_settings') ? WebsiteSetting::find(1) : null;
         $assetVersion = $settings?->updated_at?->getTimestamp();
         $assetUrl = static fn (?string $path): ?string => $path
-            ? '/storage/'.$path.($assetVersion ? '?v='.$assetVersion : '')
+            ? '/image/'.rawurlencode(basename(str_replace('\\', '/', $path))).($assetVersion ? '?v='.$assetVersion : '')
             : null;
 
         return [
@@ -60,12 +60,12 @@ class HandleInertiaRequests extends Middleware
             'favicon' => $assetUrl($settings?->favicon_path),
             'seoTitle' => $settings?->seo_title,
             'seoDescription' => $settings?->seo_description,
-            'seoImage' => $settings?->seo_image_path ? '/storage/'.$settings->seo_image_path : null,
-            'heroPrimaryImage' => $settings?->hero_primary_image_path ? '/storage/'.$settings->hero_primary_image_path : null,
+            'seoImage' => $assetUrl($settings?->seo_image_path),
+            'heroPrimaryImage' => $assetUrl($settings?->hero_primary_image_path),
             'heroPrimaryImages' => collect($settings?->hero_primary_image_paths ?: array_filter([$settings?->hero_primary_image_path]))
-                ->map(fn (string $path): string => '/storage/'.$path)->values()->all(),
+                ->map(fn (string $path): string => $assetUrl($path))->values()->all(),
             'heroPrimaryLink' => $settings?->hero_primary_link,
-            'heroSecondaryImage' => $settings?->hero_secondary_image_path ? '/storage/'.$settings->hero_secondary_image_path : null,
+            'heroSecondaryImage' => $assetUrl($settings?->hero_secondary_image_path),
             'heroSecondaryLink' => $settings?->hero_secondary_link,
             'footer' => $settings?->footer_config,
         ];
