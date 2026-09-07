@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Modules\Inventories\Categories\Models\Category;
+use App\Modules\Settings\Models\WebsiteMedia;
 use App\Modules\Settings\Models\WebsiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -50,9 +51,19 @@ class HandleInertiaRequests extends Middleware
     private function websiteIdentity(): array
     {
         $settings = Schema::hasTable('website_settings') ? WebsiteSetting::find(1) : null;
-        $assetVersion = $settings?->updated_at?->getTimestamp();
+        $assetPaths = collect([
+            $settings?->logo_path,
+            $settings?->favicon_path,
+            $settings?->seo_image_path,
+            $settings?->hero_primary_image_path,
+            ...($settings?->hero_primary_image_paths ?: []),
+            $settings?->hero_secondary_image_path,
+        ])->filter()->unique()->values();
+        $mediaByPath = Schema::hasTable('website_media')
+            ? WebsiteMedia::query()->whereIn('path', $assetPaths)->get()->keyBy('path')
+            : collect();
         $assetUrl = static fn (?string $path): ?string => $path && Storage::disk('public')->exists($path)
-            ? '/image/'.rawurlencode(basename(str_replace('\\', '/', $path))).($assetVersion ? '?v='.$assetVersion : '')
+            ? $mediaByPath->get($path)?->publicUrl()
             : null;
 
         return [
