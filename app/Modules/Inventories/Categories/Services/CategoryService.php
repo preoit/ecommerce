@@ -90,7 +90,7 @@ class CategoryService
                 'id' => $product->id,
                 'title' => $product->title,
                 'slug' => $product->slug,
-                'image' => $product->featured_image_path ? '/storage/'.$product->featured_image_path : null,
+                'image' => $product->featured_image_path ? '/image/'.rawurlencode(basename($product->featured_image_path)) : null,
                 'brand' => $product->brand?->name,
                 'price' => $product->current_price,
                 'regularPrice' => (float) $product->regular_price,

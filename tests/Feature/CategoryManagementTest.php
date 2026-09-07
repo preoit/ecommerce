@@ -100,6 +100,26 @@ class CategoryManagementTest extends TestCase
                 ->where('category.slug', 'mobile-phones'));
     }
 
+    public function test_category_product_cards_use_the_public_media_image_route(): void
+    {
+        $category = Category::query()->create(['name' => 'Filters', 'slug' => 'filters']);
+        $product = \App\Modules\Inventories\Products\Models\Product::query()->create([
+            'title' => 'PP Filter',
+            'slug' => 'pp-filter',
+            'regular_price' => 500,
+            'stock_quantity' => 10,
+            'status' => 'Published',
+            'visibility' => 'Public',
+            'featured_image_path' => 'image/pp filter.webp',
+            'published_at' => now(),
+        ]);
+        $product->categories()->attach($category);
+
+        $this->get(route('storefront.categories.show', $category->slug))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('products.data.0.image', '/image/pp%20filter.webp'));
+    }
     public function test_svg_upload_is_rejected(): void
     {
         $this->actingAs(User::factory()->create())->post(route('inventories.categories.store'), [
