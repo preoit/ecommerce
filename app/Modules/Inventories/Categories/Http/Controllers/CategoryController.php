@@ -28,9 +28,9 @@ class CategoryController extends Controller
     {
         return $this->categories->form($category);
     }
-    public function show(Category $category): Response
+    public function show(Request $request, Category $category): Response
     {
-        return $this->categories->publicPage($category);
+        return $this->categories->publicPage($request, $category);
     }
 
     public function store(StoreCategoryRequest $request): RedirectResponse

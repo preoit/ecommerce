@@ -5,7 +5,7 @@ import StorefrontLayout from '@/app/layouts/StorefrontLayout';
 
 const money = (value) => `৳${Number(value || 0).toLocaleString('en-BD')}`;
 
-export default function CategoryShow({ category, products }) {
+export default function CategoryShow({ category, products, brands = [], selectedBrand = '' }) {
     const plainDescription = (category.short_description || category.description || `Shop ${category.name} products.`).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     const canonical = category.canonical_url || route('storefront.categories.show', category.slug);
 
@@ -35,6 +35,10 @@ export default function CategoryShow({ category, products }) {
                     <div className="mt-5">
                         <h1 className="text-[22px] font-medium leading-7 text-violet-700">{category.seo_title || ''}</h1>
                         {category.short_description && <div className="rich-text-content mt-2 max-w-none text-sm font-normal leading-6 text-slate-700" dangerouslySetInnerHTML={{ __html: category.short_description }} />}
+                        {brands.length > 0 && <nav className="mt-5 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible" aria-label="Filter products by brand">
+                            <Link href={route('storefront.categories.show', category.slug)} preserveScroll className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${!selectedBrand ? 'border-violet-600 bg-violet-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-violet-300 hover:text-violet-700'}`}>All Brands</Link>
+                            {brands.map((brand) => <Link key={brand.id} href={route('storefront.categories.show', { category: category.slug, brand: brand.slug })} preserveScroll className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${selectedBrand === brand.slug ? 'border-violet-600 bg-violet-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-violet-300 hover:text-violet-700'}`}>{brand.name}</Link>)}
+                        </nav>}
                     </div>
                 </div>
             </div>

@@ -44,7 +44,7 @@ class CategoryService
             'parentOptions' => $this->parentOptions(),
         ]);
     }
-    public function publicPage(Category $category): Response
+    public function publicPage(Request $request, Category $category): Response
     {
         abort_unless($category->is_active, 404);
 
@@ -63,10 +63,24 @@ class CategoryService
         };
         $appendChildren($category->id);
 
+        $brandSlug = $request->string('brand')->trim()->toString();
+        $brandIds = Product::query()
+            ->whereIn('status', ['Published', 'Active'])
+            ->where('visibility', 'Public')
+            ->whereHas('categories', fn ($query) => $query->whereIn('categories.id', $categoryIds->unique()))
+            ->whereNotNull('brand_id')
+            ->distinct()
+            ->pluck('brand_id');
+        $brands = \App\Modules\Inventories\Brands\Models\Brand::query()
+            ->whereIn('id', $brandIds)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
         $products = Product::query()
             ->with(['brand:id,name', 'categories:id,name'])
             ->whereIn('status', ['Published', 'Active'])
             ->where('visibility', 'Public')
+            ->when($brandSlug, fn ($query, $slug) => $query->whereHas('brand', fn ($brandQuery) => $brandQuery->where('slug', $slug)))
             ->whereHas('categories', fn ($query) => $query->whereIn('categories.id', $categoryIds->unique()))
             ->latest('published_at')
             ->latest('id')
@@ -87,6 +101,8 @@ class CategoryService
         return Inertia::render('app/modules/inventories/categories/pages/Show', [
             'category' => $category,
             'products' => $products,
+            'brands' => $brands,
+            'selectedBrand' => $brandSlug,
         ]);
     }
 
