@@ -1,5 +1,6 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Check, CircleDollarSign, MapPin, Package, Phone, Mail, TriangleAlert } from 'lucide-react';
+import { useState } from 'react';
 import AdminLayout from '@/app/layouts/AdminLayout';
 
 const money = value => `৳${Number(value || 0).toLocaleString('en-BD', { maximumFractionDigits: 2 })}`;
@@ -14,13 +15,16 @@ const orderSteps = [
 const exceptionStatuses = [['cancelled', 'Cancelled'], ['returned', 'Returned']];
 
 export default function OrderShow({ order }) {
-    const { data, setData, patch, processing, recentlySuccessful, errors } = useForm({ status: order.statusKey });
-    const selectedStep = orderSteps.findIndex(([value]) => value === data.status);
+    const [processing, setProcessing] = useState(false);
     const currentStep = orderSteps.findIndex(([value]) => value === order.statusKey);
-    const isException = exceptionStatuses.some(([value]) => value === data.status);
-    const updateStatus = event => {
-        event.preventDefault();
-        patch(route('orders.status.update', order.id), { preserveScroll: true });
+    const nextStep = currentStep >= 0 ? orderSteps[currentStep + 1] : null;
+    const updateStatus = status => {
+        if (!status || processing) return;
+        setProcessing(true);
+        router.patch(route('orders.status.update', order.id), { status }, {
+            preserveScroll: true,
+            onFinish: () => setProcessing(false),
+        });
     };
 
     return <AdminLayout>
@@ -63,35 +67,31 @@ export default function OrderShow({ order }) {
                         {order.note && <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800"><b>Order note</b><p className="mt-1 text-slate-600 dark:text-slate-300">{order.note}</p></div>}
                     </section>
 
-                    <form onSubmit={updateStatus} className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
                         <h2 className="font-bold">Update order status</h2>
-                        <p className="mt-1 text-xs text-slate-500">Select the next stage, then save the change.</p>
+                        <p className="mt-1 text-xs text-slate-500">The next available status is shown below.</p>
                         <ol className="mt-5">
                             {orderSteps.map(([value, label], index) => {
-                                const reached = !isException && index <= selectedStep;
-                                const saved = currentStep >= 0 && index <= currentStep;
-                                const selected = data.status === value;
+                                const reached = currentStep >= 0 && index <= currentStep;
+                                const active = order.statusKey === value;
                                 return <li key={value} className="relative flex min-h-16 gap-3 last:min-h-0">
-                                    {index < orderSteps.length - 1 && <span aria-hidden="true" className={reached ? 'absolute left-[15px] top-8 h-[calc(100%-1rem)] w-0.5 bg-violet-500' : 'absolute left-[15px] top-8 h-[calc(100%-1rem)] w-0.5 bg-slate-200 dark:bg-slate-700'} />}
-                                    <button type="button" onClick={() => setData('status', value)} aria-current={selected ? 'step' : undefined} className={selected || reached ? 'relative z-10 grid size-8 shrink-0 place-items-center rounded-full bg-violet-600 text-white ring-4 ring-violet-100' : 'relative z-10 grid size-8 shrink-0 place-items-center rounded-full border-2 border-slate-300 bg-white text-xs font-bold text-slate-500 dark:bg-slate-900'}>
+                                    {index < orderSteps.length - 1 && <span aria-hidden="true" className={index < currentStep ? 'absolute left-[15px] top-8 h-[calc(100%-1rem)] w-0.5 bg-violet-500' : 'absolute left-[15px] top-8 h-[calc(100%-1rem)] w-0.5 bg-slate-200 dark:bg-slate-700'} />}
+                                    <span aria-current={active ? 'step' : undefined} className={reached ? 'relative z-10 grid size-8 shrink-0 place-items-center rounded-full bg-violet-600 text-white ring-4 ring-violet-100' : 'relative z-10 grid size-8 shrink-0 place-items-center rounded-full border-2 border-slate-300 bg-white text-xs font-bold text-slate-500 dark:bg-slate-900'}>
                                         {reached ? <Check className="size-4" /> : index + 1}
-                                    </button>
-                                    <button type="button" onClick={() => setData('status', value)} className="min-w-0 pb-5 text-left">
-                                        <span className={selected ? 'block text-sm font-bold text-violet-700' : 'block text-sm font-semibold text-slate-700 dark:text-slate-200'}>{label}</span>
-                                        <span className="mt-0.5 block text-xs text-slate-400">{saved ? 'Completed' : selected ? 'Selected' : 'Not completed'}</span>
-                                    </button>
+                                    </span>
+                                    <div className="min-w-0 pb-5 text-left">
+                                        <span className={active ? 'block text-sm font-bold text-violet-700' : 'block text-sm font-semibold text-slate-700 dark:text-slate-200'}>{label}</span>
+                                        <span className="mt-0.5 block text-xs text-slate-400">{active ? 'Current status' : reached ? 'Completed' : 'Upcoming'}</span>
+                                    </div>
                                 </li>;
                             })}
                         </ol>
+                        {nextStep ? <button type="button" onClick={() => updateStatus(nextStep[0])} disabled={processing} className="mt-5 h-11 w-full rounded-xl bg-violet-600 font-bold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50">{processing ? 'Updating...' : nextStep[1]}</button> : order.statusKey === 'completed' ? <div className="mt-5 rounded-xl bg-emerald-50 p-3 text-center text-sm font-bold text-emerald-700">Order completed</div> : null}
                         <div className="mt-5 border-t border-slate-200 pt-4 dark:border-slate-700">
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Exception status</p>
-                            <div className="mt-2 grid grid-cols-2 gap-2">{exceptionStatuses.map(([value, label]) => <button type="button" key={value} onClick={() => setData('status', value)} className={data.status === value ? 'rounded-lg border border-rose-500 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700' : 'rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-500 hover:border-rose-300 hover:text-rose-600'}>{label}</button>)}</div>
+                            <div className="mt-2 grid grid-cols-2 gap-2">{exceptionStatuses.map(([value, label]) => <button type="button" key={value} disabled={processing || order.statusKey === value} onClick={() => updateStatus(value)} className={order.statusKey === value ? 'rounded-lg border border-rose-500 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700 disabled:opacity-70' : 'rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-500 hover:border-rose-300 hover:text-rose-600 disabled:opacity-50'}>{label}</button>)}</div>
                         </div>
-                        {errors.status && <p className="mt-3 text-sm text-rose-600">{errors.status}</p>}
-                        {recentlySuccessful && <p className="mt-3 text-sm font-semibold text-emerald-600">Order status updated.</p>}
-                        <button disabled={processing || data.status === order.statusKey} className="mt-4 h-11 w-full rounded-xl bg-violet-600 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">{processing ? 'Saving...' : 'Save status'}</button>
-                    </form>
-
+                    </section>
                     <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
                         <h2 className="flex items-center gap-2 font-bold"><CircleDollarSign className="size-5 text-violet-600" />Payment</h2>
                         <dl className="mt-3 space-y-2 text-sm"><div className="flex justify-between"><dt className="text-slate-500">Method</dt><dd className="font-semibold uppercase">{order.paymentMethod}</dd></div><div className="flex justify-between"><dt className="text-slate-500">Status</dt><dd className="font-semibold capitalize">{order.paymentStatus}</dd></div></dl>
