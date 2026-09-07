@@ -4,6 +4,7 @@ namespace App\Modules\FileManager\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Settings\Models\WebsiteMedia;
+use App\Modules\Settings\Models\WebsiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -67,6 +68,14 @@ class FileManagerController extends Controller
 
     public function destroy(WebsiteMedia $media): JsonResponse
     {
+        $settings = WebsiteSetting::find(1);
+        if ($settings) {
+            foreach (['logo_path', 'favicon_path', 'seo_image_path', 'hero_primary_image_path', 'hero_secondary_image_path'] as $field) {
+                if ($settings->{$field} === $media->path) $settings->{$field} = null;
+            }
+            $settings->hero_primary_image_paths = collect($settings->hero_primary_image_paths ?? [])->reject(fn ($path) => $path === $media->path)->values()->all();
+            $settings->save();
+        }
         Storage::disk('public')->delete($media->path);
         $media->delete();
 

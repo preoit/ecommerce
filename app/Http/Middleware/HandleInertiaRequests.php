@@ -6,6 +6,7 @@ use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Settings\Models\WebsiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -50,7 +51,7 @@ class HandleInertiaRequests extends Middleware
     {
         $settings = Schema::hasTable('website_settings') ? WebsiteSetting::find(1) : null;
         $assetVersion = $settings?->updated_at?->getTimestamp();
-        $assetUrl = static fn (?string $path): ?string => $path
+        $assetUrl = static fn (?string $path): ?string => $path && Storage::disk('public')->exists($path)
             ? '/image/'.rawurlencode(basename(str_replace('\\', '/', $path))).($assetVersion ? '?v='.$assetVersion : '')
             : null;
 

@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -47,11 +48,11 @@ class WebsiteSettingController extends Controller
     {
         $data = $request->validate([
             'website_name' => ['required', 'string', 'max:120'],
-            'logo_path' => ['nullable', 'string', 'max:255'],
-            'favicon_path' => ['nullable', 'string', 'max:255'],
+            'logo_path' => ['nullable', 'string', 'max:255', Rule::exists('website_media', 'path')],
+            'favicon_path' => ['nullable', 'string', 'max:255', Rule::exists('website_media', 'path')],
             'seo_title' => ['nullable', 'string', 'max:160'],
             'seo_description' => ['nullable', 'string', 'max:320'],
-            'seo_image_path' => ['nullable', 'string', 'max:255'],
+            'seo_image_path' => ['nullable', 'string', 'max:255', Rule::exists('website_media', 'path')],
         ]);
 
         WebsiteSetting::updateOrCreate(['id' => 1], $data);
