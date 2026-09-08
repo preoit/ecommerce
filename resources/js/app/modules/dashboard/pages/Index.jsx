@@ -1,37 +1,150 @@
-import { Head } from '@inertiajs/react';
-import { ChevronDown, CircleDollarSign, Clock3, ShoppingCart, UsersRound } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { AlertTriangle, Archive, BadgeDollarSign, Boxes, ChevronRight, ClipboardList, PackageCheck, ShoppingBag, UsersRound } from 'lucide-react';
 import AdminLayout from '@/app/layouts/AdminLayout';
+import { cn } from '@/app/utils/cn';
 
-const months = [['Jan', 64, 42], ['Feb', 50, 51], ['Mar', 43, 57], ['Apr', 48, 49], ['May', 59, 32], ['Jun', 66, 17], ['Jul', 59, 25], ['Aug', 64, 32], ['Sep', 34, 58]];
-const products = [['📱', 'Apple iPhone 13', '#FXZ-4567', '$999.29'], ['👟', 'Nike Air Jordan', '#FXZ-3456', '$72.40'], ['🎧', 'Beats Studio 2', '#FXZ-9485', '$99'], ['⌚', 'Apple Watch Series 7', '#FXZ-2345', '$249.99'], ['🔊', 'Amazon Echo Dot', '#FXZ-8959', '$79.40'], ['🎮', 'Play Station Console', '#FXZ-7892', '$129.48']];
-const transactions = [['▣', 'Wallet', 'Starbucks', '-$75'], ['▣', 'Bank Transfer', 'Add Money', '+$480'], ['ℙ', 'Paypal', 'Client Payment', '+$268'], ['▣', 'Master Card', 'Ordered iPhone 13', '-$699'], ['$', 'Bank Transactions', 'Refund', '+$98'], ['ℙ', 'Paypal', 'Client Payment', '+$126']];
+const iconMap = {
+    revenue: BadgeDollarSign,
+    orders: ShoppingBag,
+    products: Boxes,
+    customers: UsersRound,
+};
 
-function Card({ children, className = '' }) { return <section className={`rounded-lg bg-white p-6 shadow-[0_3px_12px_rgba(44,32,66,.10)] dark:bg-slate-900 dark:shadow-black/30 ${className}`}>{children}</section>; }
+const statusColors = {
+    pending: 'bg-amber-50 text-amber-700 ring-amber-200',
+    processing: 'bg-sky-50 text-sky-700 ring-sky-200',
+    shipped: 'bg-indigo-50 text-indigo-700 ring-indigo-200',
+    delivered: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+    cancelled: 'bg-rose-50 text-rose-700 ring-rose-200',
+    returned: 'bg-slate-100 text-slate-700 ring-slate-200',
+};
 
-export default function Dashboard({ metrics = [] }) {
-    const customerCount = metrics.find((item) => item.icon === 'users')?.value ?? '8.549k';
+function Card({ children, className = '' }) {
+    return <section className={cn('rounded-lg border border-violet-100 bg-white shadow-[0_3px_12px_rgba(44,32,66,.08)] dark:border-slate-700 dark:bg-slate-900', className)}>{children}</section>;
+}
+
+function MetricCard({ metric }) {
+    const Icon = iconMap[metric.icon] || PackageCheck;
 
     return (
-        <AdminLayout><Head title="Dashboard" />
-            <main className="dashboard-content -mx-4 -my-6 min-h-screen bg-[#f8f7fa] px-4 py-3 font-sans text-[#4a495a] transition-colors dark:bg-slate-950 dark:text-slate-200 sm:-mx-6 sm:px-8 lg:-mx-8 lg:-my-8 lg:px-12">
-                <div className="mx-auto max-w-[1400px]">
-                    <div className="grid gap-6 xl:grid-cols-[448px_1fr]">
-                        <Card className="relative min-h-[186px] overflow-hidden"><p className="text-lg font-semibold">Congratulations John! 🎉</p><p className="text-sm text-slate-500">Best seller of the month</p><p className="mt-3 text-2xl font-semibold text-[#6c5ce7]">$48.9k</p><button className="mt-2 rounded-md bg-[#6c5ce7] px-5 py-2 text-sm font-semibold text-white shadow-md shadow-violet-200">View Sales</button><div className="absolute bottom-0 right-7 grid h-36 w-24 place-items-end rounded-t-[48px] bg-gradient-to-t from-violet-500 to-violet-200"><span className="mb-7 text-4xl">🙋🏻‍♂️</span></div></Card>
-                        <Card><div className="flex justify-between"><h2 className="text-lg font-semibold">Statistics</h2><span className="text-xs text-slate-400">Updated 1 month ago</span></div><div className="mt-14 grid grid-cols-2 gap-7 sm:grid-cols-4">{[[Clock3, '230k', 'Sales', 'bg-violet-100 text-violet-500'], [UsersRound, customerCount, 'Customers', 'bg-cyan-100 text-cyan-500'], [ShoppingCart, '1.423k', 'Products', 'bg-rose-100 text-rose-500'], [CircleDollarSign, '$9745', 'Revenue', 'bg-emerald-100 text-emerald-500']].map(([Icon, value, label, color]) => <div key={label} className="flex items-center gap-4"><span className={`grid size-10 place-items-center rounded-md ${color}`}><Icon className="size-5" /></span><div><p className="text-lg font-semibold">{value}</p><p className="text-xs text-slate-500">{label}</p></div></div>)}</div></Card>
+        <Link href={metric.href || '#'} className="group block rounded-lg border border-violet-100 bg-white p-4 shadow-[0_3px_12px_rgba(44,32,66,.08)] transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-[0_8px_24px_rgba(44,32,66,.12)] dark:border-slate-700 dark:bg-slate-900">
+            <div className="flex items-start justify-between gap-3">
+                <span className="grid size-11 shrink-0 place-items-center rounded-md bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-200"><Icon className="size-5" /></span>
+                <ChevronRight className="size-5 text-slate-300 transition group-hover:translate-x-1 group-hover:text-violet-500" />
+            </div>
+            <p className="mt-4 text-sm font-semibold text-slate-500 dark:text-slate-400">{metric.label}</p>
+            <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
+                <b className="text-2xl font-bold text-slate-950 dark:text-white">{metric.value}</b>
+                <span className="text-xs font-bold text-violet-600 dark:text-violet-300">{metric.hint}</span>
+            </div>
+        </Link>
+    );
+}
+
+function EmptyState({ children }) {
+    return <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">{children}</div>;
+}
+
+export default function Dashboard({ summary = [], orderStatus = [], recentOrders = [], stockAlerts = [], catalog = {} }) {
+    const activeOrders = orderStatus.filter(item => ['pending', 'processing', 'shipped'].includes(item.key)).reduce((total, item) => total + item.count, 0);
+
+    return (
+        <AdminLayout>
+            <Head title="Dashboard" />
+            <main className="dashboard-content -mx-4 -my-6 min-h-screen bg-[#f8f7fa] px-4 py-5 font-sans text-[#172033] transition-colors dark:bg-slate-950 dark:text-slate-200 sm:-mx-6 sm:px-6 lg:-mx-8 lg:-my-8 lg:px-8 lg:py-8">
+                <div className="mx-auto max-w-[1400px] space-y-6">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p className="text-sm font-bold text-violet-600">Ecommerce overview</p>
+                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">Dashboard</h1>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Orders, sales, catalog and stock status in one place.</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <Link href="/admin/orders" className="rounded-md border border-violet-200 bg-white px-4 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50 dark:border-slate-700 dark:bg-slate-900 dark:text-violet-200">View orders</Link>
+                            <Link href="/admin/inventories/products/create" className="rounded-md bg-violet-600 px-4 py-2 text-sm font-bold text-white shadow-sm shadow-violet-200 hover:bg-violet-700">Add product</Link>
+                        </div>
                     </div>
 
-                    <div className="mt-6 grid gap-6 xl:grid-cols-[214px_214px_minmax(0,1fr)]">
-                        <Card><h2 className="text-lg font-semibold">Profit</h2><p className="text-sm text-slate-500">Last Month</p><div className="mt-4 flex h-24 items-end gap-2 border-b border-dashed border-slate-200 pb-2">{[28, 54, 37, 75, 54, 98].map((h, i) => <span key={h} style={{ height: `${h}%` }} className={`w-full rounded-t ${i === 5 ? 'bg-cyan-500' : 'bg-cyan-400'}`} />)}</div><div className="mt-4 flex items-end justify-between"><b className="text-2xl">624k</b><span className="text-xs text-emerald-500">+8.24%</span></div></Card>
-                        <Card><h2 className="text-lg font-semibold">82.5k</h2><p className="text-sm text-slate-500">Expenses</p><div className="mx-auto mt-6 grid size-28 place-items-center rounded-full border-[9px] border-orange-400 border-l-slate-100 border-b-emerald-300"><span className="text-2xl">78%</span></div><p className="mt-4 text-center text-xs text-slate-400">$21k Expenses more than<br />last month</p></Card>
-                        <Card className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]"><div><div className="flex justify-between"><h2 className="text-lg font-semibold">Revenue Report</h2><p className="text-xs"><i className="mr-1 inline-block size-3 rounded-full bg-[#6c5ce7]" /> Earning <i className="ml-4 mr-1 inline-block size-3 rounded-full bg-orange-400" /> Expense</p></div><div className="mt-8 flex h-72 items-end justify-around gap-2 border-b border-slate-100">{months.map(([month, earning, expense]) => <div key={month} className="flex h-full flex-1 flex-col items-center justify-end gap-3"><span style={{ height: `${earning}%` }} className="w-2 rounded-full bg-[#6c5ce7]" /><span style={{ height: `${expense}%` }} className="w-2 rounded-full bg-orange-400" /><small className="-mb-6 text-xs text-slate-400">{month}</small></div>)}</div></div><div className="border-t border-slate-100 pt-4 text-center lg:border-l lg:border-t-0 lg:pt-0"><button className="rounded bg-violet-100 px-4 py-2 text-sm text-[#6c5ce7]">2026 <ChevronDown className="ml-1 inline size-4" /></button><p className="mt-9 text-3xl font-semibold">$25,825</p><p className="text-sm">Budget: 56,800</p><div className="mt-12 h-11 rounded-full border-t-2 border-[#6c5ce7] opacity-80" /><button className="mt-10 rounded-md bg-[#6c5ce7] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200">Increase Button</button></div></Card>
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        {summary.map(metric => <MetricCard key={metric.label} metric={metric} />)}
                     </div>
 
-                    <div className="mt-6 grid gap-6 lg:grid-cols-3"><Card><h2 className="text-lg font-semibold">Earning Reports</h2><p className="text-sm text-slate-500">Weekly Earnings Overview</p><div className="mt-6 space-y-4">{[['◷', 'Net Profit', '$1,619'], ['$', 'Total Income', '$3,571'], ['▣', 'Total Expenses', '$430']].map(([icon, label, amount]) => <div key={label} className="flex items-center justify-between"><span className="flex items-center gap-3"><i className="grid size-8 place-items-center rounded bg-violet-100 not-italic text-violet-500">{icon}</i><b className="text-sm">{label}</b></span><span className="text-sm">{amount} <small className="text-emerald-500">↗ 18.6%</small></span></div>)}</div><div className="mt-8 flex h-40 items-end justify-around">{[45, 75, 60, 50, 94, 63, 78].map((h, i) => <div key={i} className={`w-9 rounded-t ${i === 4 ? 'bg-[#6c5ce7]' : 'bg-violet-100'}`} style={{ height: `${h}%` }} />)}</div></Card>
-                        <Card><h2 className="text-lg font-semibold">Popular Products</h2><p className="text-sm text-slate-500">Total 10.4k Visitors</p><div className="mt-5 space-y-4">{products.map(([icon, name, code, amount]) => <div key={name} className="flex items-center gap-3"><span className="grid size-9 place-items-center rounded bg-slate-100 text-xl">{icon}</span><span className="min-w-0 flex-1"><b className="block truncate text-sm">{name}</b><small className="text-slate-500">Item: {code}</small></span><span className="text-sm text-slate-500">{amount}</span></div>)}</div></Card>
-                        <Card><h2 className="text-lg font-semibold">Orders by Countries</h2><p className="text-sm text-slate-500">62 deliveries in progress</p><div className="mt-8 flex justify-around border-b border-slate-200 text-sm"><b className="border-b-2 border-[#6c5ce7] px-5 pb-3 text-[#6c5ce7]">New</b><b className="px-5 pb-3">Preparing</b><b className="px-5 pb-3">Shipping</b></div><div className="mt-7 space-y-7">{[['Myrtle Ullrich', '101 Boulder, California(CA), 95959'], ['Barry Schowalter', '939 Orange, California(CA), 92118']].map(([name, address]) => <div key={name} className="border-l border-dashed border-slate-200 pl-5"><small className="font-semibold text-emerald-500">◉ SENDER</small><p className="text-sm font-medium">{name}</p><p className="text-sm text-slate-500">{address}</p><small className="mt-3 block font-semibold text-[#6c5ce7]">◉ RECEIVER</small><p className="text-sm font-medium">Helen Jacobs</p><p className="text-sm text-slate-500">487 Sunset, California(CA), 94043</p></div>)}</div></Card></div>
+                    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,.65fr)]">
+                        <Card className="overflow-hidden">
+                            <div className="flex flex-col gap-2 border-b border-violet-100 px-5 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h2 className="text-lg font-bold text-slate-950 dark:text-white">Recent orders</h2>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">Latest customer orders and stock warnings.</p>
+                                </div>
+                                <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700 dark:bg-violet-950 dark:text-violet-200">{activeOrders} active</span>
+                            </div>
+                            {recentOrders.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-[720px] w-full text-left text-sm">
+                                        <thead className="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                                            <tr>
+                                                <th className="px-5 py-3">Order</th>
+                                                <th className="px-5 py-3">Customer</th>
+                                                <th className="px-5 py-3">Total</th>
+                                                <th className="px-5 py-3">Status</th>
+                                                <th className="px-5 py-3">Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                            {recentOrders.map(order => (
+                                                <tr key={order.id} className={cn(!order.viewed && 'bg-violet-50/70 dark:bg-violet-950/30')}>
+                                                    <td className="px-5 py-4"><Link href={order.href} className="font-bold text-violet-700 hover:underline dark:text-violet-300">{order.number}</Link>{!order.viewed && <span className="ml-2 rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">New</span>}{order.hasStockShortage && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">Stock</span>}</td>
+                                                    <td className="px-5 py-4"><b className="block text-slate-800 dark:text-slate-100">{order.customer}</b><small className="text-slate-500">{order.phone}</small></td>
+                                                    <td className="px-5 py-4 font-bold text-slate-950 dark:text-white">{order.total}</td>
+                                                    <td className="px-5 py-4"><span className={cn('rounded-full px-2.5 py-1 text-xs font-bold ring-1', statusColors[order.statusKey] || statusColors.returned)}>{order.status}</span></td>
+                                                    <td className="px-5 py-4 text-slate-500">{order.date}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : <div className="p-5"><EmptyState>No orders yet.</EmptyState></div>}
+                        </Card>
 
-                    <div className="mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]"><Card><h2 className="text-lg font-semibold">Transactions</h2><p className="text-sm text-slate-500">Total 58 Transactions done in this Month</p><div className="mt-6 space-y-4">{transactions.map(([icon, title, subtitle, amount], i) => <div key={`${title}-${i}`} className="flex items-center gap-3"><span className={`grid size-9 place-items-center rounded ${i % 3 === 1 ? 'bg-emerald-100 text-emerald-500' : 'bg-violet-100 text-violet-500'}`}>{icon}</span><span className="flex-1"><b className="block text-sm">{title}</b><small className="text-slate-500">{subtitle}</small></span><b className={amount.startsWith('+') ? 'text-emerald-500' : 'text-rose-500'}>{amount}</b></div>)}</div></Card>
-                        <Card className="overflow-x-auto p-0"><div className="flex min-w-[680px] items-center justify-between border-b border-slate-200 p-6"><span>Show <button className="ml-2 rounded border border-slate-300 px-5 py-2 dark:border-slate-700">6 <ChevronDown className="ml-5 inline size-4" /></button></span><button className="rounded-md bg-[#6c5ce7] px-5 py-2.5 text-sm font-semibold text-white">＋ Create Invoice</button><input className="rounded border-slate-300 bg-white text-sm text-slate-700 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" placeholder="Search Invoice" /></div><table className="min-w-full text-left text-sm"><thead className="border-b border-slate-200 text-xs"><tr><th className="p-5">□</th><th>#</th><th>STATUS</th><th>TOTAL</th><th>ISSUED DATE</th><th>ACTIONS</th></tr></thead><tbody>{[['#5089', '$3077', '09 May 2020'], ['#5041', '$2230', '19 Nov 2020'], ['#5027', '$2787', '25 Sept 2020'], ['#5024', '$5285', '02 Aug 2020'], ['#5020', '$5219', '15 Dec 2020'], ['#4995', '$3313', '09 Jun 2020']].map(([id, total, date], i) => <tr key={id} className="border-b border-slate-100"><td className="p-5">□</td><td className="text-[#6c5ce7]">{id}</td><td><i className={`inline-block size-5 rounded-full ${i < 2 ? 'bg-slate-200' : 'bg-emerald-100'}`} /></td><td>{total}</td><td>{date}</td><td className="text-slate-500">♜　◉　⋮</td></tr>)}</tbody></table></Card></div>
+                        <div className="space-y-6">
+                            <Card className="p-5">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                        <h2 className="text-lg font-bold text-slate-950 dark:text-white">Order pipeline</h2>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">Current fulfilment status.</p>
+                                    </div>
+                                    <ClipboardList className="size-6 text-violet-600" />
+                                </div>
+                                <div className="mt-5 space-y-3">
+                                    {orderStatus.map(status => <div key={status.key} className="flex items-center justify-between rounded-md border border-slate-100 px-3 py-2 dark:border-slate-700"><span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{status.label}</span><b className="text-lg text-slate-950 dark:text-white">{status.count}</b></div>)}
+                                </div>
+                            </Card>
+
+                            <Card className="p-5">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                        <h2 className="text-lg font-bold text-slate-950 dark:text-white">Catalog health</h2>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">Inventory setup summary.</p>
+                                    </div>
+                                    <Archive className="size-6 text-violet-600" />
+                                </div>
+                                <div className="mt-5 grid grid-cols-2 gap-3">
+                                    {Object.entries({ Categories: catalog.categories || 0, Brands: catalog.brands || 0, Drafts: catalog.drafts || 0, 'Out of stock': catalog.outOfStock || 0 }).map(([label, value]) => <div key={label} className="rounded-md bg-slate-50 p-3 dark:bg-slate-800"><b className="block text-xl text-slate-950 dark:text-white">{value}</b><span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{label}</span></div>)}
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+
+                    <Card className="p-5">
+                        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-950 dark:text-white">Stock alerts</h2>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">Products at or below low-stock threshold.</p>
+                            </div>
+                            <Link href="/admin/inventories/products" className="text-sm font-bold text-violet-700 hover:underline dark:text-violet-300">Manage products</Link>
+                        </div>
+                        {stockAlerts.length > 0 ? <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{stockAlerts.map(product => <Link key={product.id} href={product.href} className="flex items-start gap-3 rounded-lg border border-amber-100 bg-amber-50/60 p-4 hover:border-amber-300 dark:border-amber-900 dark:bg-amber-950/20"><span className="grid size-10 shrink-0 place-items-center rounded-md bg-white text-amber-600 dark:bg-slate-900"><AlertTriangle className="size-5" /></span><span className="min-w-0 flex-1"><b className="block truncate text-sm text-slate-950 dark:text-white">{product.title}</b><small className="block text-slate-500">{product.sku}</small><span className="mt-2 inline-flex rounded-full bg-white px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200 dark:bg-slate-900">{product.status}: {product.stock}</span></span></Link>)}</div> : <EmptyState>No low-stock product right now.</EmptyState>}
+                    </Card>
                 </div>
             </main>
         </AdminLayout>
