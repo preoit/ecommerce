@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Copy, Heart, House, Maximize2, Minus, Plus, Scale, Share2, ShieldCheck, ShoppingCart, Star, Truck, X } from 'lucide-react';
+import { Copy, Eye, Heart, House, Image as ImageIcon, Maximize2, Minus, Plus, Scale, Share2, ShieldCheck, ShoppingCart, Star, Truck, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import Seo from '@/app/components/Seo';
 import StorefrontLayout from '@/app/layouts/StorefrontLayout';
@@ -18,7 +18,22 @@ const retryImage = (event) => {
 const money = (value) => `৳${Number(value || 0).toLocaleString('en-BD', { maximumFractionDigits: 2 })}`;
 const strip = (html = '') => String(html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
-function ProductCard({ product }) { return <Link href={route('storefront.products.show', product.slug)} className="group block"><div className="aspect-square overflow-hidden rounded-xl bg-slate-100">{product.image ? <img src={product.image} alt={product.title} loading="lazy" width="360" height="360" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" /> : <div className="grid h-full place-items-center text-slate-400">No image</div>}</div><p className="mt-3 text-xs text-slate-500">{product.brand}</p><h3 className="mt-1 line-clamp-2 font-semibold text-slate-900 group-hover:text-violet-700">{product.title}</h3><div className="mt-1 flex items-center gap-2"><b className="text-violet-700">{money(product.price)}</b>{product.discount > 0 && <><span className="text-xs text-slate-400 line-through">{money(product.regularPrice)}</span><span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">-{product.discount}%</span></>}</div></Link>; }
+function ProductCard({ product }) {
+    const href = route('storefront.products.show', product.slug);
+
+    return <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-[0_16px_40px_rgba(30,41,59,0.10)]">
+        <Link href={href} className="relative block aspect-square overflow-hidden bg-slate-50">
+            {product.image ? <img src={product.image} alt={product.title} loading="lazy" width="520" height="520" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <span className="grid h-full place-items-center text-slate-300"><ImageIcon className="size-12" strokeWidth={1.4} /></span>}
+            {product.discount > 0 && <span className="absolute left-3 top-3 rounded-full bg-violet-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">-{product.discount}%</span>}
+        </Link>
+        <div className="flex flex-1 flex-col p-3 sm:p-4">
+            <p className="truncate text-xs font-semibold uppercase tracking-wide text-slate-500">{product.brand || 'Products'}</p>
+            <h3 className="mt-1.5 line-clamp-2 min-h-11 text-[15px] font-bold leading-[1.45] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.title}</Link></h3>
+            <div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700">{money(product.price)}</span>{product.discount > 0 && <span className="text-xs font-semibold text-slate-400 line-through">{money(product.regularPrice)}</span>}</div>
+            <Link href={href} className="mt-4 inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-slate-950 px-2 text-xs font-bold text-white transition hover:bg-violet-600 sm:gap-2 sm:px-4 sm:text-sm"><Eye className="size-4" />View details</Link>
+        </div>
+    </article>;
+}
 function HtmlSection({ title, content }) { if (!content) return null; return <section className="border-b border-slate-200 py-7"><h2 className="text-xl font-bold text-slate-950">{title}</h2><div className="prose prose-slate mt-4 max-w-none text-sm leading-7" dangerouslySetInnerHTML={{ __html: content }} /></section>; }
 function SpecificationGroups({ groups = [] }) { if (!groups.length) return null; return <section className="border-b border-slate-200 py-7"><h2 className="text-xl font-bold text-slate-950">Specifications</h2><div className="mt-5 space-y-5">{groups.map((group) => <div key={group.title} className="overflow-hidden rounded-xl border border-slate-200"><h3 className="border-b border-slate-200 bg-violet-50 px-4 py-3 text-base font-bold text-violet-800">{group.title}</h3><table className="w-full text-sm"><tbody>{group.items.map((spec) => <tr key={spec.id} className="border-b border-slate-200 last:border-0"><th className="w-2/5 bg-slate-50 px-4 py-3 text-left font-semibold text-slate-700">{spec.name}</th><td className="px-4 py-3 text-slate-700">{spec.value}</td></tr>)}</tbody></table></div>)}</div></section>; }
 
