@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle, Archive, BadgeDollarSign, Boxes, ChevronRight, ClipboardList, PackageCheck, ShoppingBag, UsersRound } from 'lucide-react';
+import { AlertTriangle, Archive, BadgeCheck, BadgeDollarSign, Boxes, ChevronRight, ClipboardList, FileClock, FolderTree, PackageCheck, PackageX, ShoppingBag, UsersRound } from 'lucide-react';
 import AdminLayout from '@/app/layouts/AdminLayout';
 import { cn } from '@/app/utils/cn';
 
@@ -65,6 +65,12 @@ function EmptyState({ children }) {
 export default function Dashboard({ summary = [], orderStatus = [], recentOrders = [], stockAlerts = [], catalog = {} }) {
     const activeOrders = orderStatus.filter(item => ['pending', 'processing', 'shipped'].includes(item.key)).reduce((total, item) => total + item.count, 0);
     const totalOrders = orderStatus.reduce((total, item) => total + item.count, 0);
+    const catalogItems = [
+        { key: 'categories', label: 'Categories', value: catalog.categories || 0, Icon: FolderTree, surface: 'border-violet-100 bg-violet-50/60 dark:border-violet-900/70 dark:bg-violet-950/20', icon: 'bg-white text-violet-600 ring-violet-100 dark:bg-slate-900 dark:text-violet-300 dark:ring-violet-900', valueColor: 'text-violet-700 dark:text-violet-300' },
+        { key: 'brands', label: 'Brands', value: catalog.brands || 0, Icon: BadgeCheck, surface: 'border-cyan-100 bg-cyan-50/60 dark:border-cyan-900/70 dark:bg-cyan-950/20', icon: 'bg-white text-cyan-600 ring-cyan-100 dark:bg-slate-900 dark:text-cyan-300 dark:ring-cyan-900', valueColor: 'text-cyan-700 dark:text-cyan-300' },
+        { key: 'drafts', label: 'Draft products', value: catalog.drafts || 0, Icon: FileClock, surface: 'border-amber-100 bg-amber-50/60 dark:border-amber-900/70 dark:bg-amber-950/20', icon: 'bg-white text-amber-600 ring-amber-100 dark:bg-slate-900 dark:text-amber-300 dark:ring-amber-900', valueColor: 'text-amber-700 dark:text-amber-300' },
+        { key: 'outOfStock', label: 'Out of stock', value: catalog.outOfStock || 0, Icon: PackageX, surface: 'border-rose-100 bg-rose-50/60 dark:border-rose-900/70 dark:bg-rose-950/20', icon: 'bg-white text-rose-600 ring-rose-100 dark:bg-slate-900 dark:text-rose-300 dark:ring-rose-900', valueColor: 'text-rose-700 dark:text-rose-300' },
+    ];
 
     return (
         <AdminLayout>
@@ -167,10 +173,19 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                                         <h2 className="text-lg font-bold text-slate-950 dark:text-white">Catalog health</h2>
                                         <p className="text-sm text-slate-500 dark:text-slate-400">Inventory setup summary.</p>
                                     </div>
-                                    <Archive className="size-6 text-violet-600" />
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700 dark:bg-violet-950 dark:text-violet-200"><Archive className="size-3.5" />4 areas</span>
                                 </div>
                                 <div className="mt-5 grid grid-cols-2 gap-3">
-                                    {Object.entries({ Categories: catalog.categories || 0, Brands: catalog.brands || 0, Drafts: catalog.drafts || 0, 'Out of stock': catalog.outOfStock || 0 }).map(([label, value]) => <div key={label} className="rounded-md border border-slate-100 bg-slate-50 p-3 shadow-[0_1px_3px_rgba(15,23,42,.04)] dark:border-slate-700 dark:bg-slate-800 dark:shadow-[0_1px_3px_rgba(0,0,0,.18)]"><b className="block text-xl text-slate-950 dark:text-white">{value}</b><span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{label}</span></div>)}
+                                    {catalogItems.map(({ key, label, value, Icon, surface, icon, valueColor }) => (
+                                        <div key={key} className={cn('group relative min-h-28 overflow-hidden rounded-lg border p-3.5 transition duration-200 hover:-translate-y-0.5 hover:shadow-md', surface)}>
+                                            <span aria-hidden="true" className="absolute -bottom-7 -right-6 size-20 rounded-full bg-white/40 dark:bg-white/5" />
+                                            <div className="relative flex items-start justify-between gap-2">
+                                                <span className={cn('grid size-9 shrink-0 place-items-center rounded-lg ring-1 shadow-sm', icon)}><Icon className="size-4.5" /></span>
+                                                <b className={cn('text-2xl font-extrabold leading-none tracking-tight', valueColor)}>{value}</b>
+                                            </div>
+                                            <p className="relative mt-4 text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">{label}</p>
+                                        </div>
+                                    ))}
                                 </div>
                             </Card>
                         </div>
