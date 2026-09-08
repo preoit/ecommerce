@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Bell, CheckCircle2, ChevronDown, CircleHelp, CreditCard, DollarSign, Grid2X2, Languages, LogOut, Menu, Moon, Search, Settings, Store, Sun, UserRound, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Bell, CheckCircle2, ChevronDown, CircleHelp, CreditCard, DollarSign, Grid2X2, Languages, LogOut, Menu, Moon, Search, Settings, ShoppingBag, Store, Sun, UserRound, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import IconButton from '@/app/design-system/components/IconButton';
 import { adminNavigation } from '@/app/navigation/adminNavigation';
 import { cn } from '@/app/utils/cn';
@@ -79,18 +79,64 @@ function Sidebar({ url, onNavigate, website, orderCount = 0 }) {
     );
 }
 
-function OrderNotifications({ darkMode, onCountChange }) {
+function OrderNotifications({ darkMode, onCountChange, toastEnabled = false }) {
     const [open, setOpen] = useState(false);
     const [orders, setOrders] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [toastOrders, setToastOrders] = useState([]);
+    const latestOrderId = useRef(null);
+    const toastEnabledRef = useRef(toastEnabled);
+    const toastTimers = useRef(new Map());
     const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
-    const load = async () => {
-        const response = await fetch(route('orders.notifications'), { headers: { Accept: 'application/json' } });
-        if (!response.ok) return;
-        const result = await response.json();
-        setOrders(result.orders || []); setUnreadCount(result.unreadCount || 0); onCountChange(result.unreadCount || 0);
+    const dismissToast = orderId => {
+        const timer = toastTimers.current.get(orderId);
+        if (timer) window.clearTimeout(timer);
+        toastTimers.current.delete(orderId);
+        setToastOrders(current => current.filter(order => order.id !== orderId));
     };
-    useEffect(() => { load(); const timer = window.setInterval(load, 15000); return () => window.clearInterval(timer); }, []);
+    const load = async () => {
+        try {
+            const response = await fetch(route('orders.notifications'), { headers: { Accept: 'application/json' } });
+            if (!response.ok) return;
+            const result = await response.json();
+            const nextOrders = result.orders || [];
+            const newestId = nextOrders.reduce((highest, order) => Math.max(highest, Number(order.id) || 0), 0);
+
+            if (latestOrderId.current !== null && toastEnabledRef.current) {
+                const freshOrders = nextOrders.filter(order => Number(order.id) > latestOrderId.current).reverse();
+                if (freshOrders.length > 0) {
+                    setToastOrders(current => [...freshOrders, ...current.filter(currentOrder => !freshOrders.some(order => order.id === currentOrder.id))]);
+                    freshOrders.forEach(order => {
+                        const timer = window.setTimeout(() => dismissToast(order.id), 10000);
+                        toastTimers.current.set(order.id, timer);
+                    });
+                }
+            }
+
+            latestOrderId.current = Math.max(latestOrderId.current || 0, newestId);
+            setOrders(nextOrders);
+            setUnreadCount(result.unreadCount || 0);
+            onCountChange(result.unreadCount || 0);
+        } catch {
+            // Keep the existing notification state when a background check fails.
+        }
+    };
+    useEffect(() => { toastEnabledRef.current = toastEnabled; }, [toastEnabled]);
+    useEffect(() => {
+        let active = true;
+        const refresh = () => { if (active && document.visibilityState === 'visible') load(); };
+        const handleVisibility = () => { if (document.visibilityState === 'visible') load(); };
+        load();
+        const timer = window.setInterval(refresh, 30000);
+        document.addEventListener('visibilitychange', handleVisibility);
+        return () => {
+            active = false;
+            window.clearInterval(timer);
+            document.removeEventListener('visibilitychange', handleVisibility);
+            toastTimers.current.forEach(toastTimer => window.clearTimeout(toastTimer));
+            toastTimers.current.clear();
+        };
+    }, []);
     const view = async order => {
         if (!order.viewed) {
             await fetch(route('orders.view', order.id), { method: 'POST', keepalive: true, headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf() } });
@@ -102,7 +148,7 @@ function OrderNotifications({ darkMode, onCountChange }) {
     const unread = orders.filter(order => !order.viewed);
     const viewed = orders.filter(order => order.viewed);
     const item = order => <Link key={order.id} href={route('orders.show', order.id)} onClick={() => view(order)} className={cn('block border-b px-4 py-3 last:border-0 hover:bg-violet-50 dark:border-slate-700 dark:hover:bg-slate-800', !order.viewed && 'bg-violet-50/70 dark:bg-violet-950/30')}><div className="flex items-start justify-between gap-3"><span className="font-semibold text-slate-900 dark:text-white">New order {order.number}</span>{!order.viewed && <i className="mt-1 size-2 rounded-full bg-rose-500" />}</div><p className="mt-1 text-xs text-slate-600 dark:text-slate-300">{order.customer} · ৳{Number(order.total).toLocaleString('en-BD')}</p>{order.hasStockShortage && <p className="mt-1 rounded bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700">Stock unavailable — action required</p>}<p className="mt-1 text-[11px] text-slate-400">{order.createdAt}</p></Link>;
-    return <div className="relative"><button type="button" onClick={() => { setOpen(value => !value); if (!open) load(); }} aria-label="Notifications" aria-expanded={open} className="relative rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800"><Bell className="size-5" />{unreadCount > 0 && <span className="absolute right-0 top-0 grid min-w-4 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-4 text-white ring-2 ring-white dark:ring-slate-900">{unreadCount > 99 ? '99+' : unreadCount}</span>}</button>{open && <section className={cn('absolute right-0 mt-3 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-xl border shadow-xl', darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white')}><div className="flex items-center justify-between border-b px-4 py-3 dark:border-slate-700"><b className="text-sm">Order notifications</b><span className="text-xs text-slate-500">{unreadCount} unread</span></div><div className="max-h-[60vh] overflow-y-auto">{unread.length > 0 && <><p className="px-4 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-violet-600">Unviewed</p>{unread.map(item)}</>}{viewed.length > 0 && <><p className="px-4 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-slate-400">Viewed</p>{viewed.map(item)}</>}{orders.length === 0 && <p className="p-6 text-center text-sm text-slate-500">No order notifications yet.</p>}</div><Link href="/admin/orders" onClick={() => setOpen(false)} className="block border-t px-4 py-3 text-center text-sm font-semibold text-violet-700 hover:bg-violet-50 dark:border-slate-700 dark:hover:bg-slate-800">View all orders</Link></section>}</div>;
+    return <div className="relative"><button type="button" onClick={() => { setOpen(value => !value); if (!open) load(); }} aria-label="Notifications" aria-expanded={open} className="relative rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800"><Bell className="size-5" />{unreadCount > 0 && <span className="absolute right-0 top-0 grid min-w-4 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-4 text-white ring-2 ring-white dark:ring-slate-900">{unreadCount > 99 ? '99+' : unreadCount}</span>}</button>{open && <section className={cn('absolute right-0 mt-3 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-xl border shadow-xl', darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white')}><div className="flex items-center justify-between border-b px-4 py-3 dark:border-slate-700"><b className="text-sm">Order notifications</b><span className="text-xs text-slate-500">{unreadCount} unread</span></div><div className="max-h-[60vh] overflow-y-auto">{unread.length > 0 && <><p className="px-4 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-violet-600">Unviewed</p>{unread.map(item)}</>}{viewed.length > 0 && <><p className="px-4 pb-1 pt-3 text-xs font-bold uppercase tracking-wide text-slate-400">Viewed</p>{viewed.map(item)}</>}{orders.length === 0 && <p className="p-6 text-center text-sm text-slate-500">No order notifications yet.</p>}</div><Link href="/admin/orders" onClick={() => setOpen(false)} className="block border-t px-4 py-3 text-center text-sm font-semibold text-violet-700 hover:bg-violet-50 dark:border-slate-700 dark:hover:bg-slate-800">View all orders</Link></section>}{toastOrders.length > 0 && <div className="fixed right-4 top-20 z-[70] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-3" role="status" aria-live="polite">{toastOrders.map(order => <div key={order.id} className="overflow-hidden rounded-xl border border-violet-200 bg-white shadow-[0_16px_42px_rgba(44,32,66,.22)] dark:border-slate-700 dark:bg-slate-900"><div className="h-1 bg-gradient-to-r from-violet-600 to-purple-500" /><div className="flex items-start gap-3 p-4"><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-200"><ShoppingBag className="size-5" /></span><Link href={route('orders.show', order.id)} onClick={() => dismissToast(order.id)} className="min-w-0 flex-1"><span className="block text-xs font-bold uppercase tracking-wide text-violet-600 dark:text-violet-300">New order received</span><b className="mt-1 block text-sm text-slate-950 dark:text-white">{order.number} · {order.customer}</b><span className="mt-1 block text-xs font-semibold text-slate-500 dark:text-slate-300">BDT {Number(order.total).toLocaleString('en-BD')}</span>{order.hasStockShortage && <span className="mt-2 inline-flex rounded-full bg-rose-100 px-2 py-1 text-[10px] font-bold text-rose-700">Stock action required</span>}</Link><button type="button" onClick={() => dismissToast(order.id)} aria-label={`Dismiss ${order.number} notification`} className="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"><X className="size-4" /></button></div></div>)}</div>}</div>;
 }
 
 export default function AdminLayout({ children }) {
@@ -139,7 +185,7 @@ export default function AdminLayout({ children }) {
                     <div className={cn('flex h-16 w-full items-center gap-3 border-b px-5', darkMode ? 'border-slate-700 bg-slate-900' : 'border-violet-100 bg-white')}>
                         <IconButton icon={Menu} label="Open navigation" className="lg:hidden" onClick={() => setMobileOpen(true)} />
                         <div className="relative hidden max-w-xl flex-1 md:block"><Search className="pointer-events-none absolute left-0 top-1/2 size-5 -translate-y-1/2 text-slate-500" /><input type="search" placeholder="Search [CTRL + K]" className={cn('h-10 w-full border-0 bg-transparent pl-10 pr-3 text-sm focus:ring-0', darkMode ? 'text-white placeholder:text-slate-500' : 'text-slate-700 placeholder:text-slate-400')} /></div>
-                        <div className="ml-auto flex items-center gap-3 text-slate-600 dark:text-slate-300"><button aria-label="Language" className="hidden rounded-md p-2 hover:bg-slate-100 sm:block dark:hover:bg-slate-800"><Languages className="size-5" /></button><button aria-label="Toggle colour mode" onClick={() => setDarkMode((value) => !value)} className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800">{darkMode ? <Moon className="size-5" /> : <Sun className="size-5" />}</button><button aria-label="Apps" className="hidden rounded-md p-2 hover:bg-slate-100 sm:block dark:hover:bg-slate-800"><Grid2X2 className="size-5" /></button><OrderNotifications darkMode={darkMode} onCountChange={setUnreadOrderCount} /></div>
+                        <div className="ml-auto flex items-center gap-3 text-slate-600 dark:text-slate-300"><button aria-label="Language" className="hidden rounded-md p-2 hover:bg-slate-100 sm:block dark:hover:bg-slate-800"><Languages className="size-5" /></button><button aria-label="Toggle colour mode" onClick={() => setDarkMode((value) => !value)} className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800">{darkMode ? <Moon className="size-5" /> : <Sun className="size-5" />}</button><button aria-label="Apps" className="hidden rounded-md p-2 hover:bg-slate-100 sm:block dark:hover:bg-slate-800"><Grid2X2 className="size-5" /></button><OrderNotifications darkMode={darkMode} onCountChange={setUnreadOrderCount} toastEnabled={currentUrl.split('?')[0] === '/dashboard'} /></div>
                         <div className="relative">
                             <button type="button" aria-expanded={profileOpen} onClick={() => setProfileOpen((open) => !open)} className="flex items-center gap-2 rounded-full p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"><span className="flex size-9 items-center justify-center rounded-full bg-violet-200 text-sm font-bold text-violet-700 ring-4 ring-violet-100">{auth.user.name.charAt(0).toUpperCase()}</span><ChevronDown className="hidden size-4 sm:block" /></button>
                         {profileOpen && (
