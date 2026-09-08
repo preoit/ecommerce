@@ -59,14 +59,30 @@ class DashboardService
         return collect($statuses)->map(fn (string $status): array => $this->statusRow($status, (int) ($counts[$status] ?? 0)))->all();
     }
 
-    /** @return array<int, array<string, mixed>> */
+    /** @return array{data: array<int, array<string, mixed>>, pagination: array<string, mixed>} */
     private function recentOrders(): array
     {
         if (! $this->hasTable('orders')) {
-            return [];
+            return [
+                'data' => [],
+                'pagination' => [
+                    'currentPage' => 1,
+                    'lastPage' => 1,
+                    'total' => 0,
+                    'from' => 0,
+                    'to' => 0,
+                    'previousUrl' => null,
+                    'nextUrl' => null,
+                ],
+            ];
         }
 
-        return DB::table('orders')->latest()->limit(6)->get()->map(function (object $order): array {
+        $orders = DB::table('orders')
+            ->latest()
+            ->paginate(5, ['*'], 'recent_page')
+            ->withQueryString();
+
+        $data = $orders->getCollection()->map(function (object $order): array {
             $createdAt = Carbon::parse($order->created_at, 'UTC')->setTimezone('Asia/Dhaka');
             $viewed = Schema::hasColumn('orders', 'viewed_at') ? $order->viewed_at !== null : true;
 
@@ -84,6 +100,19 @@ class DashboardService
                 'href' => '/admin/orders/'.$order->id,
             ];
         })->all();
+
+        return [
+            'data' => $data,
+            'pagination' => [
+                'currentPage' => $orders->currentPage(),
+                'lastPage' => $orders->lastPage(),
+                'total' => $orders->total(),
+                'from' => $orders->firstItem() ?? 0,
+                'to' => $orders->lastItem() ?? 0,
+                'previousUrl' => $orders->previousPageUrl(),
+                'nextUrl' => $orders->nextPageUrl(),
+            ],
+        ];
     }
 
     /** @return array<int, array<string, mixed>> */
