@@ -87,7 +87,7 @@ export default function ProductShow({ product, reviews = [], rating, questions =
         const bar = document.createElement('div');
         bar.dataset.productTabs = 'true';
         bar.className = 'mb-7 flex gap-2 overflow-x-auto rounded-lg bg-slate-100 p-2';
-        tabs.forEach(([key, label], index) => { const button = document.createElement('button'); button.type = 'button'; button.textContent = label; button.className = `shrink-0 rounded-md px-5 py-3 text-sm font-bold transition ${index === 0 ? 'bg-red-600 text-white shadow-sm' : 'bg-white text-slate-950 shadow-sm hover:bg-violet-50 hover:text-violet-700'}`; button.addEventListener('click', () => document.getElementById(`product-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })); bar.append(button); });
+        tabs.forEach(([key, label], index) => { const button = document.createElement('button'); button.type = 'button'; button.textContent = label; button.className = `shrink-0 rounded-md px-5 py-3 text-sm font-bold transition ${index === 0 ? 'bg-violet-600 text-white shadow-sm shadow-violet-200' : 'border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700'}`; button.addEventListener('click', () => document.getElementById(`product-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })); bar.append(button); });
         details.prepend(bar);
         let reviewSection = sections.reviews?.closest('section');
         if (reviewSection) {
