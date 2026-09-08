@@ -102,6 +102,7 @@ class CreateProductController extends Controller
 
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('products', 'slug')->ignore($product->id)],
             'regular' => ['required', 'numeric', 'min:0'],
             'sale' => ['nullable', 'numeric', 'min:0', 'lt:regular'],
             'stock' => ['required', 'integer', 'min:0'],
@@ -119,6 +120,7 @@ class CreateProductController extends Controller
 
         $updates = [
             'title' => $data['title'],
+            'slug' => filled($data['slug'] ?? null) ? $data['slug'] : $this->uniqueProductSlug($data['title'], $product),
             'regular_price' => $data['regular'],
             'sale_price' => $data['sale'] ?? null,
             'stock_quantity' => $data['stock'],
@@ -184,11 +186,30 @@ class CreateProductController extends Controller
         foreach (['description','keyFeatures','keyBenefits','boxContents','howToUse','suitableFor','careInstructions'] as $richTextField) {
             $data[$richTextField] = $this->sanitizer->sanitize($data[$richTextField] ?? null);
         }
+        $slug = filled($data['slug'] ?? null)
+            ? $data['slug']
+            : $this->uniqueProductSlug($data['title']);
+
         $product = Product::create([
-            'title'=>$data['title'],'slug'=>$data['slug'] ?: Str::slug($data['title']).'-'.Str::lower(Str::random(5)),'short_description'=>$data['shortDescription']??null,'description'=>$data['description']??null,'regular_price'=>$data['regular'],'sale_price'=>$data['sale']??null,'sku'=>$data['sku']??null,'barcode'=>$data['barcode']??null,'stock_quantity'=>$data['stock'],'low_stock_threshold'=>$data['lowStockThreshold'],'min_order_quantity'=>$data['minOrder'],'max_order_quantity'=>$data['maxOrder']??null,'quantity_step'=>$data['quantityStep'],'unit_id'=>Unit::where('name',$data['unit']??null)->value('id'),'brand_id'=>Brand::where('name',$data['brand']??null)->value('id'),'status'=>$data['status'],'visibility'=>$data['visibility'],'featured_image_path'=>$data['featuredImage']['path']??null,'gallery'=>collect($data['gallery']??[])->pluck('path')->all(),'video_url'=>$data['videoUrl']??null,'model'=>$data['model']??null,'manufacturer'=>$data['manufacturer']??null,'country_of_origin'=>$data['countryOfOrigin']??null,'weight'=>$data['weight']??null,'length'=>$data['length']??null,'width'=>$data['width']??null,'height'=>$data['height']??null,'warranty'=>$data['warranty']??null,'key_features'=>$data['keyFeatures']??null,'key_benefits'=>$data['keyBenefits']??null,'box_contents'=>$data['boxContents']??null,'how_to_use'=>$data['howToUse']??null,'suitable_for'=>$data['suitableFor']??null,'care_instructions'=>$data['careInstructions']??null,'delivery_inside_dhaka'=>$data['deliveryInsideDhaka']??null,'delivery_outside_dhaka'=>$data['deliveryOutsideDhaka']??null,'estimated_delivery'=>$data['estimatedDelivery']??null,'cash_on_delivery'=>$data['cashOnDelivery'],'advance_payment'=>$data['advancePayment']??null,'return_policy'=>$data['returnPolicy']??null,'replacement_policy'=>$data['replacementPolicy']??null,'payment_methods'=>$data['paymentMethods']??null,'is_featured'=>$data['isFeatured'],'is_new_arrival'=>$data['isNewArrival'],'is_best_seller'=>$data['isBestSeller'],'seo_title'=>$data['seoTitle']??null,'meta_description'=>$data['meta']??null,'canonical_url'=>$data['canonicalUrl']??null,'meta_robots'=>$data['metaRobots'],'focus_keyword'=>$data['focusKeyword']??null,'og_title'=>$data['ogTitle']??null,'og_description'=>$data['ogDescription']??null,'og_image_path'=>$data['ogImage']['path']??null,'twitter_image_path'=>$data['twitterImage']['path']??null,'tags'=>$data['tags']??null,'published_at'=>$data['status']==='Published'?now():null,
+            'title'=>$data['title'],'slug'=>$slug,'short_description'=>$data['shortDescription']??null,'description'=>$data['description']??null,'regular_price'=>$data['regular'],'sale_price'=>$data['sale']??null,'sku'=>$data['sku']??null,'barcode'=>$data['barcode']??null,'stock_quantity'=>$data['stock'],'low_stock_threshold'=>$data['lowStockThreshold'],'min_order_quantity'=>$data['minOrder'],'max_order_quantity'=>$data['maxOrder']??null,'quantity_step'=>$data['quantityStep'],'unit_id'=>Unit::where('name',$data['unit']??null)->value('id'),'brand_id'=>Brand::where('name',$data['brand']??null)->value('id'),'status'=>$data['status'],'visibility'=>$data['visibility'],'featured_image_path'=>$data['featuredImage']['path']??null,'gallery'=>collect($data['gallery']??[])->pluck('path')->all(),'video_url'=>$data['videoUrl']??null,'model'=>$data['model']??null,'manufacturer'=>$data['manufacturer']??null,'country_of_origin'=>$data['countryOfOrigin']??null,'weight'=>$data['weight']??null,'length'=>$data['length']??null,'width'=>$data['width']??null,'height'=>$data['height']??null,'warranty'=>$data['warranty']??null,'key_features'=>$data['keyFeatures']??null,'key_benefits'=>$data['keyBenefits']??null,'box_contents'=>$data['boxContents']??null,'how_to_use'=>$data['howToUse']??null,'suitable_for'=>$data['suitableFor']??null,'care_instructions'=>$data['careInstructions']??null,'delivery_inside_dhaka'=>$data['deliveryInsideDhaka']??null,'delivery_outside_dhaka'=>$data['deliveryOutsideDhaka']??null,'estimated_delivery'=>$data['estimatedDelivery']??null,'cash_on_delivery'=>$data['cashOnDelivery'],'advance_payment'=>$data['advancePayment']??null,'return_policy'=>$data['returnPolicy']??null,'replacement_policy'=>$data['replacementPolicy']??null,'payment_methods'=>$data['paymentMethods']??null,'is_featured'=>$data['isFeatured'],'is_new_arrival'=>$data['isNewArrival'],'is_best_seller'=>$data['isBestSeller'],'seo_title'=>$data['seoTitle']??null,'meta_description'=>$data['meta']??null,'canonical_url'=>$data['canonicalUrl']??null,'meta_robots'=>$data['metaRobots'],'focus_keyword'=>$data['focusKeyword']??null,'og_title'=>$data['ogTitle']??null,'og_description'=>$data['ogDescription']??null,'og_image_path'=>$data['ogImage']['path']??null,'twitter_image_path'=>$data['twitterImage']['path']??null,'tags'=>$data['tags']??null,'published_at'=>$data['status']==='Published'?now():null,
         ]);
         $product->specifications()->createMany(collect($data['specifications']??[])->filter(fn($item)=>filled($item['name']??null)&&filled($item['value']??null))->values()->map(fn($item,$index)=>[...$item,'sort_order'=>$index])->all());
         $product->categories()->sync($data['category'] ?? []);
         return to_route('inventories.products.index')->with('success', 'Product published successfully.');
+    }
+
+    private function uniqueProductSlug(string $title, ?Product $ignore = null): string
+    {
+        $baseSlug = Str::slug($title) ?: 'product';
+        $baseSlug = rtrim(Str::limit($baseSlug, 180, ''), '-');
+        $slug = $baseSlug;
+        $suffix = 2;
+
+        while (Product::withTrashed()->where('slug', $slug)->when($ignore, fn ($query) => $query->whereKeyNot($ignore->getKey()))->exists()) {
+            $ending = '-'.$suffix++;
+            $slug = rtrim(Str::limit($baseSlug, 180 - strlen($ending), ''), '-').$ending;
+        }
+
+        return $slug;
     }
 }
