@@ -296,7 +296,32 @@ class StorefrontProductController extends Controller
             ->map(fn ($items, $title) => ['title' => $title, 'items' => $items->values()])
             ->values();
 
-        return [...$p->toArray(), 'specifications' => [], 'specification_groups' => $groups, 'featured_image_url'=>$this->mediaUrl($p->featured_image_path),'gallery_urls'=>collect($p->gallery??[])->filter()->map(fn($path)=>$this->mediaUrl($path))->values(),'og_image_url'=>$this->mediaUrl($p->og_image_path),'twitter_image_url'=>$this->mediaUrl($p->twitter_image_path)];
+        return [...$p->toArray(), 'category_breadcrumb' => $this->categoryBreadcrumb($p), 'specifications' => [], 'specification_groups' => $groups, 'featured_image_url'=>$this->mediaUrl($p->featured_image_path),'gallery_urls'=>collect($p->gallery??[])->filter()->map(fn($path)=>$this->mediaUrl($path))->values(),'og_image_url'=>$this->mediaUrl($p->og_image_path),'twitter_image_url'=>$this->mediaUrl($p->twitter_image_path)];
+    }
+
+    private function categoryBreadcrumb(Product $product): array
+    {
+        $categories = Category::query()
+            ->where('is_active', true)
+            ->get(['id', 'parent_id', 'name', 'slug'])
+            ->keyBy('id');
+        $deepestPath = [];
+
+        foreach ($product->categories as $assignedCategory) {
+            $path = [];
+            $visited = [];
+            $category = $categories->get($assignedCategory->id) ?? $assignedCategory;
+
+            while ($category && !isset($visited[$category->id])) {
+                $visited[$category->id] = true;
+                array_unshift($path, ['id' => $category->id, 'name' => $category->name, 'slug' => $category->slug]);
+                $category = $category->parent_id ? $categories->get($category->parent_id) : null;
+            }
+
+            if (count($path) > count($deepestPath)) $deepestPath = $path;
+        }
+
+        return $deepestPath;
     }
 
     private function stockSettings(): array

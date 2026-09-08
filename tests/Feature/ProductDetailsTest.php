@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Modules\Inventories\Products\Models\Product;
+use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Settings\Models\WebsiteSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,6 +31,22 @@ class ProductDetailsTest extends TestCase
     {
         $product = Product::create(['title'=>'Aqua Pro Filter','slug'=>'aqua-pro-filter','regular_price'=>100,'sale_price'=>90,'stock_quantity'=>10,'low_stock_threshold'=>3,'min_order_quantity'=>1,'quantity_step'=>1,'status'=>'Published','visibility'=>'Public','meta_robots'=>'index,follow','gallery'=>['website/media/gallery-one.webp','website/media/gallery-two.webp']]);
         $this->get(route('storefront.products.show',$product->slug))->assertOk()->assertInertia(fn($page)=>$page->component('app/modules/storefront/products/pages/Show', false)->where('product.discount_percentage',10)->where('product.gallery_urls.0','/image/gallery-one.webp?v=1')->where('product.gallery_urls.1','/image/gallery-two.webp?v=1'));
+    }
+
+    public function test_product_breadcrumb_contains_the_complete_category_hierarchy(): void
+    {
+        $parent = Category::create(['name' => 'Water Purifier', 'slug' => 'water-purifier', 'is_active' => true]);
+        $child = Category::create(['name' => 'Filter Cartridge', 'slug' => 'filter-cartridge', 'parent_id' => $parent->id, 'is_active' => true]);
+        $leaf = Category::create(['name' => 'PP Filter', 'slug' => 'pp-filter', 'parent_id' => $child->id, 'is_active' => true]);
+        $product = Product::create(['title' => 'Six Piece Filter', 'slug' => 'six-piece-filter', 'regular_price' => 100, 'stock_quantity' => 1, 'status' => 'Published', 'visibility' => 'Public']);
+        $product->categories()->attach($leaf);
+
+        $this->get(route('storefront.products.show', $product->slug))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('product.category_breadcrumb.0.name', 'Water Purifier')
+                ->where('product.category_breadcrumb.1.name', 'Filter Cartridge')
+                ->where('product.category_breadcrumb.2.name', 'PP Filter'));
     }
 
     public function test_legacy_product_url_redirects_to_the_direct_url(): void
