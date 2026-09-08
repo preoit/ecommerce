@@ -108,6 +108,7 @@ class CreateProductController extends Controller
             'stock' => ['required', 'integer', 'min:0'],
             'status' => ['required', Rule::in(['Draft', 'Published', 'Active', 'Inactive', 'Discontinued'])],
             'visibility' => ['required', Rule::in(['Public', 'Private'])],
+            'description' => ['nullable', 'string'],
             'featuredImage' => ['nullable', 'array'],
             'featuredImage.path' => ['nullable', 'string', 'max:2048'],
             'gallery' => ['nullable', 'array'],
@@ -126,6 +127,7 @@ class CreateProductController extends Controller
             'stock_quantity' => $data['stock'],
             'status' => $data['status'],
             'visibility' => $data['visibility'],
+            'description' => $this->sanitizer->sanitize($data['description'] ?? null),
             'published_at' => $data['published_at'] ?? $product->published_at,
         ];
 
