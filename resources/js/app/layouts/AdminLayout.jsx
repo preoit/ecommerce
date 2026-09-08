@@ -201,12 +201,9 @@ export default function AdminLayout({ children }) {
                 </header>
                 <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
                     {flash?.success && (
-                        <div className="mb-6 overflow-hidden rounded-xl border border-emerald-200 bg-white shadow-[0_8px_24px_rgba(5,150,105,.10)] dark:border-emerald-900 dark:bg-slate-900" role="status">
-                            <div className="h-1 bg-gradient-to-r from-emerald-500 to-teal-400" />
-                            <div className="flex items-center gap-3 px-4 py-3.5">
-                                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900"><CheckCircle2 className="size-5" aria-hidden="true" /></span>
-                                <div><b className="block text-xs uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Success</b><p className="mt-0.5 text-sm font-semibold text-slate-700 dark:text-slate-200">{flash.success}</p></div>
-                            </div>
+                        <div className="mb-6 ml-auto flex w-full max-w-xl items-center gap-3 rounded-xl border border-emerald-200 border-l-4 border-l-emerald-500 bg-emerald-50/70 px-4 py-3 shadow-[0_8px_20px_rgba(5,150,105,.08)] dark:border-emerald-900 dark:border-l-emerald-500 dark:bg-emerald-950/30" role="status">
+                            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-800"><CheckCircle2 className="size-5" aria-hidden="true" /></span>
+                            <div className="min-w-0"><b className="block text-[11px] font-extrabold uppercase tracking-[.12em] text-emerald-700 dark:text-emerald-300">Success</b><p className="mt-0.5 truncate text-sm font-semibold text-slate-700 dark:text-slate-200">{flash.success}</p></div>
                         </div>
                     )}
                     {children}
