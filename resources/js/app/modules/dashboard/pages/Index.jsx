@@ -19,6 +19,15 @@ const statusColors = {
     returned: 'bg-slate-100 text-slate-700 ring-slate-200',
 };
 
+const pipelineColors = {
+    pending: { dot: 'bg-amber-500', bar: 'bg-amber-500', text: 'text-amber-700 dark:text-amber-300', surface: 'border-amber-100 bg-amber-50/60 dark:border-amber-900/70 dark:bg-amber-950/20' },
+    processing: { dot: 'bg-sky-500', bar: 'bg-sky-500', text: 'text-sky-700 dark:text-sky-300', surface: 'border-sky-100 bg-sky-50/60 dark:border-sky-900/70 dark:bg-sky-950/20' },
+    shipped: { dot: 'bg-indigo-500', bar: 'bg-indigo-500', text: 'text-indigo-700 dark:text-indigo-300', surface: 'border-indigo-100 bg-indigo-50/60 dark:border-indigo-900/70 dark:bg-indigo-950/20' },
+    delivered: { dot: 'bg-emerald-500', bar: 'bg-emerald-500', text: 'text-emerald-700 dark:text-emerald-300', surface: 'border-emerald-100 bg-emerald-50/60 dark:border-emerald-900/70 dark:bg-emerald-950/20' },
+    cancelled: { dot: 'bg-rose-500', bar: 'bg-rose-500', text: 'text-rose-700 dark:text-rose-300', surface: 'border-rose-100 bg-rose-50/60 dark:border-rose-900/70 dark:bg-rose-950/20' },
+    returned: { dot: 'bg-slate-500', bar: 'bg-slate-500', text: 'text-slate-700 dark:text-slate-300', surface: 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/60' },
+};
+
 function Card({ children, className = '' }) {
     return <section className={cn('rounded-lg border border-violet-100/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,.04),0_10px_30px_rgba(67,40,116,.08)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-[0_1px_2px_rgba(0,0,0,.24),0_14px_34px_rgba(0,0,0,.20)]', className)}>{children}</section>;
 }
@@ -55,6 +64,7 @@ function EmptyState({ children }) {
 
 export default function Dashboard({ summary = [], orderStatus = [], recentOrders = [], stockAlerts = [], catalog = {} }) {
     const activeOrders = orderStatus.filter(item => ['pending', 'processing', 'shipped'].includes(item.key)).reduce((total, item) => total + item.count, 0);
+    const totalOrders = orderStatus.reduce((total, item) => total + item.count, 0);
 
     return (
         <AdminLayout>
@@ -121,10 +131,33 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                                         <h2 className="text-lg font-bold text-slate-950 dark:text-white">Order pipeline</h2>
                                         <p className="text-sm text-slate-500 dark:text-slate-400">Current fulfilment status.</p>
                                     </div>
-                                    <ClipboardList className="size-6 text-violet-600" />
+                                    <div className="text-right">
+                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700 dark:bg-violet-950 dark:text-violet-200"><ClipboardList className="size-3.5" />{totalOrders} total</span>
+                                    </div>
                                 </div>
-                                <div className="mt-5 space-y-3">
-                                    {orderStatus.map(status => <div key={status.key} className="flex items-center justify-between rounded-md border border-slate-100 bg-white px-3 py-2 shadow-[0_1px_3px_rgba(15,23,42,.045)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-[0_1px_3px_rgba(0,0,0,.2)]"><span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{status.label}</span><b className="text-lg text-slate-950 dark:text-white">{status.count}</b></div>)}
+                                <div className="mt-5 space-y-2.5">
+                                    {orderStatus.map(status => {
+                                        const colors = pipelineColors[status.key] || pipelineColors.returned;
+                                        const percentage = totalOrders > 0 ? Math.round((status.count / totalOrders) * 100) : 0;
+
+                                        return (
+                                            <div key={status.key} className={cn('rounded-lg border px-3.5 py-3 transition hover:-translate-y-px hover:shadow-sm', colors.surface)}>
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <div className="flex min-w-0 items-center gap-2.5">
+                                                        <span className={cn('size-2.5 shrink-0 rounded-full ring-4 ring-white dark:ring-slate-900', colors.dot)} />
+                                                        <span className="truncate text-sm font-bold text-slate-700 dark:text-slate-200">{status.label}</span>
+                                                    </div>
+                                                    <div className="flex shrink-0 items-baseline gap-2">
+                                                        <span className={cn('text-xs font-bold', colors.text)}>{percentage}%</span>
+                                                        <b className="min-w-6 text-right text-lg leading-none text-slate-950 dark:text-white">{status.count}</b>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/90 ring-1 ring-black/5 dark:bg-slate-900/80 dark:ring-white/10">
+                                                    <span className={cn('block h-full rounded-full transition-all duration-500', colors.bar)} style={{ width: `${percentage}%` }} />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </Card>
 
