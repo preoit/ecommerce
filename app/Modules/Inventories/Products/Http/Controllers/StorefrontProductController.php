@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Inventories\Products\Models\Product;
 use App\Modules\Inventories\Products\Models\ProductQuestion;
 use App\Modules\Inventories\Products\Models\ProductReview;
+use App\Modules\Inventories\Products\Models\ProductVariant;
 use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Inventories\Categories\Services\CategoryService;
 use App\Modules\Settings\Models\WebsiteSetting;
@@ -48,7 +49,7 @@ class StorefrontProductController extends Controller
 
     public function show(Request $request, string $slug): Response|RedirectResponse
     {
-        $product = Product::with(['brand:id,name,slug','unit:id,name','categories:id,parent_id,name,slug','images','specifications','approvedReviews.images','questions' => fn ($q) => $q->where('status','approved')->latest(),'faqs','bulkPrices'])
+        $product = Product::with(['brand:id,name,slug','unit:id,name','categories:id,parent_id,name,slug','images','specifications','approvedReviews.images','questions' => fn ($q) => $q->where('status','approved')->latest(),'faqs','bulkPrices','variants' => fn ($query) => $query->where('is_active', true)])
             ->where('slug', $slug)->whereIn('status', ['Published','Active'])->where('visibility', 'Public')->first();
         if (!$product) {
             $redirect = DB::table('product_url_redirects')->where('old_slug', $slug)->first();
@@ -99,16 +100,22 @@ class StorefrontProductController extends Controller
 
     public function cart(Request $request, Product $product): JsonResponse
     {
-        $data = $request->validate(['quantity'=>['required','integer','min:1']]);
-        abort_unless(in_array($product->status,['Published','Active']) && $product->visibility === 'Public', 404);
+        $data = $request->validate(['quantity' => ['required', 'integer', 'min:1'], 'variant_id' => ['nullable', 'integer']]);
+        abort_unless(in_array($product->status, ['Published', 'Active']) && $product->visibility === 'Public', 404);
+        $hasVariants = $product->variants()->where('is_active', true)->exists();
+        $variant = filled($data['variant_id'] ?? null) ? $product->variants()->where('is_active', true)->find($data['variant_id']) : null;
+        if ($hasVariants && !$variant) return response()->json(['message' => 'Please select a product option.'], 422);
+
         $settings = $this->stockSettings();
-        $max = $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: PHP_INT_MAX) : min($product->stock_quantity, $product->max_order_quantity ?: $product->stock_quantity);
-        if ($data['quantity'] < $product->min_order_quantity || $data['quantity'] > $max || (($data['quantity']-$product->min_order_quantity) % max(1,$product->quantity_step)) !== 0) return response()->json(['message'=>'Selected quantity is not available.'],422);
-        $unitPrice = (float)($product->bulkPrices()->where('min_quantity','<=',$data['quantity'])->where(fn($q)=>$q->whereNull('max_quantity')->orWhere('max_quantity','>=',$data['quantity']))->orderByDesc('min_quantity')->value('unit_price') ?? $product->current_price);
+        $stock = $variant?->stock_quantity ?? $product->stock_quantity;
+        $max = $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: PHP_INT_MAX) : min($stock, $product->max_order_quantity ?: $stock);
+        if ($data['quantity'] < $product->min_order_quantity || $data['quantity'] > $max || (($data['quantity'] - $product->min_order_quantity) % max(1, $product->quantity_step)) !== 0) return response()->json(['message' => 'Selected quantity is not available.'], 422);
+        $unitPrice = $variant ? (float) $variant->current_price : (float) ($product->bulkPrices()->where('min_quantity', '<=', $data['quantity'])->where(fn ($q) => $q->whereNull('max_quantity')->orWhere('max_quantity', '>=', $data['quantity']))->orderByDesc('min_quantity')->value('unit_price') ?? $product->current_price);
         $cart = $request->session()->get('cart', []);
-        $cart[$product->id] = ['product_id'=>$product->id,'quantity'=>$data['quantity'],'unit_price'=>$unitPrice,'title'=>$product->title,'slug'=>$product->slug];
-        $request->session()->put('cart',$cart);
-        return response()->json(['message'=>'Product added to cart.','count'=>collect($cart)->sum('quantity'),'item'=>$cart[$product->id]]);
+        $cartKey = $variant ? "{$product->id}:{$variant->id}" : (string) $product->id;
+        $cart[$cartKey] = ['product_id' => $product->id, 'variant_id' => $variant?->id, 'quantity' => $data['quantity'], 'unit_price' => $unitPrice, 'title' => $product->title, 'variant_name' => $variant?->name, 'slug' => $product->slug];
+        $request->session()->put('cart', $cart);
+        return response()->json(['message' => 'Product added to cart.', 'count' => collect($cart)->sum('quantity'), 'item' => $cart[$cartKey]]);
     }
 
     public function cartPage(Request $request): Response
@@ -116,31 +123,30 @@ class StorefrontProductController extends Controller
         return Inertia::render('app/modules/storefront/cart/pages/Index', $this->cartSummary($request));
     }
 
-    public function updateCart(Request $request, Product $product): JsonResponse
+    public function updateCart(Request $request, string $cartKey): JsonResponse
     {
         $data = $request->validate(['quantity' => ['required', 'integer', 'min:1']]);
         $cart = $request->session()->get('cart', []);
-        abort_unless(isset($cart[$product->id]), 404);
-
+        abort_unless(isset($cart[$cartKey]), 404);
+        $line = $cart[$cartKey];
+        $product = Product::findOrFail($line['product_id']);
+        $variant = filled($line['variant_id'] ?? null) ? $product->variants()->where('is_active', true)->find($line['variant_id']) : null;
+        if (filled($line['variant_id'] ?? null) && !$variant) return response()->json(['message' => 'This product option is no longer available.'], 422);
         $settings = $this->stockSettings();
-        $max = $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: PHP_INT_MAX) : min($product->stock_quantity, $product->max_order_quantity ?: $product->stock_quantity);
-        if ($data['quantity'] < $product->min_order_quantity || $data['quantity'] > $max || (($data['quantity'] - $product->min_order_quantity) % max(1, $product->quantity_step)) !== 0) {
-            return response()->json(['message' => 'Selected quantity is not available.'], 422);
-        }
-
-        $cart[$product->id]['quantity'] = $data['quantity'];
-        $cart[$product->id]['unit_price'] = (float) ($product->bulkPrices()->where('min_quantity', '<=', $data['quantity'])->where(fn ($query) => $query->whereNull('max_quantity')->orWhere('max_quantity', '>=', $data['quantity']))->orderByDesc('min_quantity')->value('unit_price') ?? $product->current_price);
+        $stock = $variant?->stock_quantity ?? $product->stock_quantity;
+        $max = $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: PHP_INT_MAX) : min($stock, $product->max_order_quantity ?: $stock);
+        if ($data['quantity'] < $product->min_order_quantity || $data['quantity'] > $max || (($data['quantity'] - $product->min_order_quantity) % max(1, $product->quantity_step)) !== 0) return response()->json(['message' => 'Selected quantity is not available.'], 422);
+        $cart[$cartKey]['quantity'] = $data['quantity'];
+        $cart[$cartKey]['unit_price'] = $variant ? (float) $variant->current_price : (float) $product->current_price;
         $request->session()->put('cart', $cart);
-
         return response()->json(['message' => 'Cart updated.', ...$this->cartSummary($request)]);
     }
 
-    public function removeCart(Request $request, Product $product): JsonResponse
+    public function removeCart(Request $request, string $cartKey): JsonResponse
     {
         $cart = $request->session()->get('cart', []);
-        unset($cart[$product->id]);
+        unset($cart[$cartKey]);
         $request->session()->put('cart', $cart);
-
         return response()->json(['message' => 'Item removed from cart.', ...$this->cartSummary($request)]);
     }
 
@@ -171,33 +177,42 @@ class StorefrontProductController extends Controller
         $orderNumber = null;
         $orderId = null;
         DB::transaction(function () use ($cart, $data, $request, &$orderNumber, &$orderId): void {
-            $products = Product::query()->whereIn('id', array_keys($cart))->lockForUpdate()->get()->keyBy('id');
+            $products = Product::query()->whereIn('id', collect($cart)->pluck('product_id'))->lockForUpdate()->get()->keyBy('id');
+            $variants = ProductVariant::query()->whereIn('id', collect($cart)->pluck('variant_id')->filter())->lockForUpdate()->get()->keyBy('id');
+            $settings = $this->stockSettings();
             $subtotal = 0;
             $hasStockShortage = false;
-            foreach ($cart as $line) {
+
+            foreach ($cart as $key => $line) {
                 $product = $products->get($line['product_id']);
-                if (!$product || !in_array($product->status, ['Published', 'Active']) || (!$this->stockSettings()['allowOutOfStockOrders'] && $product->stock_quantity < $line['quantity'])) {
-                    abort(422, 'One or more items are no longer available.');
-                }
-                $hasStockShortage = $hasStockShortage || $product->stock_quantity < $line['quantity'];
-                $subtotal += $line['quantity'] * $line['unit_price'];
+                $variant = filled($line['variant_id'] ?? null) ? $variants->get($line['variant_id']) : null;
+                if (!$product || !in_array($product->status, ['Published', 'Active']) || (filled($line['variant_id'] ?? null) && (!$variant || !$variant->is_active))) abort(422, 'One or more items are no longer available.');
+                $stock = $variant?->stock_quantity ?? $product->stock_quantity;
+                if (!$settings['allowOutOfStockOrders'] && $stock < $line['quantity']) abort(422, 'One or more items are no longer available.');
+                $price = $variant ? (float) $variant->current_price : (float) ($product->bulkPrices()->where('min_quantity', '<=', $line['quantity'])->where(fn ($query) => $query->whereNull('max_quantity')->orWhere('max_quantity', '>=', $line['quantity']))->orderByDesc('min_quantity')->value('unit_price') ?? $product->current_price);
+                $cart[$key]['unit_price'] = $price;
+                $hasStockShortage = $hasStockShortage || $stock < $line['quantity'];
+                $subtotal += $line['quantity'] * $price;
             }
 
             $orderNumber = '#ORD'.str_pad((string) ((int) DB::table('orders')->max('id') + 1), 2, '0', STR_PAD_LEFT);
             $orderId = DB::table('orders')->insertGetId([
-                'order_number' => $orderNumber,
-                'user_id' => $request->user()?->id,
+                'order_number' => $orderNumber, 'user_id' => $request->user()?->id,
                 'customer_name' => $data['customer_name'], 'phone' => $data['phone'], 'email' => $data['email'] ?? null,
                 'address' => $data['address'], 'city' => $data['city'], 'note' => $data['note'] ?? null,
                 'payment_method' => $data['payment_method'], 'payment_status' => 'pending', 'status' => 'pending',
                 'subtotal' => $subtotal, 'shipping_total' => 0, 'total' => $subtotal, 'has_stock_shortage' => $hasStockShortage,
                 'created_at' => now(), 'updated_at' => now(),
             ]);
+
             foreach ($cart as $line) {
                 $product = $products->get($line['product_id']);
-                $shortage = max(0, $line['quantity'] - $product->stock_quantity);
-                DB::table('order_items')->insert(['order_id' => $orderId, 'product_id' => $product->id, 'product_title' => $product->title, 'sku' => $product->sku, 'unit_price' => $line['unit_price'], 'quantity' => $line['quantity'], 'line_total' => $line['quantity'] * $line['unit_price'], 'stock_shortage_quantity' => $shortage, 'created_at' => now(), 'updated_at' => now()]);
-                if ($product->stock_quantity > 0) $product->decrement('stock_quantity', min($product->stock_quantity, $line['quantity']));
+                $variant = filled($line['variant_id'] ?? null) ? $variants->get($line['variant_id']) : null;
+                $stock = $variant?->stock_quantity ?? $product->stock_quantity;
+                $shortage = max(0, $line['quantity'] - $stock);
+                DB::table('order_items')->insert(['order_id' => $orderId, 'product_id' => $product->id, 'product_variant_id' => $variant?->id, 'product_title' => $product->title, 'variant_name' => $variant?->name, 'sku' => $variant?->sku ?: $product->sku, 'unit_price' => $line['unit_price'], 'quantity' => $line['quantity'], 'line_total' => $line['quantity'] * $line['unit_price'], 'stock_shortage_quantity' => $shortage, 'created_at' => now(), 'updated_at' => now()]);
+                if ($variant && $variant->stock_quantity > 0) $variant->decrement('stock_quantity', min($variant->stock_quantity, $line['quantity']));
+                elseif (!$variant && $product->stock_quantity > 0) $product->decrement('stock_quantity', min($product->stock_quantity, $line['quantity']));
             }
         });
         $request->session()->forget('cart');
@@ -274,15 +289,19 @@ class StorefrontProductController extends Controller
     private function cartSummary(Request $request): array
     {
         $cart = $request->session()->get('cart', []);
-        $products = Product::query()->whereIn('id', array_keys($cart))->get()->keyBy('id');
+        $products = Product::query()->whereIn('id', collect($cart)->pluck('product_id'))->get()->keyBy('id');
+        $variants = ProductVariant::query()->whereIn('id', collect($cart)->pluck('variant_id')->filter())->get()->keyBy('id');
         $settings = $this->stockSettings();
-        $items = collect($cart)->map(function (array $line) use ($products, $settings): ?array {
+        $items = collect($cart)->map(function (array $line, string|int $cartKey) use ($products, $variants, $settings): ?array {
             $product = $products->get($line['product_id']);
-            if (!$product) return null;
-            $quantity = $settings['allowOutOfStockOrders'] ? (int) $line['quantity'] : min((int) $line['quantity'], max(0, (int) $product->stock_quantity));
+            $variant = filled($line['variant_id'] ?? null) ? $variants->get($line['variant_id']) : null;
+            if (!$product || (filled($line['variant_id'] ?? null) && !$variant)) return null;
+            $stock = $variant?->stock_quantity ?? $product->stock_quantity;
+            $quantity = $settings['allowOutOfStockOrders'] ? (int) $line['quantity'] : min((int) $line['quantity'], max(0, (int) $stock));
             if (!$quantity) return null;
-            $price = (float) $product->current_price;
-            return ['product_id' => $product->id, 'title' => $product->title, 'slug' => $product->slug, 'quantity' => $quantity, 'unit_price' => $price, 'line_total' => $quantity * $price, 'stock_quantity' => $product->stock_quantity, 'max_quantity' => $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: null) : $product->stock_quantity, 'image' => $product->featured_image_path ? '/image/'.rawurlencode(basename($product->featured_image_path)) : null];
+            $price = $variant ? (float) $variant->current_price : (float) $product->current_price;
+            $imagePath = $variant?->image_path ?: $product->featured_image_path;
+            return ['cart_key' => (string) $cartKey, 'product_id' => $product->id, 'variant_id' => $variant?->id, 'variant_name' => $variant?->name, 'title' => $product->title, 'slug' => $product->slug, 'quantity' => $quantity, 'unit_price' => $price, 'line_total' => $quantity * $price, 'stock_quantity' => $stock, 'max_quantity' => $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: null) : $stock, 'image' => $imagePath ? '/image/'.rawurlencode(basename($imagePath)) : null];
         })->filter()->values();
 
         return ['items' => $items, 'subtotal' => $items->sum('line_total'), 'cartCount' => $items->sum('quantity')];
@@ -296,7 +315,7 @@ class StorefrontProductController extends Controller
             ->map(fn ($items, $title) => ['title' => $title, 'items' => $items->values()])
             ->values();
 
-        return [...$p->toArray(), 'category_breadcrumb' => $this->categoryBreadcrumb($p), 'specifications' => [], 'specification_groups' => $groups, 'featured_image_url'=>$this->mediaUrl($p->featured_image_path),'gallery_urls'=>collect($p->gallery??[])->filter()->map(fn($path)=>$this->mediaUrl($path))->values(),'og_image_url'=>$this->mediaUrl($p->og_image_path),'twitter_image_url'=>$this->mediaUrl($p->twitter_image_path)];
+        return [...$p->toArray(), 'variants' => $p->variants->map(fn ($variant) => [...$variant->toArray(), 'image_url' => $this->mediaUrl($variant->image_path)])->values(), 'category_breadcrumb' => $this->categoryBreadcrumb($p), 'specifications' => [], 'specification_groups' => $groups, 'featured_image_url'=>$this->mediaUrl($p->featured_image_path),'gallery_urls'=>collect($p->gallery??[])->filter()->map(fn($path)=>$this->mediaUrl($path))->values(),'og_image_url'=>$this->mediaUrl($p->og_image_path),'twitter_image_url'=>$this->mediaUrl($p->twitter_image_path)];
     }
 
     private function categoryBreadcrumb(Product $product): array

@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -113,6 +114,17 @@ class CreateProductController extends Controller
             'featuredImage.path' => ['nullable', 'string', 'max:2048'],
             'gallery' => ['nullable', 'array'],
             'gallery.*.path' => ['required', 'string', 'max:2048'],
+            'variants' => ['nullable', 'array'],
+            'variants.*.id' => ['nullable', 'integer'],
+            'variants.*.name' => ['required', 'string', 'max:150'],
+            'variants.*.attributes' => ['nullable', 'string', 'max:1000'],
+            'variants.*.sku' => ['required', 'string', 'max:100'],
+            'variants.*.regular_price' => ['required', 'numeric', 'min:0'],
+            'variants.*.sale_price' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.stock_quantity' => ['required', 'integer', 'min:0'],
+            'variants.*.image' => ['nullable', 'array'],
+            'variants.*.image.path' => ['nullable', 'string', 'max:2048'],
+            'variants.*.is_active' => ['boolean'],
         ]);
 
         if ($data['status'] === 'Published' && !$product->published_at) {
@@ -140,6 +152,7 @@ class CreateProductController extends Controller
         }
 
         $product->update($updates);
+        $this->syncVariants($product, $data['variants'] ?? []);
 
         return back()->with('success', 'Product updated successfully.');
     }
@@ -176,14 +189,14 @@ class CreateProductController extends Controller
                 'url' => $file->publicUrl(),
                 'path' => $file->path,
             ]),
-            'editingProduct' => $request->integer('edit') ? Product::with(['categories', 'brand', 'unit', 'images'])->find($request->integer('edit'))?->toArray() : null,
+            'editingProduct' => $request->integer('edit') ? Product::with(['categories', 'brand', 'unit', 'images', 'variants'])->find($request->integer('edit'))?->toArray() : null,
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'title'=>['required','string','max:255'],'slug'=>['nullable','string','max:180',Rule::notIn(config('seo.reserved_slugs')),Rule::unique('products','slug'),Rule::unique('categories','slug')],'shortDescription'=>['nullable','string','max:1000'],'description'=>['nullable','string'],'regular'=>['required','numeric','min:0'],'sale'=>['nullable','numeric','min:0','lt:regular'],'sku'=>['nullable','string','max:100','unique:products,sku'],'barcode'=>['nullable','string','max:100','unique:products,barcode'],'stock'=>['required','integer','min:0'],'lowStockThreshold'=>['integer','min:0'],'minOrder'=>['integer','min:1'],'maxOrder'=>['nullable','integer','gte:minOrder'],'quantityStep'=>['integer','min:1'],'unit'=>['nullable','string'],'brand'=>['nullable','string'],'category'=>['array'],'category.*'=>['integer','exists:categories,id'],'status'=>['required','in:Draft,Published,Active,Inactive,Discontinued'],'visibility'=>['required','in:Public,Private'],'featuredImage'=>['nullable','array'],'gallery'=>['array'],'videoUrl'=>['nullable','url','max:255'],'model'=>['nullable','string','max:150'],'manufacturer'=>['nullable','string','max:150'],'countryOfOrigin'=>['nullable','string','max:100'],'weight'=>['nullable','numeric','min:0'],'length'=>['nullable','numeric','min:0'],'width'=>['nullable','numeric','min:0'],'height'=>['nullable','numeric','min:0'],'warranty'=>['nullable','string','max:255'],'keyFeatures'=>['nullable','string'],'keyBenefits'=>['nullable','string'],'boxContents'=>['nullable','string'],'howToUse'=>['nullable','string'],'suitableFor'=>['nullable','string'],'careInstructions'=>['nullable','string'],'deliveryInsideDhaka'=>['nullable','numeric','min:0'],'deliveryOutsideDhaka'=>['nullable','numeric','min:0'],'estimatedDelivery'=>['nullable','string','max:100'],'cashOnDelivery'=>['boolean'],'advancePayment'=>['nullable','string','max:1000'],'returnPolicy'=>['nullable','string','max:2000'],'replacementPolicy'=>['nullable','string','max:2000'],'paymentMethods'=>['nullable','string','max:500'],'isFeatured'=>['boolean'],'isNewArrival'=>['boolean'],'isBestSeller'=>['boolean'],'specifications'=>['array'],'specifications.*.group_title'=>['nullable','string','max:150'],'specifications.*.name'=>['required_with:specifications.*.value','string','max:150'],'specifications.*.value'=>['required_with:specifications.*.name','string','max:1000'],'seoTitle'=>['nullable','string','max:160'],'meta'=>['nullable','string','max:320'],'canonicalUrl'=>['nullable','url','max:255'],'metaRobots'=>['required',Rule::in(['index,follow','noindex,follow','noindex,nofollow'])],'focusKeyword'=>['nullable','string','max:255'],'ogTitle'=>['nullable','string','max:160'],'ogDescription'=>['nullable','string','max:320'],'ogImage'=>['nullable','array'],'twitterImage'=>['nullable','array'],'tags'=>['nullable','string','max:1000'],
+            'title'=>['required','string','max:255'],'slug'=>['nullable','string','max:180',Rule::notIn(config('seo.reserved_slugs')),Rule::unique('products','slug'),Rule::unique('categories','slug')],'shortDescription'=>['nullable','string','max:1000'],'description'=>['nullable','string'],'regular'=>['required','numeric','min:0'],'sale'=>['nullable','numeric','min:0','lt:regular'],'sku'=>['nullable','string','max:100','unique:products,sku'],'barcode'=>['nullable','string','max:100','unique:products,barcode'],'stock'=>['required','integer','min:0'],'lowStockThreshold'=>['integer','min:0'],'minOrder'=>['integer','min:1'],'maxOrder'=>['nullable','integer','gte:minOrder'],'quantityStep'=>['integer','min:1'],'unit'=>['nullable','string'],'brand'=>['nullable','string'],'category'=>['array'],'category.*'=>['integer','exists:categories,id'],'status'=>['required','in:Draft,Published,Active,Inactive,Discontinued'],'visibility'=>['required','in:Public,Private'],'featuredImage'=>['nullable','array'],'gallery'=>['array'],'videoUrl'=>['nullable','url','max:255'],'model'=>['nullable','string','max:150'],'manufacturer'=>['nullable','string','max:150'],'countryOfOrigin'=>['nullable','string','max:100'],'weight'=>['nullable','numeric','min:0'],'length'=>['nullable','numeric','min:0'],'width'=>['nullable','numeric','min:0'],'height'=>['nullable','numeric','min:0'],'warranty'=>['nullable','string','max:255'],'keyFeatures'=>['nullable','string'],'keyBenefits'=>['nullable','string'],'boxContents'=>['nullable','string'],'howToUse'=>['nullable','string'],'suitableFor'=>['nullable','string'],'careInstructions'=>['nullable','string'],'deliveryInsideDhaka'=>['nullable','numeric','min:0'],'deliveryOutsideDhaka'=>['nullable','numeric','min:0'],'estimatedDelivery'=>['nullable','string','max:100'],'cashOnDelivery'=>['boolean'],'advancePayment'=>['nullable','string','max:1000'],'returnPolicy'=>['nullable','string','max:2000'],'replacementPolicy'=>['nullable','string','max:2000'],'paymentMethods'=>['nullable','string','max:500'],'isFeatured'=>['boolean'],'isNewArrival'=>['boolean'],'isBestSeller'=>['boolean'],'specifications'=>['array'],'specifications.*.group_title'=>['nullable','string','max:150'],'specifications.*.name'=>['required_with:specifications.*.value','string','max:150'],'specifications.*.value'=>['required_with:specifications.*.name','string','max:1000'],'seoTitle'=>['nullable','string','max:160'],'meta'=>['nullable','string','max:320'],'canonicalUrl'=>['nullable','url','max:255'],'metaRobots'=>['required',Rule::in(['index,follow','noindex,follow','noindex,nofollow'])],'focusKeyword'=>['nullable','string','max:255'],'ogTitle'=>['nullable','string','max:160'],'ogDescription'=>['nullable','string','max:320'],'ogImage'=>['nullable','array'],'twitterImage'=>['nullable','array'],'tags'=>['nullable','string','max:1000'],'variants'=>['nullable','array'],'variants.*.name'=>['required','string','max:150'],'variants.*.attributes'=>['nullable','string','max:1000'],'variants.*.sku'=>['required','string','max:100'],'variants.*.regular_price'=>['required','numeric','min:0'],'variants.*.sale_price'=>['nullable','numeric','min:0'],'variants.*.stock_quantity'=>['required','integer','min:0'],'variants.*.image'=>['nullable','array'],'variants.*.image.path'=>['nullable','string','max:2048'],'variants.*.is_active'=>['boolean'],
         ]);
         foreach (['description','keyFeatures','keyBenefits','boxContents','howToUse','suitableFor','careInstructions'] as $richTextField) {
             $data[$richTextField] = $this->sanitizer->sanitize($data[$richTextField] ?? null);
@@ -197,7 +210,40 @@ class CreateProductController extends Controller
         ]);
         $product->specifications()->createMany(collect($data['specifications']??[])->filter(fn($item)=>filled($item['name']??null)&&filled($item['value']??null))->values()->map(fn($item,$index)=>[...$item,'sort_order'=>$index])->all());
         $product->categories()->sync($data['category'] ?? []);
+        $this->syncVariants($product, $data['variants'] ?? []);
         return to_route('inventories.products.index')->with('success', 'Product published successfully.');
+    }
+
+    private function syncVariants(Product $product, array $variants): void
+    {
+        $skus = collect($variants)->pluck('sku')->filter();
+        if ($skus->duplicates()->isNotEmpty()) throw ValidationException::withMessages(['variants' => 'Every variant SKU must be unique.']);
+
+        $existingIds = $product->variants()->withTrashed()->pluck('id');
+        $submittedIds = collect($variants)->pluck('id')->filter()->map(fn ($id) => (int) $id);
+        if ($submittedIds->diff($existingIds)->isNotEmpty()) throw ValidationException::withMessages(['variants' => 'One or more variants do not belong to this product.']);
+
+        $conflictingSku = \App\Modules\Inventories\Products\Models\ProductVariant::withTrashed()
+            ->whereIn('sku', $skus)->whereNotIn('id', $existingIds)->value('sku');
+        if ($conflictingSku) throw ValidationException::withMessages(['variants' => "Variant SKU {$conflictingSku} is already in use."]);
+
+        $kept = [];
+        foreach ($variants as $index => $variant) {
+            if (filled($variant['sale_price'] ?? null) && (float) $variant['sale_price'] >= (float) $variant['regular_price']) {
+                throw ValidationException::withMessages(["variants.{$index}.sale_price" => 'Variant sale price must be lower than regular price.']);
+            }
+            $attributes = collect(explode(',', $variant['attributes'] ?? ''))->mapWithKeys(function ($part): array {
+                [$name, $value] = array_pad(array_map('trim', explode(':', $part, 2)), 2, null);
+                return filled($name) && filled($value) ? [$name => $value] : [];
+            })->all();
+            $record = $product->variants()->withTrashed()->updateOrCreate(
+                ['id' => $variant['id'] ?? null],
+                ['name' => $variant['name'], 'attributes' => $attributes, 'sku' => $variant['sku'], 'regular_price' => $variant['regular_price'], 'sale_price' => $variant['sale_price'] ?? null, 'stock_quantity' => $variant['stock_quantity'], 'image_path' => $variant['image']['path'] ?? null, 'is_active' => $variant['is_active'] ?? true, 'sort_order' => $index, 'deleted_at' => null]
+            );
+            $kept[] = $record->id;
+        }
+        $product->variants()->whereNotIn('id', $kept)->delete();
+        if ($variants) $product->updateQuietly(['stock_quantity' => $product->variants()->where('is_active', true)->sum('stock_quantity')]);
     }
 
     private function uniqueProductSlug(string $title, ?Product $ignore = null): string

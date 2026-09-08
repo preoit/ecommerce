@@ -30,8 +30,8 @@ require __DIR__.'/auth.php';
 
 Route::get('/products', [StorefrontProductController::class, 'index'])->name('storefront.products.index');
 Route::get('/cart', [StorefrontProductController::class, 'cartPage'])->name('storefront.cart');
-Route::patch('/cart/{product}', [StorefrontProductController::class, 'updateCart'])->middleware('throttle:30,1')->name('storefront.cart.update');
-Route::delete('/cart/{product}', [StorefrontProductController::class, 'removeCart'])->middleware('throttle:30,1')->name('storefront.cart.remove');
+Route::patch('/cart/{cartKey}', [StorefrontProductController::class, 'updateCart'])->middleware('throttle:30,1')->name('storefront.cart.update');
+Route::delete('/cart/{cartKey}', [StorefrontProductController::class, 'removeCart'])->middleware('throttle:30,1')->name('storefront.cart.remove');
 Route::get('/checkout', [StorefrontProductController::class, 'checkout'])->name('storefront.checkout');
 Route::post('/checkout', [StorefrontProductController::class, 'placeOrder'])->middleware('throttle:10,1')->name('storefront.checkout.place-order');
 Route::get('/order/{orderNumber}/success', [StorefrontProductController::class, 'orderSuccess'])->name('storefront.order.success');

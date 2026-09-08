@@ -26,6 +26,7 @@ class Product extends Model
     public function questions(): HasMany { return $this->hasMany(ProductQuestion::class); }
     public function faqs(): HasMany { return $this->hasMany(ProductFaq::class)->where('is_active', true)->orderBy('sort_order'); }
     public function bulkPrices(): HasMany { return $this->hasMany(ProductBulkPrice::class)->orderBy('min_quantity'); }
+    public function variants(): HasMany { return $this->hasMany(ProductVariant::class)->orderBy('sort_order'); }
     protected function currentPrice(): Attribute { return Attribute::get(fn () => $this->sale_price !== null && $this->sale_price < $this->regular_price ? (float) $this->sale_price : (float) $this->regular_price); }
     protected function discountPercentage(): Attribute { return Attribute::get(fn () => $this->sale_price !== null && $this->regular_price > 0 && $this->sale_price < $this->regular_price ? (int) round((($this->regular_price - $this->sale_price) / $this->regular_price) * 100) : 0); }
     protected function stockStatus(): Attribute { return Attribute::get(fn () => $this->stock_quantity <= 0 ? 'Out of Stock' : ($this->stock_quantity <= $this->low_stock_threshold ? 'Low Stock' : 'In Stock')); }

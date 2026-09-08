@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Modules\Inventories\Products\Models\Product;
+use App\Modules\Inventories\Products\Models\ProductVariant;
 use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Settings\Models\WebsiteSetting;
 use App\Models\User;
@@ -62,6 +63,29 @@ class ProductDetailsTest extends TestCase
     {
         $product = Product::create(['title'=>'Draft','slug'=>'draft','regular_price'=>100,'stock_quantity'=>1,'status'=>'Draft','visibility'=>'Public']);
         $this->get(route('storefront.products.show',$product->slug))->assertNotFound();
+    }
+
+    public function test_variant_price_and_stock_are_revalidated_when_order_is_placed(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'show_stock_to_customers' => true]);
+        $product = Product::create(['title' => 'Variant Product', 'slug' => 'variant-product', 'regular_price' => 999, 'stock_quantity' => 3, 'min_order_quantity' => 1, 'quantity_step' => 1, 'status' => 'Published', 'visibility' => 'Public']);
+        $variant = ProductVariant::create(['product_id' => $product->id, 'name' => 'Red / XL', 'attributes' => ['Color' => 'Red', 'Size' => 'XL'], 'sku' => 'VAR-RED-XL', 'regular_price' => 500, 'sale_price' => 450, 'stock_quantity' => 3, 'is_active' => true]);
+
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 2, 'variant_id' => $variant->id])->assertOk();
+        $variant->update(['sale_price' => 400]);
+        $this->post(route('storefront.checkout.place-order'), ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'payment_method' => 'cod'])->assertRedirect();
+
+        $this->assertDatabaseHas('order_items', ['product_id' => $product->id, 'product_variant_id' => $variant->id, 'variant_name' => 'Red / XL', 'sku' => 'VAR-RED-XL', 'unit_price' => 400, 'quantity' => 2]);
+        $this->assertSame(1, $variant->fresh()->stock_quantity);
+        $this->assertSame(3, $product->fresh()->stock_quantity);
+    }
+
+    public function test_product_with_variants_requires_a_selected_variant(): void
+    {
+        $product = Product::create(['title' => 'Options', 'slug' => 'options', 'regular_price' => 100, 'stock_quantity' => 2, 'status' => 'Published', 'visibility' => 'Public']);
+        ProductVariant::create(['product_id' => $product->id, 'name' => 'Blue', 'sku' => 'VAR-BLUE', 'regular_price' => 120, 'stock_quantity' => 2, 'is_active' => true]);
+
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertUnprocessable();
     }
 
     public function test_cart_rejects_quantity_above_stock(): void

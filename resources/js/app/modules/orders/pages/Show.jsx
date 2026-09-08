@@ -46,7 +46,7 @@ export default function OrderShow({ order }) {
                     <div className="border-b border-slate-200 p-5 dark:border-slate-800"><h2 className="flex items-center gap-2 text-lg font-bold"><Package className="size-5 text-violet-600" />Ordered products</h2></div>
                     <div className="divide-y divide-slate-200 dark:divide-slate-800">
                         {order.items.map((item, index) => <article key={`${item.sku || item.title}-${index}`} className="grid gap-3 p-5 sm:grid-cols-[1fr_auto]">
-                            <div><h3 className="font-bold">{item.title}</h3><p className="mt-1 text-sm text-slate-500">SKU: {item.sku || 'N/A'} · {money(item.unitPrice)} × {item.quantity}</p>{item.stockShortageQuantity > 0 && <p className="mt-2 text-sm font-bold text-rose-600">Stock shortage: {item.stockShortageQuantity}</p>}</div>
+                            <div><h3 className="font-bold">{item.title}</h3>{item.variantName&&<p className="mt-1 text-sm font-semibold text-violet-700">Option: {item.variantName}</p>}<p className="mt-1 text-sm text-slate-500">SKU: {item.sku || 'N/A'} · {money(item.unitPrice)} × {item.quantity}</p>{item.stockShortageQuantity > 0 && <p className="mt-2 text-sm font-bold text-rose-600">Stock shortage: {item.stockShortageQuantity}</p>}</div>
                             <b>{money(item.lineTotal)}</b>
                         </article>)}
                     </div>

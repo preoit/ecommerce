@@ -39,7 +39,7 @@ class OrderDetailsController extends Controller
                 'status' => str($record->status)->replace('_', ' ')->title()->toString(), 'statusKey' => $record->status, 'subtotal' => (float) $record->subtotal, 'shippingTotal' => (float) $record->shipping_total,
                 'total' => (float) $record->total, 'date' => $createdAt->format('d M Y, h:i A'), 'hasStockShortage' => (bool) ($record->has_stock_shortage ?? false),
                 'items' => DB::table('order_items')->where('order_id', $record->id)->get()->map(fn (object $item): array => [
-                    'title' => $item->product_title, 'sku' => $item->sku, 'quantity' => $item->quantity,
+                    'title' => $item->product_title, 'variantName' => $item->variant_name ?? null, 'sku' => $item->sku, 'quantity' => $item->quantity,
                     'unitPrice' => (float) $item->unit_price, 'lineTotal' => (float) $item->line_total, 'stockShortageQuantity' => (int) ($item->stock_shortage_quantity ?? 0),
                 ]),
             ],
