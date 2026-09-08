@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Modules\Inventories\Categories\Http\Controllers\CategoryController;
 use App\Modules\Settings\Http\Controllers\MediaImageController;
 use App\Modules\Inventories\Products\Http\Controllers\StorefrontProductController;
 use Illuminate\Support\Facades\Route;
@@ -36,7 +35,7 @@ Route::delete('/cart/{product}', [StorefrontProductController::class, 'removeCar
 Route::get('/checkout', [StorefrontProductController::class, 'checkout'])->name('storefront.checkout');
 Route::post('/checkout', [StorefrontProductController::class, 'placeOrder'])->middleware('throttle:10,1')->name('storefront.checkout.place-order');
 Route::get('/order/{orderNumber}/success', [StorefrontProductController::class, 'orderSuccess'])->name('storefront.order.success');
-Route::get('/product/{slug}', [StorefrontProductController::class, 'show'])->name('storefront.products.show');
+Route::get('/product/{slug}', [StorefrontProductController::class, 'legacyShow'])->name('storefront.products.legacy');
 Route::post('/product/{product}/cart', [StorefrontProductController::class, 'cart'])->middleware('throttle:30,1')->name('storefront.products.cart');
 Route::post('/product/{product}/compare', [StorefrontProductController::class, 'compare'])->middleware('throttle:30,1')->name('storefront.products.compare');
 Route::post('/product/{product}/notify', [StorefrontProductController::class, 'notify'])->middleware('throttle:5,1')->name('storefront.products.notify');
@@ -52,6 +51,6 @@ Route::get('/sitemap-products.xml', function () {
     return response()->view('sitemaps.products', compact('products'))->header('Content-Type','application/xml');
 })->name('sitemap.products');
 
-Route::get('/{category:slug}', [CategoryController::class, 'show'])
-    ->where('category', '[a-z0-9]+(?:-[a-z0-9]+)*')
-    ->name('storefront.categories.show');
+Route::get('/{slug}', [StorefrontProductController::class, 'show'])
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('storefront.products.show');

@@ -94,7 +94,7 @@ class CategoryManagementTest extends TestCase
     {
         $category = Category::query()->create(['name' => 'Mobile Phones', 'slug' => 'mobile-phones']);
 
-        $this->get(route('storefront.categories.show', $category->slug))
+        $this->get('/'.$category->slug)
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->where('category.slug', 'mobile-phones'));
@@ -115,7 +115,7 @@ class CategoryManagementTest extends TestCase
         ]);
         $product->categories()->attach($category);
 
-        $this->get(route('storefront.categories.show', $category->slug))
+        $this->get('/'.$category->slug)
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->where('products.data.0.image', '/image/pp%20filter.webp'));

@@ -32,6 +32,15 @@ class ProductDetailsTest extends TestCase
         $this->get(route('storefront.products.show',$product->slug))->assertOk()->assertInertia(fn($page)=>$page->component('app/modules/storefront/products/pages/Show', false)->where('product.discount_percentage',10)->where('product.gallery_urls.0','/image/gallery-one.webp?v=1')->where('product.gallery_urls.1','/image/gallery-two.webp?v=1'));
     }
 
+    public function test_legacy_product_url_redirects_to_the_direct_url(): void
+    {
+        $product = Product::create(['title'=>'Direct URL','slug'=>'direct-url','regular_price'=>100,'stock_quantity'=>1,'status'=>'Published','visibility'=>'Public']);
+
+        $this->get('/product/'.$product->slug)
+            ->assertRedirect(route('storefront.products.show', $product->slug))
+            ->assertStatus(301);
+    }
+
     public function test_draft_product_is_not_public(): void
     {
         $product = Product::create(['title'=>'Draft','slug'=>'draft','regular_price'=>100,'stock_quantity'=>1,'status'=>'Draft','visibility'=>'Public']);
@@ -63,7 +72,7 @@ class ProductDetailsTest extends TestCase
     public function test_indexable_product_appears_in_sitemap(): void
     {
         Product::create(['title'=>'Indexed','slug'=>'indexed','regular_price'=>100,'stock_quantity'=>1,'status'=>'Published','visibility'=>'Public','meta_robots'=>'index,follow']);
-        $this->get(route('sitemap.products'))->assertOk()->assertSee('/product/indexed');
+        $this->get(route('sitemap.products'))->assertOk()->assertSee('/indexed');
     }
 
     public function test_product_edit_saves_featured_and_gallery_images(): void

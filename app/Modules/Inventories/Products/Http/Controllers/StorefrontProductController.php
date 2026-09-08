@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Modules\Inventories\Products\Models\Product;
 use App\Modules\Inventories\Products\Models\ProductQuestion;
 use App\Modules\Inventories\Products\Models\ProductReview;
+use App\Modules\Inventories\Categories\Models\Category;
+use App\Modules\Inventories\Categories\Services\CategoryService;
 use App\Modules\Settings\Models\WebsiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -51,6 +53,10 @@ class StorefrontProductController extends Controller
         if (!$product) {
             $redirect = DB::table('product_url_redirects')->where('old_slug', $slug)->first();
             if ($redirect && ($target = Product::find($redirect->product_id))) return redirect()->route('storefront.products.show', $target->slug, 301);
+
+            $category = Category::query()->where('slug', $slug)->where('is_active', true)->first();
+            if ($category) return app(CategoryService::class)->publicPage($request, $category);
+
             abort(404);
         }
 
@@ -76,6 +82,19 @@ class StorefrontProductController extends Controller
             'inWishlist' => $request->user() ? DB::table('wishlists')->where(['user_id'=>$request->user()->id,'product_id'=>$product->id])->exists() : false,
             'stockSettings' => $this->stockSettings(),
         ]);
+    }
+
+    public function legacyShow(string $slug): RedirectResponse
+    {
+        $product = Product::query()->where('slug', $slug)->first();
+        if (!$product) {
+            $redirect = DB::table('product_url_redirects')->where('old_slug', $slug)->first();
+            $product = $redirect ? Product::find($redirect->product_id) : null;
+        }
+
+        abort_unless($product && in_array($product->status, ['Published', 'Active']) && $product->visibility === 'Public', 404);
+
+        return redirect()->route('storefront.products.show', $product->slug, 301);
     }
 
     public function cart(Request $request, Product $product): JsonResponse
