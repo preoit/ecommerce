@@ -62,11 +62,9 @@ function EmptyState({ children }) {
     return <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">{children}</div>;
 }
 
-export default function Dashboard({ summary = [], orderStatus = [], recentOrders = {}, stockAlerts = [], catalog = {} }) {
+export default function Dashboard({ summary = [], orderStatus = [], recentOrders = [], stockAlerts = [], catalog = {} }) {
     const activeOrders = orderStatus.filter(item => ['pending', 'processing', 'shipped'].includes(item.key)).reduce((total, item) => total + item.count, 0);
     const totalOrders = orderStatus.reduce((total, item) => total + item.count, 0);
-    const recentOrderRows = Array.isArray(recentOrders) ? recentOrders : (recentOrders.data || []);
-    const recentOrderPagination = Array.isArray(recentOrders) ? { currentPage: 1, lastPage: 1, total: recentOrders.length, from: recentOrders.length ? 1 : 0, to: recentOrders.length, previousUrl: null, nextUrl: null } : (recentOrders.pagination || {});
     const catalogItems = [
         { key: 'categories', label: 'Categories', value: catalog.categories || 0, Icon: FolderTree, surface: 'border-violet-100 bg-violet-50/60 dark:border-violet-900/70 dark:bg-violet-950/20', icon: 'bg-white text-violet-600 ring-violet-100 dark:bg-slate-900 dark:text-violet-300 dark:ring-violet-900', valueColor: 'text-violet-700 dark:text-violet-300' },
         { key: 'brands', label: 'Brands', value: catalog.brands || 0, Icon: BadgeCheck, surface: 'border-cyan-100 bg-cyan-50/60 dark:border-cyan-900/70 dark:bg-cyan-950/20', icon: 'bg-white text-cyan-600 ring-cyan-100 dark:bg-slate-900 dark:text-cyan-300 dark:ring-cyan-900', valueColor: 'text-cyan-700 dark:text-cyan-300' },
@@ -107,8 +105,7 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                                     <Link href="/admin/orders" className="inline-flex items-center gap-1 rounded-md border border-violet-200 bg-white px-3 py-1.5 text-xs font-bold text-violet-700 transition hover:border-violet-300 hover:bg-violet-50 dark:border-slate-700 dark:bg-slate-900 dark:text-violet-200">View all orders<ChevronRight className="size-3.5" /></Link>
                                 </div>
                             </div>
-                            {recentOrderRows.length > 0 ? (
-                                <>
+                            {recentOrders.length > 0 ? (
                                 <div className="overflow-x-auto">
                                     <table className="min-w-[720px] w-full text-left text-sm">
                                         <thead className="bg-slate-50/90 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300">
@@ -121,7 +118,7 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                            {recentOrderRows.map(order => (
+                                            {recentOrders.map(order => (
                                                 <tr key={order.id} className={cn('transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/60', !order.viewed && 'bg-violet-50/70 dark:bg-violet-950/30')}>
                                                     <td className="px-5 py-3.5"><Link href={order.href} className="font-bold text-violet-700 hover:underline dark:text-violet-300">{order.number}</Link>{!order.viewed && <span className="ml-2 rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">New</span>}{order.hasStockShortage && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">Stock</span>}</td>
                                                     <td className="px-5 py-3.5">
@@ -138,15 +135,6 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/60 px-5 py-3.5 dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between">
-                                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Showing <b className="text-slate-700 dark:text-slate-200">{recentOrderPagination.from || 0}–{recentOrderPagination.to || 0}</b> of <b className="text-slate-700 dark:text-slate-200">{recentOrderPagination.total || 0}</b> orders</p>
-                                    <div className="flex items-center gap-2">
-                                        {recentOrderPagination.previousUrl ? <Link href={recentOrderPagination.previousUrl} preserveScroll preserveState only={['recentOrders']} className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:border-violet-300 hover:text-violet-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">Previous</Link> : <span className="cursor-not-allowed rounded-md border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-400 dark:border-slate-700 dark:bg-slate-800">Previous</span>}
-                                        <span className="min-w-16 text-center text-xs font-bold text-slate-600 dark:text-slate-300">{recentOrderPagination.currentPage || 1} / {recentOrderPagination.lastPage || 1}</span>
-                                        {recentOrderPagination.nextUrl ? <Link href={recentOrderPagination.nextUrl} preserveScroll preserveState only={['recentOrders']} className="rounded-md border border-violet-200 bg-violet-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-violet-700 dark:border-violet-700">Next</Link> : <span className="cursor-not-allowed rounded-md border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-400 dark:border-slate-700 dark:bg-slate-800">Next</span>}
-                                    </div>
-                                </div>
-                                </>
                             ) : <div className="p-5"><EmptyState>No orders yet. New customer orders will appear here.</EmptyState></div>}
                         </Card>
 
