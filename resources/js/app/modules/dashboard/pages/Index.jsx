@@ -20,14 +20,14 @@ const statusColors = {
 };
 
 function Card({ children, className = '' }) {
-    return <section className={cn('rounded-lg border border-violet-100 bg-white shadow-[0_3px_12px_rgba(44,32,66,.08)] dark:border-slate-700 dark:bg-slate-900', className)}>{children}</section>;
+    return <section className={cn('rounded-lg border border-violet-100/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,.04),0_10px_30px_rgba(67,40,116,.08)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-[0_1px_2px_rgba(0,0,0,.24),0_14px_34px_rgba(0,0,0,.20)]', className)}>{children}</section>;
 }
 
 function MetricCard({ metric }) {
     const Icon = iconMap[metric.icon] || PackageCheck;
 
     return (
-        <Link href={metric.href || '#'} className="group block rounded-lg border border-violet-100 bg-white p-4 shadow-[0_3px_12px_rgba(44,32,66,.08)] transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-[0_8px_24px_rgba(44,32,66,.12)] dark:border-slate-700 dark:bg-slate-900">
+        <Link href={metric.href || '#'} className="group block rounded-lg border border-violet-100/80 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.04),0_8px_24px_rgba(67,40,116,.075)] transition duration-200 hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-[0_2px_5px_rgba(15,23,42,.06),0_16px_34px_rgba(91,33,182,.14)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-[0_1px_2px_rgba(0,0,0,.24),0_12px_28px_rgba(0,0,0,.18)] dark:hover:shadow-[0_2px_5px_rgba(0,0,0,.28),0_18px_38px_rgba(0,0,0,.26)]">
             <div className="flex items-start justify-between gap-3">
                 <span className="grid size-11 shrink-0 place-items-center rounded-md bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-200"><Icon className="size-5" /></span>
                 <ChevronRight className="size-5 text-slate-300 transition group-hover:translate-x-1 group-hover:text-violet-500" />
@@ -116,7 +116,7 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                                     <ClipboardList className="size-6 text-violet-600" />
                                 </div>
                                 <div className="mt-5 space-y-3">
-                                    {orderStatus.map(status => <div key={status.key} className="flex items-center justify-between rounded-md border border-slate-100 px-3 py-2 dark:border-slate-700"><span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{status.label}</span><b className="text-lg text-slate-950 dark:text-white">{status.count}</b></div>)}
+                                    {orderStatus.map(status => <div key={status.key} className="flex items-center justify-between rounded-md border border-slate-100 bg-white px-3 py-2 shadow-[0_1px_3px_rgba(15,23,42,.045)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-[0_1px_3px_rgba(0,0,0,.2)]"><span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{status.label}</span><b className="text-lg text-slate-950 dark:text-white">{status.count}</b></div>)}
                                 </div>
                             </Card>
 
@@ -129,7 +129,7 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                                     <Archive className="size-6 text-violet-600" />
                                 </div>
                                 <div className="mt-5 grid grid-cols-2 gap-3">
-                                    {Object.entries({ Categories: catalog.categories || 0, Brands: catalog.brands || 0, Drafts: catalog.drafts || 0, 'Out of stock': catalog.outOfStock || 0 }).map(([label, value]) => <div key={label} className="rounded-md bg-slate-50 p-3 dark:bg-slate-800"><b className="block text-xl text-slate-950 dark:text-white">{value}</b><span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{label}</span></div>)}
+                                    {Object.entries({ Categories: catalog.categories || 0, Brands: catalog.brands || 0, Drafts: catalog.drafts || 0, 'Out of stock': catalog.outOfStock || 0 }).map(([label, value]) => <div key={label} className="rounded-md border border-slate-100 bg-slate-50 p-3 shadow-[0_1px_3px_rgba(15,23,42,.04)] dark:border-slate-700 dark:bg-slate-800 dark:shadow-[0_1px_3px_rgba(0,0,0,.18)]"><b className="block text-xl text-slate-950 dark:text-white">{value}</b><span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{label}</span></div>)}
                                 </div>
                             </Card>
                         </div>
@@ -143,7 +143,7 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                             </div>
                             <Link href="/admin/inventories/products" className="text-sm font-bold text-violet-700 hover:underline dark:text-violet-300">Manage products</Link>
                         </div>
-                        {stockAlerts.length > 0 ? <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{stockAlerts.map(product => <Link key={product.id} href={product.href} className="flex items-start gap-3 rounded-lg border border-amber-100 bg-amber-50/60 p-4 hover:border-amber-300 dark:border-amber-900 dark:bg-amber-950/20"><span className="grid size-10 shrink-0 place-items-center rounded-md bg-white text-amber-600 dark:bg-slate-900"><AlertTriangle className="size-5" /></span><span className="min-w-0 flex-1"><b className="block truncate text-sm text-slate-950 dark:text-white">{product.title}</b><small className="block text-slate-500">{product.sku}</small><span className="mt-2 inline-flex rounded-full bg-white px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200 dark:bg-slate-900">{product.status}: {product.stock}</span></span></Link>)}</div> : <EmptyState>No low-stock product right now.</EmptyState>}
+                        {stockAlerts.length > 0 ? <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{stockAlerts.map(product => <Link key={product.id} href={product.href} className="flex items-start gap-3 rounded-lg border border-amber-100 bg-amber-50/60 p-4 shadow-[0_1px_3px_rgba(120,53,15,.05),0_7px_18px_rgba(120,53,15,.06)] transition duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-[0_2px_5px_rgba(120,53,15,.08),0_12px_26px_rgba(120,53,15,.11)] dark:border-amber-900 dark:bg-amber-950/20 dark:shadow-[0_1px_3px_rgba(0,0,0,.2)]"><span className="grid size-10 shrink-0 place-items-center rounded-md bg-white text-amber-600 shadow-[0_1px_3px_rgba(120,53,15,.08)] dark:bg-slate-900"><AlertTriangle className="size-5" /></span><span className="min-w-0 flex-1"><b className="block truncate text-sm text-slate-950 dark:text-white">{product.title}</b><small className="block text-slate-500">{product.sku}</small><span className="mt-2 inline-flex rounded-full bg-white px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200 dark:bg-slate-900">{product.status}: {product.stock}</span></span></Link>)}</div> : <EmptyState>No low-stock product right now.</EmptyState>}
                     </Card>
                 </div>
             </main>
