@@ -128,23 +128,23 @@
         font-size: 0.75rem;
     }
 
-    header > div:first-of-type {
+    header[data-storefront-header] > div:first-of-type {
         height: 64px !important;
     }
 
-    body:has([data-mobile-menu]) header {
+    body:has([data-mobile-menu]) header[data-storefront-header] {
         position: fixed;
         z-index: 70;
         inset: 0 0 auto;
         background: #fff;
     }
 
-    body:has([data-mobile-menu]) header > div:first-of-type form[role="search"],
-    body:has([data-mobile-menu]) header > div:first-of-type > div[class~="md:flex"] {
+    body:has([data-mobile-menu]) header[data-storefront-header] > div:first-of-type form[role="search"],
+    body:has([data-mobile-menu]) header[data-storefront-header] > div:first-of-type > div[class~="md:flex"] {
         display: none !important;
     }
 
-    body:has([data-mobile-menu]) header > div:first-of-type > a[aria-label$=" home"] {
+    body:has([data-mobile-menu]) header[data-storefront-header] > div:first-of-type > a[aria-label$=" home"] {
         margin-right: auto;
     }
 
@@ -161,7 +161,7 @@
 }
 
 @media (max-width: 767px) {
-    header > div:first-of-type {
+    header[data-storefront-header] > div:first-of-type {
         height: 124px !important;
         flex-wrap: wrap;
         align-content: center;
@@ -170,42 +170,42 @@
         padding-right: 0.75rem !important;
     }
 
-    header > div:first-of-type > a[aria-label$=" home"] {
+    header[data-storefront-header] > div:first-of-type > a[aria-label$=" home"] {
         order: 1;
         margin-right: auto;
     }
 
-    header > div:first-of-type > div[class~="md:flex"] {
+    header[data-storefront-header] > div:first-of-type > div[class~="md:flex"] {
         order: 2;
         display: flex !important;
         margin-left: 0;
     }
 
-    header > div:first-of-type > div[class~="md:flex"] > a:first-child {
+    header[data-storefront-header] > div:first-of-type > div[class~="md:flex"] > a:first-child {
         display: none;
     }
 
-    header > div:first-of-type > div[class~="md:flex"] > a:last-child span:last-child {
+    header[data-storefront-header] > div:first-of-type > div[class~="md:flex"] > a:last-child span:last-child {
         display: none;
     }
 
-    header > div:first-of-type > button[aria-label$="menu"] {
+    header[data-storefront-header] > div:first-of-type > button[aria-label$="menu"] {
         order: 3;
     }
 
-    header > div:first-of-type form[role="search"] {
+    header[data-storefront-header] > div:first-of-type form[role="search"] {
         order: 4;
         flex: 0 0 100%;
         width: 100%;
         height: 44px;
     }
 
-    header > div:first-of-type form[role="search"] input {
+    header[data-storefront-header] > div:first-of-type form[role="search"] input {
         padding-left: 0.75rem;
         font-size: 0.8125rem;
     }
 
-    header > div:first-of-type a[aria-label$=" home"] img {
+    header[data-storefront-header] > div:first-of-type a[aria-label$=" home"] img {
         width: 96px;
     }
 
@@ -213,7 +213,7 @@
         top: 76px;
     }
 
-    body:has([data-mobile-menu]) header > div:first-of-type {
+    body:has([data-mobile-menu]) header[data-storefront-header] > div:first-of-type {
         height: 76px !important;
         flex-wrap: nowrap;
     }
