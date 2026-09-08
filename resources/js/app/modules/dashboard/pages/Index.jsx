@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle, Archive, BadgeCheck, BadgeDollarSign, Boxes, ChevronRight, ClipboardList, FileClock, FolderTree, PackageCheck, PackageX, ShoppingBag, UsersRound } from 'lucide-react';
+import { AlertTriangle, Archive, BadgeCheck, BadgeDollarSign, Boxes, ChevronRight, ClipboardList, FileClock, FolderTree, PackageCheck, PackageX, Plus, ShoppingBag, UsersRound } from 'lucide-react';
 import AdminLayout from '@/app/layouts/AdminLayout';
 import { cn } from '@/app/utils/cn';
 
@@ -84,8 +84,8 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Orders, sales, catalog and stock status in one place.</p>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <Link href="/admin/orders" className="rounded-md border border-violet-200 bg-white px-4 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50 dark:border-slate-700 dark:bg-slate-900 dark:text-violet-200">View orders</Link>
-                            <Link href="/admin/inventories/products/create" className="rounded-md bg-violet-600 px-4 py-2 text-sm font-bold text-white shadow-sm shadow-violet-200 hover:bg-violet-700">Add product</Link>
+                            <Link href="/admin/orders" className="group inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-slate-800 to-slate-950 px-4 py-2.5 text-sm font-bold text-white shadow-[0_6px_16px_rgba(15,23,42,.18)] transition duration-200 hover:-translate-y-0.5 hover:from-slate-700 hover:to-slate-900 hover:shadow-[0_10px_22px_rgba(15,23,42,.24)]"><ShoppingBag className="size-4 transition group-hover:-rotate-6" />View orders</Link>
+                            <Link href="/admin/inventories/products/create" className="group inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-2.5 text-sm font-bold text-white shadow-[0_6px_18px_rgba(124,58,237,.28)] transition duration-200 hover:-translate-y-0.5 hover:from-violet-700 hover:to-purple-700 hover:shadow-[0_10px_24px_rgba(124,58,237,.34)]"><Plus className="size-4 transition group-hover:rotate-90" />Add product</Link>
                         </div>
                     </div>
 
