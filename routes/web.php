@@ -23,13 +23,19 @@ Route::get('/image/{filename}', MediaImageController::class)
 Route::middleware(['auth', 'verified', 'admin'])->group(base_path('app/Modules/routes.php'));
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', fn () => redirect()->route(request()->user()->is_admin ? 'admin.profile.edit' : 'account.profile.edit'));
+
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'adminEdit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    });
 });
 
 require __DIR__.'/auth.php';
-Route::middleware('auth')->prefix('account')->name('account.')->group(function () {
+Route::middleware(['auth', 'customer'])->prefix('account')->name('account.')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'customerEdit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/', [CustomerAccountController::class, 'dashboard'])->name('dashboard');
     Route::get('/orders', [CustomerAccountController::class, 'orders'])->name('orders');
     Route::get('/orders/{order}', [CustomerAccountController::class, 'order'])->name('orders.show');

@@ -44,7 +44,7 @@ export default function VerifyEmail({ status }) {
                         </PrimaryButton>
                     ) : (
                         <Link
-                            href={route('profile.edit')}
+                            href={route(auth.user.is_admin ? 'admin.profile.edit' : 'account.profile.edit')}
                             className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-indigo-500"
                         >
                             Add Email Address

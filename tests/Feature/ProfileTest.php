@@ -12,29 +12,30 @@ class ProfileTest extends TestCase
 
     public function test_profile_page_is_displayed(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => false]);
 
         $response = $this
             ->actingAs($user)
-            ->get('/profile');
+            ->get('/account/profile');
 
         $response->assertOk();
     }
 
     public function test_profile_information_can_be_updated(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => false]);
 
         $response = $this
             ->actingAs($user)
-            ->patch('/profile', [
+            ->patch('/account/profile', [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
+                'phone' => '01712345678',
             ]);
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect('/account/profile');
 
         $user->refresh();
 
@@ -45,29 +46,30 @@ class ProfileTest extends TestCase
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => false]);
 
         $response = $this
             ->actingAs($user)
-            ->patch('/profile', [
+            ->patch('/account/profile', [
                 'name' => 'Test User',
                 'email' => $user->email,
+                'phone' => '01712345678',
             ]);
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect('/account/profile');
 
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
 
     public function test_user_can_delete_their_account(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => false]);
 
         $response = $this
             ->actingAs($user)
-            ->delete('/profile', [
+            ->delete('/account/profile', [
                 'password' => 'password',
             ]);
 
@@ -81,18 +83,18 @@ class ProfileTest extends TestCase
 
     public function test_correct_password_must_be_provided_to_delete_account(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => false]);
 
         $response = $this
             ->actingAs($user)
-            ->from('/profile')
-            ->delete('/profile', [
+            ->from('/account/profile')
+            ->delete('/account/profile', [
                 'password' => 'wrong-password',
             ]);
 
         $response
             ->assertSessionHasErrors('password')
-            ->assertRedirect('/profile');
+            ->assertRedirect('/account/profile');
 
         $this->assertNotNull($user->fresh());
     }
@@ -106,10 +108,30 @@ class ProfileTest extends TestCase
             'payment_status' => 'paid', 'status' => 'completed', 'subtotal' => 100, 'shipping_total' => 0,
             'total' => 100, 'created_at' => now(), 'updated_at' => now(),
         ]);
-        $this->actingAs($user)->delete('/profile', ['password' => 'password'])->assertStatus(422);
+        $this->actingAs($user)->delete('/account/profile', ['password' => 'password'])->assertStatus(422);
         $this->assertNotNull($user->fresh());
     }
 
+    public function test_admin_and_customer_profiles_are_separate(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $customer = User::factory()->create(['is_admin' => false]);
+
+        $this->actingAs($admin)->get(route('admin.profile.edit'))->assertOk();
+        $this->actingAs($admin)->get(route('account.profile.edit'))->assertRedirect(route('dashboard'));
+
+        $this->actingAs($customer)->get(route('account.profile.edit'))->assertOk();
+        $this->actingAs($customer)->get(route('admin.profile.edit'))->assertRedirect(route('account.dashboard'));
+    }
+
+    public function test_legacy_profile_url_redirects_to_the_correct_portal(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $customer = User::factory()->create(['is_admin' => false]);
+
+        $this->actingAs($admin)->get('/profile')->assertRedirect(route('admin.profile.edit'));
+        $this->actingAs($customer)->get('/profile')->assertRedirect(route('account.profile.edit'));
+    }
     public function test_phone_otp_can_be_sent_and_verified(): void
     {
         \Illuminate\Support\Facades\Http::fake(['msg.mram.com.bd/*' => \Illuminate\Support\Facades\Http::response('12345', 200)]);
