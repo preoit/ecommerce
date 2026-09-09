@@ -1,0 +1,3 @@
+<?php
+namespace App\Modules\Settings\Models;use Illuminate\Database\Eloquent\Model;
+class CommunicationSetting extends Model { protected $fillable=['email_enabled','mail_host','mail_port','mail_username','mail_password','mail_encryption','mail_from_address','mail_from_name','sms_enabled','mram_api_key','mram_sender_id'];protected function casts():array{return ['email_enabled'=>'boolean','sms_enabled'=>'boolean','mail_password'=>'encrypted','mram_api_key'=>'encrypted'];} }

@@ -6,6 +6,7 @@ import {
     FolderTree,
     FolderOpen,
     Globe2,
+    MessagesSquare,
     Gauge,
     Package,
     PanelsTopLeft,
@@ -50,6 +51,7 @@ export const adminNavigation = [
         icon: Settings,
         children: [
             { label: 'Website Settings', href: '/admin/settings/website', icon: Globe2 },
+            { label: 'Email & SMS', href: '/admin/settings/communication', icon: MessagesSquare },
         ],
     },
 ];
