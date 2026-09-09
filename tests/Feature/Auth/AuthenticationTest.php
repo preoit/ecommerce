@@ -12,29 +12,29 @@ class AuthenticationTest extends TestCase
 
     public function test_login_screen_can_be_rendered(): void
     {
-        $response = $this->get('/login');
+        $response = $this->get('/customer/login');
 
         $response->assertStatus(200);
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => false]);
 
-        $response = $this->post('/login', [
+        $response = $this->post('/customer/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('account.dashboard', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => false]);
 
-        $this->post('/login', [
+        $this->post('/customer/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
@@ -44,11 +44,25 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_logout(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['is_admin' => false]);
 
         $response = $this->actingAs($user)->post('/logout');
 
         $this->assertGuest();
         $response->assertRedirect('/');
     }
-}
+
+    public function test_admin_uses_the_separate_admin_login(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $response = $this->post('/admin/login', ['email' => $admin->email, 'password' => 'password']);
+        $this->assertAuthenticatedAs($admin);
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_customer_cannot_use_admin_login(): void
+    {
+        $customer = User::factory()->create(['is_admin' => false]);
+        $this->post('/admin/login', ['email' => $customer->email, 'password' => 'password'])->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }}
