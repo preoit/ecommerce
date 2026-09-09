@@ -20,7 +20,7 @@ Route::get('/image/{filename}', MediaImageController::class)
     ->where('filename', '[^/]+')
     ->name('media.image');
 
-Route::middleware(['auth', 'verified', 'admin'])->group(base_path('app/Modules/routes.php'));
+Route::middleware(['auth', 'admin'])->group(base_path('app/Modules/routes.php'));
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', fn () => redirect()->route(request()->user()->is_admin ? 'admin.profile.edit' : 'account.profile.edit'));

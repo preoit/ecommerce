@@ -60,6 +60,18 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(route('dashboard', absolute: false));
     }
 
+    public function test_unverified_admin_can_login_and_open_the_dashboard(): void
+    {
+        $admin = User::factory()->unverified()->create(['is_admin' => true]);
+
+        $response = $this->post('/admin/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->actingAs($admin)->get(route('dashboard'))->assertOk();
+    }
     public function test_customer_cannot_use_admin_login(): void
     {
         $customer = User::factory()->create(['is_admin' => false]);
