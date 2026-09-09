@@ -62,10 +62,14 @@ export default function ProductShow({ product, reviews = [], rating, questions =
     useEffect(() => {
         setActiveImage((currentImage) => media.includes(currentImage) ? currentImage : (media[0] || null));
     }, [media]);
-    const canOrder = product.stock_quantity > 0 || stockSettings.allowOutOfStockOrders;
-    const maxQuantity = stockSettings.allowOutOfStockOrders ? (product.max_order_quantity || Number.MAX_SAFE_INTEGER) : Math.min(product.stock_quantity, product.max_order_quantity || product.stock_quantity);
-    const selectedBulk = [...(product.bulk_prices || [])].reverse().find((tier) => quantity >= tier.min_quantity && (!tier.max_quantity || quantity <= tier.max_quantity));
-    const unitPrice = Number(selectedBulk?.unit_price || product.current_price);
+    const selectedVariant = (product.variants || []).find((variant) => variant.id === selectedVariantId) || null;
+    const selectedStock = Number(selectedVariant?.stock_quantity ?? product.stock_quantity ?? 0);
+    const canOrder = selectedStock > 0 || stockSettings.allowOutOfStockOrders;
+    const maxQuantity = stockSettings.allowOutOfStockOrders ? (product.max_order_quantity || Number.MAX_SAFE_INTEGER) : Math.min(selectedStock, product.max_order_quantity || selectedStock);
+    const selectedBulk = selectedVariant ? null : [...(product.bulk_prices || [])].reverse().find((tier) => quantity >= tier.min_quantity && (!tier.max_quantity || quantity <= tier.max_quantity));
+    const unitPrice = Number(selectedVariant?.current_price ?? selectedBulk?.unit_price ?? product.current_price);
+    const regularPrice = Number(selectedVariant?.regular_price ?? product.regular_price ?? unitPrice);
+    const discountPercentage = regularPrice > unitPrice ? Math.round(((regularPrice - unitPrice) / regularPrice) * 100) : 0;
     const post = async (url, body = {}) => { const response = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json',Accept:'application/json','X-CSRF-TOKEN':csrf()}, body:JSON.stringify(body) }); const result=await response.json(); if(!response.ok) throw new Error(result.message || Object.values(result.errors || {})[0]?.[0] || 'Request failed.'); return result; };
     const addCart = async (buyNow = false) => { try { const result=await post(route('storefront.products.cart',product.id),{quantity,variant_id:selectedVariantId}); window.dispatchEvent(new CustomEvent('cart:updated', { detail: { count: result.count } })); setNotice(result.message); if(buyNow) window.location.href=route('storefront.checkout'); } catch(error){setNotice(error.message);} };
     const toggleWishlist = async () => { if(!auth?.user){window.location.href=route('login');return;} try{const result=await post(route('storefront.products.wishlist',product.id));setWishlist(result.active);}catch(error){setNotice(error.message);} };
