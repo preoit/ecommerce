@@ -22,6 +22,20 @@ class EmailVerificationTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_verification_request_without_an_email_returns_a_validation_message(): void
+    {
+        $user = User::factory()->unverified()->create(['email' => null]);
+
+        $response = $this->actingAs($user)
+            ->from('/verify-email')
+            ->post(route('verification.send'));
+
+        $response->assertRedirect('/verify-email');
+        $response->assertSessionHasErrors([
+            'email_verification' => 'Add an email address before requesting verification.',
+        ]);
+    }
+
     public function test_email_can_be_verified(): void
     {
         $user = User::factory()->unverified()->create();
