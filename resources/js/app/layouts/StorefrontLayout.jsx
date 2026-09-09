@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Apple, ArrowUp, ChevronDown, Mail, Menu, MessageCircle, Music2, Phone, Play, Search, ShoppingCart, UserRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import CartDrawer from '@/app/components/CartDrawer';
 
 const footerGroups = [
     { title: 'Let Us Help You', links: ['Account Info', 'Your Orders', 'Returns Policies', 'Shipping Rates'] },
@@ -23,13 +24,10 @@ function SearchBar() {
     </form>;
 }
 
-function HeaderAction({ href = '/', icon: Icon, label, count = 0 }) {
-    const { cartCount: initialCartCount = 0 } = usePage().props;
-    const [liveCount, setLiveCount] = useState(initialCartCount);
-    useEffect(() => { setLiveCount(initialCartCount); }, [initialCartCount]);
-    useEffect(() => { if (label !== 'Cart') return; const update = event => setLiveCount(event.detail?.count || 0); window.addEventListener('cart:updated', update); return () => window.removeEventListener('cart:updated', update); }, [label]);
-    const displayCount = label === 'Cart' ? liveCount : count;
-    return <Link href={label === 'Cart' ? route('storefront.cart') : href} className="group relative flex min-w-[54px] flex-col items-center justify-center gap-0.5 text-[#1d2837]" aria-label={label}><span className="relative"><Icon className="size-5 stroke-[1.7] transition-transform group-hover:-translate-y-0.5" />{displayCount > 0 && <span className="absolute -right-3 -top-2 grid min-w-4 place-items-center rounded-full bg-violet-600 px-1 text-[10px] font-bold leading-4 text-white">{displayCount > 99 ? '99+' : displayCount}</span>}</span><span className="text-sm font-medium text-slate-600 group-hover:text-slate-950">{label}</span></Link>;
+function HeaderAction({ href = '/', icon: Icon, label, count = 0, onClick }) {
+    const content = <><span className="relative"><Icon className="size-5 stroke-[1.7] transition-transform group-hover:-translate-y-0.5" />{count > 0 && <span className="absolute -right-3 -top-2 grid min-w-4 place-items-center rounded-full bg-violet-600 px-1 text-[10px] font-bold leading-4 text-white">{count > 99 ? '99+' : count}</span>}</span><span className="text-sm font-medium text-slate-600 group-hover:text-slate-950">{label}</span></>;
+    const className = "group relative flex min-w-[54px] flex-col items-center justify-center gap-0.5 text-[#1d2837]";
+    return onClick ? <button type="button" onClick={onClick} className={className} aria-label={label}>{content}</button> : <Link href={href} className={className} aria-label={label}>{content}</Link>;
 }
 
 function SocialBrandIcon({ name }) {
@@ -88,6 +86,14 @@ function StoreFooter({ website }) {
 export default function StorefrontLayout({ children }) {
     const { auth, website, storefrontCategories = [], cartCount = 0 } = usePage().props;
     const [menuOpen, setMenuOpen] = useState(false);
+    const [cartOpen, setCartOpen] = useState(false);
+    const [liveCartCount, setLiveCartCount] = useState(cartCount);
+    useEffect(() => { setLiveCartCount(cartCount); }, [cartCount]);
+    useEffect(() => {
+        const update = event => setLiveCartCount(Number(event.detail?.count || 0));
+        window.addEventListener('cart:updated', update);
+        return () => window.removeEventListener('cart:updated', update);
+    }, []);
     useEffect(() => {
         if (!menuOpen) return undefined;
         const previousOverflow = document.body.style.overflow;
@@ -104,10 +110,14 @@ export default function StorefrontLayout({ children }) {
         };
         const trackLink = makeLink('Track Order', auth?.user ? (auth.user.is_admin ? '/dashboard' : '/account') : '/customer/login', 'mobile-menu-secondary-action');
         const loginLink = makeLink(auth?.user ? 'Account' : 'Login', auth?.user ? (auth.user.is_admin ? '/dashboard' : '/account') : '/customer/login', 'mobile-menu-secondary-action');
-        const cartLink = makeLink('View cart', route('storefront.cart'), 'mobile-menu-cart-action');
+        const cartLink = document.createElement('button');
+        cartLink.type = 'button';
+        cartLink.className = 'mobile-menu-cart-action';
+        cartLink.append(document.createTextNode('View cart'));
         const count = document.createElement('span');
-        count.textContent = `${cartCount} ${cartCount === 1 ? 'item' : 'items'}`;
+        count.textContent = `${liveCartCount} ${liveCartCount === 1 ? 'item' : 'items'}`;
         cartLink.appendChild(count);
+        cartLink.addEventListener('click', () => { setMenuOpen(false); setCartOpen(true); });
         actions.append(trackLink, loginLink, cartLink);
         drawer?.appendChild(actions);
         const categoryCleanups = [];
@@ -146,6 +156,6 @@ export default function StorefrontLayout({ children }) {
             document.removeEventListener('pointerdown', closeOutside, true);
             categoryCleanups.forEach((cleanup) => cleanup());
         };
-    }, [menuOpen, auth?.user, cartCount]);
-    return <div className="min-h-screen bg-white text-slate-950"><Head>{website?.favicon && <link rel="icon" href={website.favicon} />}</Head><header data-storefront-header className="border-b border-slate-200 bg-white"><div className="mx-auto flex h-[76px] max-w-[1280px] items-center gap-5 px-4 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(400px,700px)_minmax(0,1fr)] lg:gap-8 lg:px-8"><button type="button" onClick={() => setMenuOpen(open => !open)} className="grid size-10 shrink-0 place-items-center rounded-lg text-slate-800 hover:bg-slate-100 lg:hidden" aria-label={menuOpen ? 'Close menu' : 'Open menu'}>{menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}</button><Brand website={website} /><SearchBar /><div className="ml-auto hidden shrink-0 items-center gap-2 md:flex lg:justify-self-end"><HeaderAction href={auth?.user ? (auth.user.is_admin ? '/dashboard' : '/account') : '/customer/login'} icon={UserRound} label={auth?.user ? 'Account' : 'Sign in'} /><HeaderAction icon={ShoppingCart} label="Cart" /></div></div></header><div className="sticky top-0 z-50 hidden border-b border-slate-200 bg-white shadow-sm lg:block"><div className="mx-auto flex h-[54px] max-w-[1280px] items-center gap-8 px-8"><nav className="flex min-w-0 items-stretch gap-8 whitespace-nowrap text-base font-semibold text-slate-800">{storefrontCategories.map(category => <div key={category.id} className="group relative flex items-center"><Link href={`/${category.slug}`} className="flex h-[54px] items-center gap-1.5 border-b-2 border-transparent transition-colors hover:border-violet-600 hover:text-violet-700">{category.name}{category.children.length > 0 && <ChevronDown className="size-4 stroke-2" />}</Link>{category.children.length > 0 && <div className="invisible absolute left-0 top-full min-w-60 translate-y-2 rounded-lg border border-slate-200 bg-white p-2 opacity-0 shadow-xl transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">{category.children.map(child => <Link key={child.id} href={`/${child.slug}`} className="block rounded-md px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-violet-50 hover:text-violet-700">{child.name}</Link>)}</div>}</div>)}</nav></div></div>{menuOpen && <div className="border-t border-slate-200 p-4 lg:hidden"><nav className="grid gap-1 sm:grid-cols-2">{storefrontCategories.map(category => <div key={category.id}><Link href={`/${category.slug}`} className="block rounded-lg px-3 py-2.5 text-base font-semibold text-slate-800 hover:bg-violet-50 hover:text-violet-700">{category.name}</Link>{category.children.length > 0 && <div className="ml-4 border-l-2 border-violet-100 pl-2">{category.children.map(child => <Link key={child.id} href={`/${child.slug}`} className="block rounded-md px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700">— {child.name}</Link>)}</div>}</div>)}</nav></div>}<main>{children}</main><StoreFooter website={website} /></div>;
+    }, [menuOpen, auth?.user, liveCartCount]);
+    return <div className="min-h-screen bg-white text-slate-950"><Head>{website?.favicon && <link rel="icon" href={website.favicon} />}</Head><header data-storefront-header className="border-b border-slate-200 bg-white"><div className="mx-auto flex h-[76px] max-w-[1280px] items-center gap-5 px-4 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(400px,700px)_minmax(0,1fr)] lg:gap-8 lg:px-8"><button type="button" onClick={() => setMenuOpen(open => !open)} className="grid size-10 shrink-0 place-items-center rounded-lg text-slate-800 hover:bg-slate-100 lg:hidden" aria-label={menuOpen ? 'Close menu' : 'Open menu'}>{menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}</button><Brand website={website} /><SearchBar /><button type="button" onClick={() => setCartOpen(true)} className="relative grid size-10 shrink-0 place-items-center rounded-lg text-slate-800 hover:bg-violet-50 hover:text-violet-700 md:hidden" aria-label="Open shopping cart"><ShoppingCart className="size-5"/>{liveCartCount > 0 && <span className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-violet-600 px-1 text-[10px] font-bold leading-4 text-white">{liveCartCount > 99 ? '99+' : liveCartCount}</span>}</button><div className="ml-auto hidden shrink-0 items-center gap-2 md:flex lg:justify-self-end"><HeaderAction href={auth?.user ? (auth.user.is_admin ? '/dashboard' : '/account') : '/customer/login'} icon={UserRound} label={auth?.user ? 'Account' : 'Sign in'} /><HeaderAction icon={ShoppingCart} label="Cart" count={liveCartCount} onClick={() => setCartOpen(true)} /></div></div></header><div className="sticky top-0 z-50 hidden border-b border-slate-200 bg-white shadow-sm lg:block"><div className="mx-auto flex h-[54px] max-w-[1280px] items-center gap-8 px-8"><nav className="flex min-w-0 items-stretch gap-8 whitespace-nowrap text-base font-semibold text-slate-800">{storefrontCategories.map(category => <div key={category.id} className="group relative flex items-center"><Link href={`/${category.slug}`} className="flex h-[54px] items-center gap-1.5 border-b-2 border-transparent transition-colors hover:border-violet-600 hover:text-violet-700">{category.name}{category.children.length > 0 && <ChevronDown className="size-4 stroke-2" />}</Link>{category.children.length > 0 && <div className="invisible absolute left-0 top-full min-w-60 translate-y-2 rounded-lg border border-slate-200 bg-white p-2 opacity-0 shadow-xl transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">{category.children.map(child => <Link key={child.id} href={`/${child.slug}`} className="block rounded-md px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-violet-50 hover:text-violet-700">{child.name}</Link>)}</div>}</div>)}</nav></div></div>{menuOpen && <div className="border-t border-slate-200 p-4 lg:hidden"><nav className="grid gap-1 sm:grid-cols-2">{storefrontCategories.map(category => <div key={category.id}><Link href={`/${category.slug}`} className="block rounded-lg px-3 py-2.5 text-base font-semibold text-slate-800 hover:bg-violet-50 hover:text-violet-700">{category.name}</Link>{category.children.length > 0 && <div className="ml-4 border-l-2 border-violet-100 pl-2">{category.children.map(child => <Link key={child.id} href={`/${child.slug}`} className="block rounded-md px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700">— {child.name}</Link>)}</div>}</div>)}</nav></div>}<main>{children}</main><StoreFooter website={website} /><CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} /></div>;
 }

@@ -136,6 +136,11 @@ class StorefrontProductController extends Controller
         return Inertia::render('app/modules/storefront/cart/pages/Index', $this->cartSummary($request));
     }
 
+    public function cartSummaryJson(Request $request): JsonResponse
+    {
+        return response()->json($this->cartSummary($request));
+    }
+
     public function updateCart(Request $request, string $cartKey): JsonResponse
     {
         $data = $request->validate(['quantity' => ['required', 'integer', 'min:1']]);

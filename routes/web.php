@@ -49,6 +49,7 @@ Route::middleware(['auth', 'customer'])->prefix('account')->name('account.')->gr
 
 Route::get('/products', [StorefrontProductController::class, 'index'])->name('storefront.products.index');
 Route::get('/cart', [StorefrontProductController::class, 'cartPage'])->name('storefront.cart');
+Route::get('/cart/summary', [StorefrontProductController::class, 'cartSummaryJson'])->name('storefront.cart.summary');
 Route::patch('/cart/{cartKey}', [StorefrontProductController::class, 'updateCart'])->middleware('throttle:30,1')->name('storefront.cart.update');
 Route::delete('/cart/{cartKey}', [StorefrontProductController::class, 'removeCart'])->middleware('throttle:30,1')->name('storefront.cart.remove');
 Route::get('/checkout', [StorefrontProductController::class, 'checkout'])->name('storefront.checkout');

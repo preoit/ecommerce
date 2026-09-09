@@ -107,6 +107,33 @@ class ProductDetailsTest extends TestCase
 
         $this->assertDatabaseHas('orders', ['subtotal' => 500, 'shipping_total' => 0, 'cod_surcharge' => 15, 'total' => 515]);
     }
+    public function test_cart_drawer_summary_can_be_loaded_updated_and_cleared_without_a_page_reload(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false]);
+        $product = Product::create([
+            'title' => 'Drawer Product', 'slug' => 'drawer-product', 'regular_price' => 300,
+            'stock_quantity' => 5, 'min_order_quantity' => 1, 'quantity_step' => 1,
+            'status' => 'Published', 'visibility' => 'Public',
+        ]);
+
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
+        $summary = $this->getJson(route('storefront.cart.summary'))
+            ->assertOk()
+            ->assertJsonPath('cartCount', 1)
+            ->assertJsonPath('subtotal', 300)
+            ->assertJsonPath('items.0.title', 'Drawer Product');
+
+        $cartKey = $summary->json('items.0.cart_key');
+        $this->patchJson(route('storefront.cart.update', $cartKey), ['quantity' => 2])
+            ->assertOk()
+            ->assertJsonPath('cartCount', 2)
+            ->assertJsonPath('subtotal', 600);
+
+        $this->deleteJson(route('storefront.cart.remove', $cartKey))
+            ->assertOk()
+            ->assertJsonPath('cartCount', 0)
+            ->assertJsonCount(0, 'items');
+    }
     public function test_cart_rejects_quantity_above_stock(): void
     {
         WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'show_stock_to_customers' => true]);
