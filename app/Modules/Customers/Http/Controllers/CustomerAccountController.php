@@ -17,7 +17,7 @@ class CustomerAccountController extends Controller
         $orders = DB::table('orders')->where('user_id', $request->user()->id);
         $recent = (clone $orders)->latest()->limit(5)->get()->map(fn ($order) => $this->orderData($order));
         $recentIds = DB::table('recently_viewed_products')->where('user_id', $request->user()->id)->latest('viewed_at')->limit(4)->pluck('product_id');
-        $products = DB::table('products')->whereIn('id', $recentIds)->get(['id','title','slug','current_price','featured_image_path'])->map(fn ($p) => ['id'=>$p->id,'title'=>$p->title,'slug'=>$p->slug,'price'=>(float)$p->current_price,'image'=>$p->featured_image_path ? '/image/'.rawurlencode(basename($p->featured_image_path)) : null]);
+        $products = DB::table('products')->whereIn('id', $recentIds)->get(['id','title','slug','regular_price','sale_price','featured_image_path'])->map(fn ($p) => ['id'=>$p->id,'title'=>$p->title,'slug'=>$p->slug,'price'=>(float)($p->sale_price !== null && $p->sale_price < $p->regular_price ? $p->sale_price : $p->regular_price),'image'=>$p->featured_image_path ? '/image/'.rawurlencode(basename($p->featured_image_path)) : null]);
         return Inertia::render('app/modules/customers/pages/Dashboard', [
             'stats' => ['all'=>(clone $orders)->count(),'progress'=>(clone $orders)->whereIn('status',['pending','confirmed','processing','ready_to_ship','shipped'])->count(),'completed'=>(clone $orders)->where('status','completed')->count(),'spent'=>(float)(clone $orders)->where('status','completed')->sum('total')],
             'recentOrders'=>$recent, 'recentProducts'=>$products,
