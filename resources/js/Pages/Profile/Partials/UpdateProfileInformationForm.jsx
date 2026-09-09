@@ -15,7 +15,8 @@ export default function UpdateProfileInformation({
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
             name: user.name,
-            email: user.email,
+            email: user.email || '',
+            phone: user.phone || '',
         });
 
     const submit = (e) => {
@@ -32,7 +33,7 @@ export default function UpdateProfileInformation({
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-600">
-                    Update your account's profile information and email address.
+                    Update your name, phone number and optional email address.
                 </p>
             </header>
 
@@ -62,13 +63,17 @@ export default function UpdateProfileInformation({
                         className="mt-1 block w-full"
                         value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
-                        required
-                        autoComplete="username"
+                        autoComplete="email"
                     />
 
                     <InputError className="mt-2" message={errors.email} />
                 </div>
 
+                <div>
+                    <InputLabel htmlFor="phone" value="Phone Number" />
+                    <TextInput id="phone" type="tel" className="mt-1 block w-full" value={data.phone} onChange={(e) => setData('phone', e.target.value)} required autoComplete="tel" />
+                    <InputError className="mt-2" message={errors.phone} />
+                </div>
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div>
                         <p className="mt-2 text-sm text-gray-800">
@@ -93,7 +98,7 @@ export default function UpdateProfileInformation({
                 )}
 
                 <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                    <PrimaryButton disabled={processing}>Save profile</PrimaryButton>
 
                     <Transition
                         show={recentlySuccessful}

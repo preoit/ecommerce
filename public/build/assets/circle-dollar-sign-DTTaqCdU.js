@@ -1,0 +1,1 @@
+import{t as e}from"./createLucideIcon-VA1AGbEO.js";var t=e(`arrow-left`,[[`path`,{d:`m12 19-7-7 7-7`,key:`1l729n`}],[`path`,{d:`M19 12H5`,key:`x3x0zl`}]]),n=e(`circle-dollar-sign`,[[`circle`,{cx:`12`,cy:`12`,r:`10`,key:`1mglay`}],[`path`,{d:`M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8`,key:`1h4pet`}],[`path`,{d:`M12 18V6`,key:`zqpxq5`}]]);export{t as n,n as t};
