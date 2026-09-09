@@ -73,7 +73,7 @@ class ProductDetailsTest extends TestCase
 
         $this->postJson(route('storefront.products.cart', $product), ['quantity' => 2, 'variant_id' => $variant->id])->assertOk();
         $variant->update(['sale_price' => 400]);
-        $this->post(route('storefront.checkout.place-order'), ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'payment_method' => 'cod'])->assertRedirect();
+        $this->post(route('storefront.checkout.place-order'), ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod'])->assertRedirect();
 
         $this->assertDatabaseHas('order_items', ['product_id' => $product->id, 'product_variant_id' => $variant->id, 'variant_name' => 'Red / XL', 'sku' => 'VAR-RED-XL', 'unit_price' => 400, 'quantity' => 2]);
         $this->assertSame(1, $variant->fresh()->stock_quantity);
@@ -88,6 +88,25 @@ class ProductDetailsTest extends TestCase
         $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertUnprocessable();
     }
 
+    public function test_delivery_rules_are_recalculated_and_saved_with_the_order(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'show_stock_to_customers' => true, 'delivery_enabled' => true, 'delivery_inside_dhaka' => 80, 'delivery_outside_dhaka' => 150, 'cod_surcharge_enabled' => true, 'cod_surcharge' => 20, 'heavy_delivery_enabled' => true, 'heavy_weight_threshold' => 2, 'heavy_charge_per_kg' => 25, 'product_delivery_override_enabled' => true]);
+        $product = Product::create(['title' => 'Heavy Product', 'slug' => 'heavy-product', 'regular_price' => 500, 'stock_quantity' => 5, 'weight' => 3, 'delivery_outside_dhaka' => 200, 'status' => 'Published', 'visibility' => 'Public']);
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
+        $this->post(route('storefront.checkout.place-order'), ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Address', 'city' => 'Gazipur', 'delivery_zone' => 'outside_dhaka', 'payment_method' => 'cod'])->assertRedirect();
+
+        $this->assertDatabaseHas('orders', ['subtotal' => 500, 'shipping_total' => 225, 'cod_surcharge' => 20, 'total' => 745, 'delivery_zone' => 'outside_dhaka']);
+    }
+
+    public function test_free_delivery_threshold_waives_shipping_but_keeps_cod_charge(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'delivery_enabled' => true, 'delivery_inside_dhaka' => 80, 'free_delivery_enabled' => true, 'free_delivery_threshold' => 400, 'cod_surcharge_enabled' => true, 'cod_surcharge' => 15]);
+        $product = Product::create(['title' => 'Free Delivery Product', 'slug' => 'free-delivery-product', 'regular_price' => 500, 'stock_quantity' => 2, 'status' => 'Published', 'visibility' => 'Public']);
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
+        $this->post(route('storefront.checkout.place-order'), ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Address', 'city' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod'])->assertRedirect();
+
+        $this->assertDatabaseHas('orders', ['subtotal' => 500, 'shipping_total' => 0, 'cod_surcharge' => 15, 'total' => 515]);
+    }
     public function test_cart_rejects_quantity_above_stock(): void
     {
         WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'show_stock_to_customers' => true]);
@@ -102,7 +121,7 @@ class ProductDetailsTest extends TestCase
 
         $this->postJson(route('storefront.products.cart', $product), ['quantity' => 2])->assertOk();
         $this->post(route('storefront.checkout.place-order'), [
-            'customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'payment_method' => 'cod',
+            'customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod',
         ])->assertRedirect();
 
         $this->assertDatabaseHas('orders', ['has_stock_shortage' => true]);

@@ -52,7 +52,7 @@ export default function OrderShow({ order }) {
                     </div>
                     <div className="space-y-2 border-t border-slate-200 bg-slate-50 p-5 text-sm dark:border-slate-800 dark:bg-slate-950/40">
                         <div className="flex justify-between"><span>Subtotal</span><b>{money(order.subtotal)}</b></div>
-                        <div className="flex justify-between"><span>Delivery</span><b>{money(order.shippingTotal)}</b></div>
+                        <div className="flex justify-between"><span>Delivery{order.deliveryZone ? ` · ${order.deliveryZone === 'inside_dhaka' ? 'Inside Dhaka' : 'Outside Dhaka'}` : ''}</span><b>{money(order.shippingTotal)}</b></div>{order.codSurcharge > 0 && <div className="flex justify-between"><span>COD charge</span><b>{money(order.codSurcharge)}</b></div>}
                         <div className="flex justify-between border-t border-slate-200 pt-3 text-lg dark:border-slate-700"><span>Total</span><b className="text-violet-700">{money(order.total)}</b></div>
                     </div>
                 </section>

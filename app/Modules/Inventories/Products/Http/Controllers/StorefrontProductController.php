@@ -10,6 +10,7 @@ use App\Modules\Inventories\Products\Models\ProductVariant;
 use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Inventories\Categories\Services\CategoryService;
 use App\Modules\Settings\Models\WebsiteSetting;
+use App\Modules\Orders\Services\DeliveryChargeCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -168,6 +169,7 @@ class StorefrontProductController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'address' => ['required', 'string', 'max:1000'],
             'city' => ['required', 'string', 'max:120'],
+            'delivery_zone' => ['required', Rule::in(['inside_dhaka', 'outside_dhaka'])],
             'note' => ['nullable', 'string', 'max:2000'],
             'payment_method' => ['required', Rule::in(['cod'])],
         ]);
@@ -181,6 +183,7 @@ class StorefrontProductController extends Controller
             $variants = ProductVariant::query()->whereIn('id', collect($cart)->pluck('variant_id')->filter())->lockForUpdate()->get()->keyBy('id');
             $settings = $this->stockSettings();
             $subtotal = 0;
+            $deliveryLines = collect();
             $hasStockShortage = false;
 
             foreach ($cart as $key => $line) {
@@ -193,15 +196,18 @@ class StorefrontProductController extends Controller
                 $cart[$key]['unit_price'] = $price;
                 $hasStockShortage = $hasStockShortage || $stock < $line['quantity'];
                 $subtotal += $line['quantity'] * $price;
+                $deliveryLines->push(['product' => $product, 'quantity' => $line['quantity']]);
             }
+
+            $delivery = app(DeliveryChargeCalculator::class)->calculate(WebsiteSetting::firstOrCreate(['id' => 1]), $deliveryLines, $subtotal, $data['delivery_zone'], $data['payment_method']);
 
             $orderNumber = '#ORD'.str_pad((string) ((int) DB::table('orders')->max('id') + 1), 2, '0', STR_PAD_LEFT);
             $orderId = DB::table('orders')->insertGetId([
                 'order_number' => $orderNumber, 'user_id' => $request->user()?->id,
                 'customer_name' => $data['customer_name'], 'phone' => $data['phone'], 'email' => $data['email'] ?? null,
-                'address' => $data['address'], 'city' => $data['city'], 'note' => $data['note'] ?? null,
+                'address' => $data['address'], 'city' => $data['city'], 'delivery_zone' => $data['delivery_zone'], 'note' => $data['note'] ?? null,
                 'payment_method' => $data['payment_method'], 'payment_status' => 'pending', 'status' => 'pending',
-                'subtotal' => $subtotal, 'shipping_total' => 0, 'total' => $subtotal, 'has_stock_shortage' => $hasStockShortage,
+                'subtotal' => $subtotal, 'shipping_total' => $delivery['shipping'], 'cod_surcharge' => $delivery['cod'], 'delivery_breakdown' => json_encode($delivery), 'total' => $subtotal + $delivery['total'], 'has_stock_shortage' => $hasStockShortage,
                 'created_at' => now(), 'updated_at' => now(),
             ]);
 
@@ -301,10 +307,16 @@ class StorefrontProductController extends Controller
             if (!$quantity) return null;
             $price = $variant ? (float) $variant->current_price : (float) $product->current_price;
             $imagePath = $variant?->image_path ?: $product->featured_image_path;
-            return ['cart_key' => (string) $cartKey, 'product_id' => $product->id, 'variant_id' => $variant?->id, 'variant_name' => $variant?->name, 'title' => $product->title, 'slug' => $product->slug, 'quantity' => $quantity, 'unit_price' => $price, 'line_total' => $quantity * $price, 'stock_quantity' => $stock, 'max_quantity' => $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: null) : $stock, 'image' => $imagePath ? '/image/'.rawurlencode(basename($imagePath)) : null];
+            return ['cart_key' => (string) $cartKey, 'product_id' => $product->id, 'variant_id' => $variant?->id, 'variant_name' => $variant?->name, 'title' => $product->title, 'slug' => $product->slug, 'quantity' => $quantity, 'unit_price' => $price, 'line_total' => $quantity * $price, 'stock_quantity' => $stock, 'max_quantity' => $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: null) : $stock, 'image' => $imagePath ? '/image/'.rawurlencode(basename($imagePath)) : null, 'weight' => (float) ($product->weight ?? 0), 'delivery_inside_dhaka' => $product->delivery_inside_dhaka !== null ? (float) $product->delivery_inside_dhaka : null, 'delivery_outside_dhaka' => $product->delivery_outside_dhaka !== null ? (float) $product->delivery_outside_dhaka : null];
         })->filter()->values();
 
-        return ['items' => $items, 'subtotal' => $items->sum('line_total'), 'cartCount' => $items->sum('quantity')];
+        $delivery = WebsiteSetting::firstOrCreate(['id' => 1]);
+        return ['items' => $items, 'subtotal' => $items->sum('line_total'), 'cartCount' => $items->sum('quantity'), 'deliverySettings' => [
+            'enabled' => (bool) ($delivery->delivery_enabled ?? true), 'insideDhaka' => (float) ($delivery->delivery_inside_dhaka ?? 80), 'outsideDhaka' => (float) ($delivery->delivery_outside_dhaka ?? 150),
+            'freeEnabled' => (bool) $delivery->free_delivery_enabled, 'freeThreshold' => $delivery->free_delivery_threshold !== null ? (float) $delivery->free_delivery_threshold : null,
+            'codEnabled' => (bool) $delivery->cod_surcharge_enabled, 'codSurcharge' => (float) ($delivery->cod_surcharge ?? 0), 'productOverrideEnabled' => (bool) ($delivery->product_delivery_override_enabled ?? true),
+            'heavyEnabled' => (bool) $delivery->heavy_delivery_enabled, 'heavyThreshold' => (float) ($delivery->heavy_weight_threshold ?? 5), 'heavyPerKg' => (float) ($delivery->heavy_charge_per_kg ?? 0),
+        ]];
     }
 
     private function cardData(Product $item): array { return ['id'=>$item->id,'title'=>$item->title,'slug'=>$item->slug,'image'=>$item->featured_image_path?'/image/'.rawurlencode(basename($item->featured_image_path)):null,'price'=>$item->current_price,'regularPrice'=>(float)$item->regular_price,'discount'=>$item->discount_percentage,'stockStatus'=>$item->stock_status,'brand'=>$item->brand?->name]; }

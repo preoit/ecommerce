@@ -36,7 +36,7 @@ class OrderDetailsController extends Controller
                 'id' => $record->id, 'number' => $record->order_number, 'customerName' => $record->customer_name,
                 'phone' => $record->phone, 'email' => $record->email, 'address' => $record->address, 'city' => $record->city,
                 'note' => $record->note, 'paymentMethod' => $record->payment_method, 'paymentStatus' => $record->payment_status,
-                'status' => str($record->status)->replace('_', ' ')->title()->toString(), 'statusKey' => $record->status, 'subtotal' => (float) $record->subtotal, 'shippingTotal' => (float) $record->shipping_total,
+                'status' => str($record->status)->replace('_', ' ')->title()->toString(), 'statusKey' => $record->status, 'subtotal' => (float) $record->subtotal, 'shippingTotal' => (float) $record->shipping_total, 'codSurcharge' => (float) ($record->cod_surcharge ?? 0), 'deliveryZone' => $record->delivery_zone ?? null,
                 'total' => (float) $record->total, 'date' => $createdAt->format('d M Y, h:i A'), 'hasStockShortage' => (bool) ($record->has_stock_shortage ?? false),
                 'items' => DB::table('order_items')->where('order_id', $record->id)->get()->map(fn (object $item): array => [
                     'title' => $item->product_title, 'variantName' => $item->variant_name ?? null, 'sku' => $item->sku, 'quantity' => $item->quantity,
