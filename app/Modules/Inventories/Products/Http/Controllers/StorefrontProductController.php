@@ -309,7 +309,7 @@ class StorefrontProductController extends Controller
     public function wishlistPage(Request $request): Response
     {
         $ids=DB::table('wishlists')->where('user_id',$request->user()->id)->latest()->pluck('product_id');
-        return Inertia::render('app/modules/storefront/products/pages/ProductList',['title'=>'My Wishlist','products'=>Product::with('brand:id,name')->whereIn('id',$ids)->get()->map(fn($item)=>$this->cardData($item))]);
+        return Inertia::render('app/modules/customers/pages/Wishlist',['products'=>Product::with('brand:id,name')->whereIn('id',$ids)->get()->map(fn($item)=>$this->cardData($item))]);
     }
 
     public function comparePage(Request $request): Response
