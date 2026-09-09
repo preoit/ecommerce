@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Modules\Customers\Http\Controllers\CustomerAccountController;
+
 use App\Modules\Settings\Http\Controllers\MediaImageController;
 use App\Modules\Inventories\Products\Http\Controllers\StorefrontProductController;
 use Illuminate\Support\Facades\Route;
@@ -18,7 +20,7 @@ Route::get('/image/{filename}', MediaImageController::class)
     ->where('filename', '[^/]+')
     ->name('media.image');
 
-Route::middleware(['auth', 'verified'])->group(base_path('app/Modules/routes.php'));
+Route::middleware(['auth', 'verified', 'admin'])->group(base_path('app/Modules/routes.php'));
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -27,6 +29,17 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+Route::middleware('auth')->prefix('account')->name('account.')->group(function () {
+    Route::get('/', [CustomerAccountController::class, 'dashboard'])->name('dashboard');
+    Route::get('/orders', [CustomerAccountController::class, 'orders'])->name('orders');
+    Route::get('/orders/{order}', [CustomerAccountController::class, 'order'])->name('orders.show');
+    Route::get('/addresses', [CustomerAccountController::class, 'addresses'])->name('addresses');
+    Route::post('/addresses', [CustomerAccountController::class, 'storeAddress'])->name('addresses.store');
+    Route::patch('/addresses/{address}', [CustomerAccountController::class, 'updateAddress'])->name('addresses.update');
+    Route::patch('/addresses/{address}/default', [CustomerAccountController::class, 'defaultAddress'])->name('addresses.default');
+    Route::delete('/addresses/{address}', [CustomerAccountController::class, 'destroyAddress'])->name('addresses.destroy');
+    Route::get('/reviews', [CustomerAccountController::class, 'reviews'])->name('reviews');
+});
 
 Route::get('/products', [StorefrontProductController::class, 'index'])->name('storefront.products.index');
 Route::get('/cart', [StorefrontProductController::class, 'cartPage'])->name('storefront.cart');

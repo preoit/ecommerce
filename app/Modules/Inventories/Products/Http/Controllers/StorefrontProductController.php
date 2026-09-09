@@ -11,6 +11,7 @@ use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Inventories\Categories\Services\CategoryService;
 use App\Modules\Settings\Models\WebsiteSetting;
 use App\Modules\Orders\Services\DeliveryChargeCalculator;
+use App\Modules\Customers\Models\CustomerAddress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -112,6 +113,17 @@ class StorefrontProductController extends Controller
         $max = $settings['allowOutOfStockOrders'] ? ($product->max_order_quantity ?: PHP_INT_MAX) : min($stock, $product->max_order_quantity ?: $stock);
         if ($data['quantity'] < $product->min_order_quantity || $data['quantity'] > $max || (($data['quantity'] - $product->min_order_quantity) % max(1, $product->quantity_step)) !== 0) return response()->json(['message' => 'Selected quantity is not available.'], 422);
         $unitPrice = $variant ? (float) $variant->current_price : (float) ($product->bulkPrices()->where('min_quantity', '<=', $data['quantity'])->where(fn ($q) => $q->whereNull('max_quantity')->orWhere('max_quantity', '>=', $data['quantity']))->orderByDesc('min_quantity')->value('unit_price') ?? $product->current_price);
+        $selectedAddress = null;
+        if (filled($data['address_id'] ?? null)) {
+            abort_unless($request->user(), 422);
+            $selectedAddress = $request->user()->addresses()->find($data['address_id']);
+            abort_unless($selectedAddress, 422, 'The selected delivery address is invalid.');
+            $data['customer_name'] = $selectedAddress->recipient_name;
+            $data['phone'] = $selectedAddress->phone;
+            $data['address'] = $selectedAddress->address;
+            $data['city'] = $selectedAddress->city;
+            $data['delivery_zone'] = $selectedAddress->delivery_zone;
+        }
         $cart = $request->session()->get('cart', []);
         $cartKey = $variant ? "{$product->id}:{$variant->id}" : (string) $product->id;
         $cart[$cartKey] = ['product_id' => $product->id, 'variant_id' => $variant?->id, 'quantity' => $data['quantity'], 'unit_price' => $unitPrice, 'title' => $product->title, 'variant_name' => $variant?->name, 'slug' => $product->slug];
@@ -127,6 +139,17 @@ class StorefrontProductController extends Controller
     public function updateCart(Request $request, string $cartKey): JsonResponse
     {
         $data = $request->validate(['quantity' => ['required', 'integer', 'min:1']]);
+        $selectedAddress = null;
+        if (filled($data['address_id'] ?? null)) {
+            abort_unless($request->user(), 422);
+            $selectedAddress = $request->user()->addresses()->find($data['address_id']);
+            abort_unless($selectedAddress, 422, 'The selected delivery address is invalid.');
+            $data['customer_name'] = $selectedAddress->recipient_name;
+            $data['phone'] = $selectedAddress->phone;
+            $data['address'] = $selectedAddress->address;
+            $data['city'] = $selectedAddress->city;
+            $data['delivery_zone'] = $selectedAddress->delivery_zone;
+        }
         $cart = $request->session()->get('cart', []);
         abort_unless(isset($cart[$cartKey]), 404);
         $line = $cart[$cartKey];
@@ -145,6 +168,17 @@ class StorefrontProductController extends Controller
 
     public function removeCart(Request $request, string $cartKey): JsonResponse
     {
+        $selectedAddress = null;
+        if (filled($data['address_id'] ?? null)) {
+            abort_unless($request->user(), 422);
+            $selectedAddress = $request->user()->addresses()->find($data['address_id']);
+            abort_unless($selectedAddress, 422, 'The selected delivery address is invalid.');
+            $data['customer_name'] = $selectedAddress->recipient_name;
+            $data['phone'] = $selectedAddress->phone;
+            $data['address'] = $selectedAddress->address;
+            $data['city'] = $selectedAddress->city;
+            $data['delivery_zone'] = $selectedAddress->delivery_zone;
+        }
         $cart = $request->session()->get('cart', []);
         unset($cart[$cartKey]);
         $request->session()->put('cart', $cart);
@@ -157,6 +191,9 @@ class StorefrontProductController extends Controller
         if (empty($summary['items'])) {
             return redirect()->route('storefront.cart')->with('success', 'Your cart is empty.');
         }
+
+        $summary['addresses'] = $request->user()?->addresses()->latest('is_default')->latest()->get() ?? [];
+        $summary['customer'] = $request->user() ? ['name' => $request->user()->name, 'phone' => $request->user()->phone, 'email' => $request->user()->email] : null;
 
         return Inertia::render('app/modules/storefront/checkout/pages/Index', $summary);
     }
@@ -172,13 +209,31 @@ class StorefrontProductController extends Controller
             'delivery_zone' => ['required', Rule::in(['inside_dhaka', 'outside_dhaka'])],
             'note' => ['nullable', 'string', 'max:2000'],
             'payment_method' => ['required', Rule::in(['cod'])],
+            'address_id' => ['nullable', 'integer'],
+            'save_address' => ['nullable', 'boolean'],
+            'address_label' => ['nullable', 'string', 'max:60'],
+            'district' => ['nullable', 'string', 'max:120'],
+            'area' => ['nullable', 'string', 'max:120'],
+            'postal_code' => ['nullable', 'string', 'max:30'],
+            'landmark' => ['nullable', 'string', 'max:255'],
         ]);
+        $selectedAddress = null;
+        if (filled($data['address_id'] ?? null)) {
+            abort_unless($request->user(), 422);
+            $selectedAddress = $request->user()->addresses()->find($data['address_id']);
+            abort_unless($selectedAddress, 422, 'The selected delivery address is invalid.');
+            $data['customer_name'] = $selectedAddress->recipient_name;
+            $data['phone'] = $selectedAddress->phone;
+            $data['address'] = $selectedAddress->address;
+            $data['city'] = $selectedAddress->city;
+            $data['delivery_zone'] = $selectedAddress->delivery_zone;
+        }
         $cart = $request->session()->get('cart', []);
         if (!$cart) return redirect()->route('storefront.cart')->with('success', 'Your cart is empty.');
 
         $orderNumber = null;
         $orderId = null;
-        DB::transaction(function () use ($cart, $data, $request, &$orderNumber, &$orderId): void {
+        DB::transaction(function () use ($cart, $data, $request, $selectedAddress, &$orderNumber, &$orderId): void {
             $products = Product::query()->whereIn('id', collect($cart)->pluck('product_id'))->lockForUpdate()->get()->keyBy('id');
             $variants = ProductVariant::query()->whereIn('id', collect($cart)->pluck('variant_id')->filter())->lockForUpdate()->get()->keyBy('id');
             $settings = $this->stockSettings();
@@ -203,7 +258,7 @@ class StorefrontProductController extends Controller
 
             $orderNumber = '#ORD'.str_pad((string) ((int) DB::table('orders')->max('id') + 1), 2, '0', STR_PAD_LEFT);
             $orderId = DB::table('orders')->insertGetId([
-                'order_number' => $orderNumber, 'user_id' => $request->user()?->id,
+                'order_number' => $orderNumber, 'user_id' => $request->user()?->id, 'customer_address_id' => $selectedAddress?->id,
                 'customer_name' => $data['customer_name'], 'phone' => $data['phone'], 'email' => $data['email'] ?? null,
                 'address' => $data['address'], 'city' => $data['city'], 'delivery_zone' => $data['delivery_zone'], 'note' => $data['note'] ?? null,
                 'payment_method' => $data['payment_method'], 'payment_status' => 'pending', 'status' => 'pending',
@@ -211,6 +266,16 @@ class StorefrontProductController extends Controller
                 'created_at' => now(), 'updated_at' => now(),
             ]);
 
+            if ($request->user() && ! $selectedAddress && ($data['save_address'] ?? false)) {
+                $makeDefault = ! $request->user()->addresses()->exists();
+                $address = $request->user()->addresses()->create([
+                    'label' => $data['address_label'] ?: 'Home', 'recipient_name' => $data['customer_name'], 'phone' => $data['phone'],
+                    'delivery_zone' => $data['delivery_zone'], 'district' => $data['district'] ?: $data['city'], 'city' => $data['city'],
+                    'area' => $data['area'] ?? null, 'address' => $data['address'], 'postal_code' => $data['postal_code'] ?? null,
+                    'landmark' => $data['landmark'] ?? null, 'is_default' => $makeDefault,
+                ]);
+                DB::table('orders')->where('id', $orderId)->update(['customer_address_id' => $address->id]);
+            }
             foreach ($cart as $line) {
                 $product = $products->get($line['product_id']);
                 $variant = filled($line['variant_id'] ?? null) ? $variants->get($line['variant_id']) : null;
@@ -294,6 +359,17 @@ class StorefrontProductController extends Controller
 
     private function cartSummary(Request $request): array
     {
+        $selectedAddress = null;
+        if (filled($data['address_id'] ?? null)) {
+            abort_unless($request->user(), 422);
+            $selectedAddress = $request->user()->addresses()->find($data['address_id']);
+            abort_unless($selectedAddress, 422, 'The selected delivery address is invalid.');
+            $data['customer_name'] = $selectedAddress->recipient_name;
+            $data['phone'] = $selectedAddress->phone;
+            $data['address'] = $selectedAddress->address;
+            $data['city'] = $selectedAddress->city;
+            $data['delivery_zone'] = $selectedAddress->delivery_zone;
+        }
         $cart = $request->session()->get('cart', []);
         $products = Product::query()->whereIn('id', collect($cart)->pluck('product_id'))->get()->keyBy('id');
         $variants = ProductVariant::query()->whereIn('id', collect($cart)->pluck('variant_id')->filter())->get()->keyBy('id');
