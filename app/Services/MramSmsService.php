@@ -1,0 +1,5 @@
+<?php
+namespace App\Services;
+use Illuminate\Support\Facades\Http;
+use RuntimeException;
+class MramSmsService { public function send(string $phone,string $message): void { $key=(string)config('services.mram.api_key');if($key==='')throw new RuntimeException('SMS service is not configured.');$number=preg_replace('/\D+/','',$phone);if(str_starts_with($number,'0'))$number='88'.$number;$params=['api_key'=>$key,'type'=>'text','contacts'=>$number,'msg'=>$message,'label'=>'transactional'];if(filled(config('services.mram.sender_id')))$params['senderid']=config('services.mram.sender_id');$response=Http::timeout(12)->get('https://msg.mram.com.bd/smsapi',$params);$body=trim($response->body());if(!$response->successful()||preg_match('/^(1002|1003|1004|1005|1006|1007|1008|1009|1010|1011|1012|1013|1014|1015|1016|1019)\b/',$body))throw new RuntimeException('SMS provider rejected the verification message.'); } }

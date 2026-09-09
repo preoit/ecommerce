@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'mram' => [
+        'api_key' => env('MRAM_SMS_API_KEY'),
+        'sender_id' => env('MRAM_SMS_SENDER_ID'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

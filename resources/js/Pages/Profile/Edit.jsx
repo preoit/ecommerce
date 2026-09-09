@@ -1,27 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import CustomerShell from '@/app/modules/customers/components/CustomerShell';
-import { Head, usePage } from '@inertiajs/react';
-import DeleteUserForm from './Partials/DeleteUserForm';
-import UpdatePasswordForm from './Partials/UpdatePasswordForm';
-import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
-
-function ProfileContent({ mustVerifyEmail, status }) {
-    return <div className="space-y-5">
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-            <UpdateProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} />
-        </section>
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-            <UpdatePasswordForm />
-        </section>
-        <section className="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm sm:p-7">
-            <DeleteUserForm />
-        </section>
-    </div>;
-}
-
-export default function Edit({ mustVerifyEmail, status }) {
-    const { auth } = usePage().props;
-    const content = <ProfileContent mustVerifyEmail={mustVerifyEmail} status={status} />;
-    if (!auth.user.is_admin) return <CustomerShell title="Profile Settings"><Head title="Profile Settings" />{content}</CustomerShell>;
-    return <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Profile</h2>}><Head title="Profile" /><div className="mx-auto max-w-4xl py-10 sm:px-6 lg:px-8">{content}</div></AuthenticatedLayout>;
-}
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { BadgeCheck, Mail, Phone, ShieldCheck, ShieldQuestion } from 'lucide-react';
+import DeleteUserForm from './Partials/DeleteUserForm';import UpdatePasswordForm from './Partials/UpdatePasswordForm';import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+function StatusCard({icon:Icon,label,value,verified,onVerify,children,error}){return <article className={`rounded-2xl border p-4 ${verified?'border-emerald-200 bg-emerald-50/70':'border-amber-200 bg-amber-50/70'}`}><div className="flex items-start gap-3"><span className={`grid size-11 shrink-0 place-items-center rounded-xl ${verified?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}`}><Icon className="size-5"/></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</p><p className="mt-1 truncate text-sm font-semibold text-slate-800">{value||'Not added'}</p></div><span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold ${verified?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}`}>{verified?<BadgeCheck className="size-3.5"/>:<ShieldQuestion className="size-3.5"/>}{verified?'Verified':'Not verified'}</span></div>{!verified&&value&&<button type="button" onClick={onVerify} className="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">Send verification</button>}{children}{error&&<p className="mt-2 text-xs font-semibold text-rose-600">{error}</p>}</div></div></article>}
+function VerificationPanel({status}){const {auth,errors}=usePage().props;const user=auth.user;const otp=useForm({code:''});return <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"><div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-xl bg-violet-50 text-violet-600"><ShieldCheck className="size-5"/></span><div><h2 className="text-lg font-bold">Contact verification</h2><p className="text-sm text-slate-500">Verified contact details keep your account and orders secure.</p></div></div>{status&&<p className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-700">{status==='phone-code-sent'?'OTP sent to your phone.':status==='phone-verified'?'Phone number verified successfully.':'Verification email sent. Please check your inbox.'}</p>}<div className="mt-5 grid gap-4 xl:grid-cols-2"><StatusCard icon={Mail} label="Email" value={user.email} verified={Boolean(user.email_verified_at)} onVerify={()=>router.post(route('verification.send'))}/><StatusCard icon={Phone} label="Phone" value={user.phone} verified={Boolean(user.phone_verified_at)} onVerify={()=>router.post(route('phone.verification.send'))} error={errors?.phone_verification}>{!user.phone_verified_at&&status==='phone-code-sent'&&<form onSubmit={e=>{e.preventDefault();otp.post(route('phone.verification.verify'),{preserveScroll:true})}} className="mt-3 flex gap-2"><input value={otp.data.code} onChange={e=>otp.setData('code',e.target.value)} inputMode="numeric" maxLength={6} placeholder="6-digit OTP" className="min-w-0 flex-1 rounded-lg border-slate-300 text-sm"/><button className="rounded-lg bg-violet-600 px-3 text-xs font-bold text-white">Verify</button></form>}{otp.errors.code&&<p className="mt-2 text-xs text-rose-600">{otp.errors.code}</p>}</StatusCard></div></section>}
+function ProfileContent({mustVerifyEmail,status,hasTransactions}){return <div className="space-y-5"><VerificationPanel status={status}/><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"><UpdateProfileInformationForm mustVerifyEmail={false} status={status}/></section><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"><UpdatePasswordForm/></section>{hasTransactions?<section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-7"><h2 className="font-bold text-slate-800">Account deletion unavailable</h2><p className="mt-2 text-sm leading-6 text-slate-500">This account has order or transaction history, so it is retained for invoices, payments and customer support.</p></section>:<section className="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm sm:p-7"><DeleteUserForm/></section>}</div>}
+export default function Edit({mustVerifyEmail,status,hasTransactions=false}){const {auth}=usePage().props;const content=<ProfileContent mustVerifyEmail={mustVerifyEmail} status={status} hasTransactions={hasTransactions}/>;if(!auth.user.is_admin)return <CustomerShell title="Profile Settings"><Head title="Profile Settings"/>{content}</CustomerShell>;return <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Profile</h2>}><Head title="Profile"/><div className="mx-auto max-w-4xl py-10 sm:px-6 lg:px-8">{content}</div></AuthenticatedLayout>}

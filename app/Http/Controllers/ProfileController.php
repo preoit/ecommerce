@@ -21,6 +21,7 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'hasTransactions' => \Illuminate\Support\Facades\DB::table('orders')->where('user_id', $request->user()->id)->exists(),
         ]);
     }
 
@@ -30,6 +31,10 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->user()->fill($request->validated());
+
+        if ($request->user()->isDirty('phone')) {
+            $request->user()->phone_verified_at = null;
+        }
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
@@ -45,6 +50,8 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        abort_if(\Illuminate\Support\Facades\DB::table('orders')->where('user_id', $request->user()->id)->exists(), 422, 'Accounts with order history cannot be deleted.');
+
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);
