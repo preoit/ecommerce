@@ -60,6 +60,7 @@ class ModulePageService
                 'note' => $order->note,
                 'subtotal' => (float) $order->subtotal,
                 'shipping' => (float) $order->shipping_total,
+                'deliveryZone' => $order->delivery_zone ?? null,
                 'codSurcharge' => (float) ($order->cod_surcharge ?? 0),
                 'total' => (float) $order->total,
 'amount' => 'BDT '.number_format((float) $order->total, 2),
