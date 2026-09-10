@@ -45,7 +45,9 @@ class ModulePageService
         }
 
         return DB::table('orders')->latest()->get()->map(function (object $order): array {
-            $products = DB::table('order_items')->where('order_id', $order->id)->pluck('product_title')->implode(', ');
+            $itemsQuery = DB::table('order_items')->where('order_id', $order->id);
+            $products = (clone $itemsQuery)->pluck('product_title')->implode(', ');
+            $itemCount = (int) (clone $itemsQuery)->sum('quantity');
             $createdAt = \Illuminate\Support\Carbon::parse($order->created_at, 'UTC')->setTimezone('Asia/Dhaka');
 
             return [
@@ -55,6 +57,7 @@ class ModulePageService
                 'phone' => $order->phone,
                 'email' => $order->email ?: '—',
                 'product' => $products ?: '—',
+                'itemCount' => $itemCount,
                 'delivery' => $order->address,
                 'area' => $order->city,
                 'note' => $order->note,
