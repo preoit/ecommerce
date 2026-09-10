@@ -42,6 +42,7 @@ export default function OrderShow({ order }) {
             {order.hasStockShortage && <div className="flex gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-800"><TriangleAlert className="mt-0.5 size-5 shrink-0" /><div><b>Stock unavailable — action required</b><p className="mt-1 text-sm">One or more products need stock before this order can be fulfilled.</p></div></div>}
 
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+                <div className="space-y-6">
                 <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
                     <div className="border-b border-slate-200 p-5 dark:border-slate-800"><h2 className="flex items-center gap-2 text-lg font-bold"><Package className="size-5 text-violet-600" />Ordered products</h2></div>
                     <div className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -56,8 +57,6 @@ export default function OrderShow({ order }) {
                         <div className="flex justify-between border-t border-slate-200 pt-3 text-lg dark:border-slate-700"><span>Total</span><b className="text-violet-700">{money(order.total)}</b></div>
                     </div>
                 </section>
-
-                <aside className="space-y-6">
                     <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
                         <h2 className="font-bold">Customer & delivery</h2>
                         <p className="mt-4 font-semibold">{order.customerName}</p>
@@ -66,6 +65,10 @@ export default function OrderShow({ order }) {
                         <p className="mt-3 flex items-start gap-2 text-sm leading-6 text-slate-600 dark:text-slate-300"><MapPin className="mt-1 size-4 shrink-0 text-violet-600" />{order.address}, {order.city}</p>
                         {order.note && <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800"><b>Order note</b><p className="mt-1 text-slate-600 dark:text-slate-300">{order.note}</p></div>}
                     </section>
+                </div>
+
+                <aside className="space-y-6">
+
 
                     <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
                         <h2 className="font-bold">Update order status</h2>
