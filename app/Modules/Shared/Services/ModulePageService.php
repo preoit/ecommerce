@@ -45,9 +45,12 @@ class ModulePageService
         }
 
         return DB::table('orders')->latest()->get()->map(function (object $order): array {
-            $itemsQuery = DB::table('order_items')->where('order_id', $order->id);
-            $products = (clone $itemsQuery)->pluck('product_title')->implode(', ');
-            $itemCount = (int) (clone $itemsQuery)->sum('quantity');
+            $items = DB::table('order_items')
+                ->leftJoin('products', 'products.id', '=', 'order_items.product_id')
+                ->where('order_items.order_id', $order->id)
+                ->get(['order_items.product_title', 'order_items.variant_name', 'order_items.quantity', 'products.slug']);
+            $products = $items->pluck('product_title')->implode(', ');
+            $itemCount = (int) $items->sum('quantity');
             $createdAt = \Illuminate\Support\Carbon::parse($order->created_at, 'UTC')->setTimezone('Asia/Dhaka');
 
             return [
@@ -58,6 +61,12 @@ class ModulePageService
                 'email' => $order->email ?: '—',
                 'product' => $products ?: '—',
                 'itemCount' => $itemCount,
+                'products' => $items->map(fn (object $item): array => [
+                    'name' => $item->product_title,
+                    'variant' => $item->variant_name,
+                    'quantity' => (int) $item->quantity,
+                    'slug' => $item->slug,
+                ])->all(),
                 'delivery' => $order->address,
                 'area' => $order->city,
                 'note' => $order->note,

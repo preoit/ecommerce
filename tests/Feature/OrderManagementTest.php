@@ -47,7 +47,11 @@ class OrderManagementTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->component('app/modules/orders/pages/Index', false)
                 ->where('orders.0.id', $orderId)
-                ->where('orders.0.viewed', false));
+                ->where('orders.0.viewed', false)
+                ->where('orders.0.itemCount', 1)
+                ->where('orders.0.products.0.name', 'Test Product')
+                ->where('orders.0.products.0.quantity', 1)
+                ->where('orders.0.products.0.slug', null));
 
         $this->actingAs($user)->get(route('orders.show', $orderId))
             ->assertOk()
