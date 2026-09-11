@@ -1,106 +1,61 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Check, CircleDollarSign, MapPin, Package, Phone, Mail, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, Check, CircleDollarSign, Clock3, Mail, MapPin, MessageSquareText, Package, Phone, ShoppingBag, TriangleAlert, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import AdminLayout from '@/app/layouts/AdminLayout';
 
 const money = value => `৳${Number(value || 0).toLocaleString('en-BD', { maximumFractionDigits: 2 })}`;
-const orderSteps = [
-    ['pending', 'Pending'],
-    ['confirmed', 'Confirmed'],
-    ['processing', 'Processing'],
-    ['ready_to_ship', 'Ready To Ship'],
-    ['shipped', 'Shipped'],
-    ['completed', 'Completed'],
-];
+const orderSteps = [['pending', 'Pending'], ['confirmed', 'Confirmed'], ['processing', 'Processing'], ['ready_to_ship', 'Ready To Ship'], ['shipped', 'Shipped'], ['completed', 'Completed']];
 const exceptionStatuses = [['cancelled', 'Cancelled'], ['returned', 'Returned']];
+const deliveryArea = value => value === 'inside_dhaka' ? 'Inside Dhaka' : value === 'outside_dhaka' ? 'Outside Dhaka' : 'Delivery';
+const badgeClass = key => ['paid', 'completed'].includes(String(key).toLowerCase()) ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : ['cancelled', 'returned', 'failed'].includes(String(key).toLowerCase()) ? 'bg-rose-50 text-rose-700 ring-rose-200' : 'bg-violet-50 text-violet-700 ring-violet-200';
+
+function StatusCard({ order, processing, updateStatus }) {
+    const currentStep = orderSteps.findIndex(([value]) => value === order.statusKey);
+    const nextStep = currentStep >= 0 ? orderSteps[currentStep + 1] : null;
+
+    return <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="font-bold">Update order status</h2>
+        <p className="mt-1 text-xs text-slate-500">The next available status is shown below.</p>
+        <ol className="mt-5">{orderSteps.map(([value, label], index) => {
+            const reached = currentStep >= 0 && index <= currentStep;
+            const active = order.statusKey === value;
+            return <li key={value} className="relative flex min-h-16 gap-3 last:min-h-0">
+                {index < orderSteps.length - 1 && <span aria-hidden="true" className={index < currentStep ? 'absolute left-[15px] top-8 h-[calc(100%-1rem)] w-0.5 bg-violet-500' : 'absolute left-[15px] top-8 h-[calc(100%-1rem)] w-0.5 bg-slate-200 dark:bg-slate-700'} />}
+                <span aria-current={active ? 'step' : undefined} className={reached ? 'relative z-10 grid size-8 shrink-0 place-items-center rounded-full bg-violet-600 text-white ring-4 ring-violet-100' : 'relative z-10 grid size-8 shrink-0 place-items-center rounded-full border-2 border-slate-300 bg-white text-xs font-bold text-slate-500 dark:bg-slate-900'}>{reached ? <Check className="size-4" /> : index + 1}</span>
+                <div className="min-w-0 pb-5"><span className={active ? 'block text-sm font-bold text-violet-700' : 'block text-sm font-semibold text-slate-700 dark:text-slate-200'}>{label}</span><span className="mt-0.5 block text-xs text-slate-400">{active ? 'Current status' : reached ? 'Completed' : 'Upcoming'}</span></div>
+            </li>;
+        })}</ol>
+        {nextStep ? <button type="button" onClick={() => updateStatus(nextStep[0])} disabled={processing} className="mt-5 h-11 w-full rounded-xl bg-violet-600 font-bold text-white transition hover:bg-violet-700 disabled:opacity-50">{processing ? 'Updating...' : nextStep[1]}</button> : order.statusKey === 'completed' ? <div className="mt-5 rounded-xl bg-emerald-50 p-3 text-center text-sm font-bold text-emerald-700">Order completed</div> : null}
+        <div className="mt-5 border-t border-slate-200 pt-4 dark:border-slate-700"><p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Exception status</p><div className="mt-2 grid grid-cols-2 gap-2">{exceptionStatuses.map(([value, label]) => <button type="button" key={value} disabled={processing || order.statusKey === value} onClick={() => updateStatus(value)} className={order.statusKey === value ? 'rounded-lg border border-rose-500 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700 disabled:opacity-70' : 'rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-500 hover:border-rose-300 hover:text-rose-600 disabled:opacity-50'}>{label}</button>)}</div></div>
+    </section>;
+}
 
 export default function OrderShow({ order }) {
     const [processing, setProcessing] = useState(false);
-    const currentStep = orderSteps.findIndex(([value]) => value === order.statusKey);
-    const nextStep = currentStep >= 0 ? orderSteps[currentStep + 1] : null;
     const updateStatus = status => {
         if (!status || processing) return;
         setProcessing(true);
-        router.patch(route('orders.status.update', order.id), { status }, {
-            preserveScroll: true,
-            onFinish: () => setProcessing(false),
-        });
+        router.patch(route('orders.status.update', order.id), { status }, { preserveScroll: true, onFinish: () => setProcessing(false) });
     };
 
-    return <AdminLayout>
-        <Head title={`Order ${order.number}`} />
-        <main className="mx-auto max-w-6xl space-y-6">
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <div>
-                    <Link href={route('orders.index')} className="inline-flex items-center gap-2 text-sm font-semibold text-violet-700"><ArrowLeft className="size-4" />Back to orders</Link>
-                    <h1 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">Order {order.number}</h1>
-                    <p className="mt-1 text-sm text-slate-500">{order.date}</p>
-                </div>
-                <span className="w-fit rounded-full bg-violet-100 px-4 py-2 text-sm font-bold text-violet-700">{order.status}</span>
+    return <AdminLayout><Head title={`Order ${order.number}`} /><main className="mx-auto max-w-7xl space-y-5">
+        <Link href={route('orders.index')} className="inline-flex items-center gap-2 text-sm font-bold text-violet-700 hover:underline"><ArrowLeft className="size-4" />Back to orders</Link>
+        <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6"><div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center"><div><div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">Order {order.number}</h1><span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ring-1 ${badgeClass(order.paymentStatus)}`}>{order.paymentStatus}</span><span className={`rounded-full px-3 py-1 text-xs font-bold ring-1 ${badgeClass(order.statusKey)}`}>{order.status}</span></div><div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500"><span className="inline-flex items-center gap-1.5"><Clock3 className="size-4 text-violet-500" />{order.date}</span><span className="inline-flex items-center gap-1.5"><ShoppingBag className="size-4 text-violet-500" />{order.items.length} {order.items.length === 1 ? 'item' : 'items'}</span></div></div><div className="w-fit rounded-xl bg-violet-50 px-5 py-3 lg:text-right"><p className="text-xs font-bold uppercase tracking-wide text-violet-500">Order total</p><strong className="mt-1 block text-2xl text-violet-700">{money(order.total)}</strong></div></div></header>
+
+        {order.hasStockShortage && <div className="flex gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-800"><TriangleAlert className="mt-0.5 size-5 shrink-0" /><div><b>Stock unavailable — action required</b><p className="mt-1 text-sm">One or more products need stock before this order can be fulfilled.</p></div></div>}
+
+        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="space-y-6">
+                <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"><div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-800"><h2 className="flex items-center gap-2 font-bold"><Package className="size-5 text-violet-600" />Ordered products</h2><span className="text-xs font-semibold text-slate-400">{order.items.length} items</span></div><div className="divide-y divide-slate-100 dark:divide-slate-800">{order.items.map((item, index) => <article key={`${item.sku || item.title}-${index}`} className="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-4 p-5 sm:grid-cols-[64px_minmax(0,1fr)_auto]"><div className="grid size-16 place-items-center overflow-hidden rounded-xl bg-slate-50 ring-1 ring-slate-100">{item.image ? <img src={item.image} alt="" className="h-full w-full object-contain p-1" /> : <Package className="size-6 text-slate-300" />}</div><div className="min-w-0">{item.slug ? <a href={route('storefront.products.show', item.slug)} target="_blank" rel="noopener noreferrer" className="font-bold text-slate-900 hover:text-violet-700 hover:underline dark:text-white">{item.title}</a> : <h3 className="font-bold">{item.title}</h3>}<p className="mt-1 text-xs text-slate-500">SKU: {item.sku || 'N/A'} · Quantity {item.quantity}</p>{item.variantName && <span className="mt-2 inline-flex rounded-full bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">{item.variantName}</span>}{item.stockShortageQuantity > 0 && <p className="mt-2 text-xs font-bold text-rose-600">Stock shortage: {item.stockShortageQuantity}</p>}</div><div className="col-start-2 sm:col-start-auto sm:text-right"><b>{money(item.lineTotal)}</b><p className="mt-1 text-xs text-slate-400">{money(item.unitPrice)} × {item.quantity}</p></div></article>)}</div></section>
+
+                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><div className="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800"><h2 className="flex items-center gap-2 font-bold"><CircleDollarSign className="size-5 text-violet-600" />Payment details</h2><span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ring-1 ${badgeClass(order.paymentStatus)}`}>{order.paymentStatus}</span></div><dl className="mt-4 space-y-3 text-sm"><div className="flex justify-between"><dt className="text-slate-500">Payment method</dt><dd className="font-bold uppercase">{order.paymentMethod}</dd></div><div className="flex justify-between"><dt className="text-slate-500">Products subtotal</dt><dd className="font-semibold">{money(order.subtotal)}</dd></div><div className="flex justify-between"><dt className="text-slate-500">{deliveryArea(order.deliveryZone)}</dt><dd className="font-semibold">{Number(order.shippingTotal) > 0 ? money(order.shippingTotal) : <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">Free</span>}</dd></div>{order.codSurcharge > 0 && <div className="flex justify-between"><dt className="text-slate-500">COD charge</dt><dd className="font-semibold">{money(order.codSurcharge)}</dd></div>}<div className="flex justify-between border-t border-slate-200 pt-4 text-lg dark:border-slate-700"><dt className="font-black">Grand total</dt><dd className="font-black text-violet-700">{money(order.total)}</dd></div></dl></section>
             </div>
 
-            {order.hasStockShortage && <div className="flex gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-800"><TriangleAlert className="mt-0.5 size-5 shrink-0" /><div><b>Stock unavailable — action required</b><p className="mt-1 text-sm">One or more products need stock before this order can be fulfilled.</p></div></div>}
-
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-                <div className="space-y-6">
-                <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-                    <div className="border-b border-slate-200 p-5 dark:border-slate-800"><h2 className="flex items-center gap-2 text-lg font-bold"><Package className="size-5 text-violet-600" />Ordered products</h2></div>
-                    <div className="divide-y divide-slate-200 dark:divide-slate-800">
-                        {order.items.map((item, index) => <article key={`${item.sku || item.title}-${index}`} className="grid gap-3 p-5 sm:grid-cols-[1fr_auto]">
-                            <div><h3 className="font-bold">{item.title}</h3>{item.variantName&&<p className="mt-1 text-sm font-semibold text-violet-700">Option: {item.variantName}</p>}<p className="mt-1 text-sm text-slate-500">SKU: {item.sku || 'N/A'} · {money(item.unitPrice)} × {item.quantity}</p>{item.stockShortageQuantity > 0 && <p className="mt-2 text-sm font-bold text-rose-600">Stock shortage: {item.stockShortageQuantity}</p>}</div>
-                            <b>{money(item.lineTotal)}</b>
-                        </article>)}
-                    </div>
-                    <div className="space-y-2 border-t border-slate-200 bg-slate-50 p-5 text-sm dark:border-slate-800 dark:bg-slate-950/40">
-                        <div className="flex justify-between"><span>Subtotal</span><b>{money(order.subtotal)}</b></div>
-                        <div className="flex justify-between"><span>Delivery{order.deliveryZone ? ` · ${order.deliveryZone === 'inside_dhaka' ? 'Inside Dhaka' : 'Outside Dhaka'}` : ''}</span><b>{money(order.shippingTotal)}</b></div>{order.codSurcharge > 0 && <div className="flex justify-between"><span>COD charge</span><b>{money(order.codSurcharge)}</b></div>}
-                        <div className="flex justify-between border-t border-slate-200 pt-3 text-lg dark:border-slate-700"><span>Total</span><b className="text-violet-700">{money(order.total)}</b></div>
-                    </div>
-                </section>
-                    <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-                        <h2 className="font-bold">Customer & delivery</h2>
-                        <p className="mt-4 font-semibold">{order.customerName}</p>
-                        <a href={`tel:${order.phone}`} className="mt-3 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300"><Phone className="size-4 text-violet-600" />{order.phone}</a>
-                        {order.email && <a href={`mailto:${order.email}`} className="mt-2 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300"><Mail className="size-4 text-violet-600" />{order.email}</a>}
-                        <p className="mt-3 flex items-start gap-2 text-sm leading-6 text-slate-600 dark:text-slate-300"><MapPin className="mt-1 size-4 shrink-0 text-violet-600" />{order.address}, {order.city}</p>
-                        {order.note && <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800"><b>Order note</b><p className="mt-1 text-slate-600 dark:text-slate-300">{order.note}</p></div>}
-                    </section>
-                </div>
-
-                <aside className="space-y-6">
-
-
-                    <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-                        <h2 className="font-bold">Update order status</h2>
-                        <p className="mt-1 text-xs text-slate-500">The next available status is shown below.</p>
-                        <ol className="mt-5">
-                            {orderSteps.map(([value, label], index) => {
-                                const reached = currentStep >= 0 && index <= currentStep;
-                                const active = order.statusKey === value;
-                                return <li key={value} className="relative flex min-h-16 gap-3 last:min-h-0">
-                                    {index < orderSteps.length - 1 && <span aria-hidden="true" className={index < currentStep ? 'absolute left-[15px] top-8 h-[calc(100%-1rem)] w-0.5 bg-violet-500' : 'absolute left-[15px] top-8 h-[calc(100%-1rem)] w-0.5 bg-slate-200 dark:bg-slate-700'} />}
-                                    <span aria-current={active ? 'step' : undefined} className={reached ? 'relative z-10 grid size-8 shrink-0 place-items-center rounded-full bg-violet-600 text-white ring-4 ring-violet-100' : 'relative z-10 grid size-8 shrink-0 place-items-center rounded-full border-2 border-slate-300 bg-white text-xs font-bold text-slate-500 dark:bg-slate-900'}>
-                                        {reached ? <Check className="size-4" /> : index + 1}
-                                    </span>
-                                    <div className="min-w-0 pb-5 text-left">
-                                        <span className={active ? 'block text-sm font-bold text-violet-700' : 'block text-sm font-semibold text-slate-700 dark:text-slate-200'}>{label}</span>
-                                        <span className="mt-0.5 block text-xs text-slate-400">{active ? 'Current status' : reached ? 'Completed' : 'Upcoming'}</span>
-                                    </div>
-                                </li>;
-                            })}
-                        </ol>
-                        {nextStep ? <button type="button" onClick={() => updateStatus(nextStep[0])} disabled={processing} className="mt-5 h-11 w-full rounded-xl bg-violet-600 font-bold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50">{processing ? 'Updating...' : nextStep[1]}</button> : order.statusKey === 'completed' ? <div className="mt-5 rounded-xl bg-emerald-50 p-3 text-center text-sm font-bold text-emerald-700">Order completed</div> : null}
-                        <div className="mt-5 border-t border-slate-200 pt-4 dark:border-slate-700">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Exception status</p>
-                            <div className="mt-2 grid grid-cols-2 gap-2">{exceptionStatuses.map(([value, label]) => <button type="button" key={value} disabled={processing || order.statusKey === value} onClick={() => updateStatus(value)} className={order.statusKey === value ? 'rounded-lg border border-rose-500 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700 disabled:opacity-70' : 'rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-500 hover:border-rose-300 hover:text-rose-600 disabled:opacity-50'}>{label}</button>)}</div>
-                        </div>
-                    </section>
-                    <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-                        <h2 className="flex items-center gap-2 font-bold"><CircleDollarSign className="size-5 text-violet-600" />Payment</h2>
-                        <dl className="mt-3 space-y-2 text-sm"><div className="flex justify-between"><dt className="text-slate-500">Method</dt><dd className="font-semibold uppercase">{order.paymentMethod}</dd></div><div className="flex justify-between"><dt className="text-slate-500">Status</dt><dd className="font-semibold capitalize">{order.paymentStatus}</dd></div></dl>
-                    </section>
-                </aside>
-            </div>
-        </main>
-    </AdminLayout>;
+            <aside className="space-y-5">
+                {order.note && <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 shadow-sm"><h2 className="flex items-center gap-2 font-bold text-emerald-800"><MessageSquareText className="size-5" />Read before confirm</h2><p className="mt-3 text-sm leading-6 text-slate-700">{order.note}</p></section>}
+                <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"><div className="p-5"><h2 className="text-xs font-black uppercase tracking-[.14em] text-slate-400">Customer</h2><div className="mt-4 flex items-center gap-3"><span className="grid size-11 place-items-center rounded-xl bg-violet-100 text-violet-700"><UserRound className="size-5" /></span><div><p className="font-bold">{order.customerName}</p><p className="text-xs text-slate-500">Total: {order.customerOrderCount || 1} {(order.customerOrderCount || 1) === 1 ? 'order' : 'orders'}</p></div></div></div><div className="border-t border-slate-100 p-5 dark:border-slate-800"><h3 className="text-xs font-black uppercase tracking-[.14em] text-slate-400">Delivery address</h3><span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700"><MapPin className="size-3.5" />{deliveryArea(order.deliveryZone)}</span><p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{order.address}, {order.city}</p></div><div className="border-t border-slate-100 p-5 dark:border-slate-800"><h3 className="text-xs font-black uppercase tracking-[.14em] text-slate-400">Contact information</h3><a href={`tel:${order.phone}`} className="mt-3 flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-violet-700 dark:text-slate-200"><Phone className="size-4 text-violet-600" />{order.phone}</a>{order.email && <a href={`mailto:${order.email}`} className="mt-3 flex items-center gap-2 break-all text-sm font-semibold text-slate-700 hover:text-violet-700 dark:text-slate-200"><Mail className="size-4 shrink-0 text-violet-600" />{order.email}</a>}</div></section>
+                <StatusCard order={order} processing={processing} updateStatus={updateStatus} />
+            </aside>
+        </div>
+    </main></AdminLayout>;
 }
