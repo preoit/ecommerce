@@ -11,6 +11,19 @@ class OrderManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_order_index_is_paginated_and_filters_on_the_server(): void
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+        foreach (range(1, 30) as $number) {
+            DB::table('orders')->insert(['order_number' => '#BULK'.$number, 'customer_name' => 'Bulk Customer '.$number, 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'payment_method' => 'cod', 'payment_status' => 'pending', 'status' => $number === 30 ? 'confirmed' : 'pending', 'subtotal' => 100, 'shipping_total' => 0, 'total' => 100, 'created_at' => now(), 'updated_at' => now()]);
+        }
+
+        $this->actingAs($user)->get(route('orders.index'))->assertOk()->assertInertia(fn ($page) => $page
+            ->has('orders', 25)->where('pagination.total', 30)->where('pagination.lastPage', 2));
+        $this->actingAs($user)->get(route('orders.index', ['status' => 'confirmed']))->assertOk()->assertInertia(fn ($page) => $page
+            ->has('orders', 1)->where('orders.0.statusKey', 'confirmed')->where('pagination.total', 1));
+    }
+
     public function test_order_list_exposes_unviewed_state_and_details_marks_order_viewed(): void
     {
         $user = User::factory()->create();

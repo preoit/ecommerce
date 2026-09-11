@@ -1,12 +1,12 @@
 <?php
 
-use App\Modules\Shared\Http\Controllers\ModulePageController;
 use App\Modules\Orders\Http\Controllers\OrderDetailsController;
 use App\Modules\Orders\Http\Controllers\OrderNotificationController;
 use App\Modules\Orders\Http\Controllers\ManualOrderController;
+use App\Modules\Orders\Http\Controllers\OrderIndexController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/admin/orders', ModulePageController::class)->defaults('module', 'orders')->name('orders.index');
+Route::get('/admin/orders', OrderIndexController::class)->name('orders.index');
 Route::get('/admin/orders/notifications', [OrderNotificationController::class, 'index'])->name('orders.notifications');
 Route::get('/admin/orders/create', [ManualOrderController::class, 'create'])->name('orders.create');
 Route::post('/admin/orders', [ManualOrderController::class, 'store'])->name('orders.store');
