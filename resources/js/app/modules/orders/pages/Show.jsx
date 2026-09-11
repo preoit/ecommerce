@@ -55,11 +55,11 @@ function ShippingLabel({ order, website, close }) {
 function LabelButton({ order, processing, onClick, compact = false }) {
     const size = compact ? 'mt-2 h-9 px-3 text-xs' : 'h-11 px-5 text-sm';
     const base = `group inline-flex items-center justify-center gap-2 rounded-xl font-bold transition duration-200 focus-visible:outline-none focus-visible:ring-4 ${size}`;
-    const generateClasses = `${base} bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 shadow-md shadow-amber-200/70 hover:-translate-y-0.5 hover:from-amber-300 hover:to-yellow-400 hover:shadow-lg focus-visible:ring-amber-200`;
-    const viewClasses = `${base} bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-200/80 hover:-translate-y-0.5 hover:from-violet-700 hover:to-indigo-700 hover:shadow-lg focus-visible:ring-violet-200`;
-    if (order.shippingLabelGeneratedAt) return <a href={route('orders.shipping-label.show', order.id)} target="_blank" rel="noopener noreferrer" className={viewClasses}><FileText className={`${compact ? 'size-3.5' : 'size-4'} transition-transform group-hover:scale-110`} />View / Print Label</a>;
+    const generateClasses = `${base} bg-amber-400 text-amber-950 shadow-sm hover:bg-amber-500 focus-visible:ring-amber-200`;
+    const viewClasses = `${base} bg-violet-600 text-white shadow-sm hover:bg-violet-700 focus-visible:ring-violet-200`;
+    if (order.shippingLabelGeneratedAt) return <a href={route('orders.shipping-label.show', order.id)} target="_blank" rel="noopener noreferrer" className={viewClasses}><FileText className={compact ? 'size-3.5' : 'size-4'} />View / Print Label</a>;
     const token = typeof document === 'undefined' ? '' : document.querySelector('meta[name="csrf-token"]')?.content;
-    return <form action={route('orders.shipping-label.generate', order.id)} method="post" target="_blank"><input type="hidden" name="_token" value={token || ''} /><button type="submit" className={generateClasses}><FileText className={`${compact ? 'size-3.5' : 'size-4'} transition-transform group-hover:scale-110`} />Generate Shipping Label</button></form>;
+    return <form action={route('orders.shipping-label.generate', order.id)} method="post" target="_blank"><input type="hidden" name="_token" value={token || ''} /><button type="submit" className={generateClasses}><FileText className={compact ? 'size-3.5' : 'size-4'} />Generate Shipping Label</button></form>;
 }
 
 function StatusCard({ order, processing, updateStatus, labelProcessing, openLabel }) {
