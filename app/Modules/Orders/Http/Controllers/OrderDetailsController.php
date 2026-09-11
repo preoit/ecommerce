@@ -12,6 +12,22 @@ use Inertia\Response;
 
 class OrderDetailsController extends Controller
 {
+    public function generateShippingLabel(int $order): RedirectResponse
+    {
+        $record = DB::table('orders')->find($order);
+        abort_unless($record, 404);
+        abort_unless(in_array($record->status, ['confirmed', 'processing', 'ready_to_ship', 'shipped', 'completed'], true), 422, 'Confirm the order before generating its shipping label.');
+
+        if ($record->shipping_label_generated_at === null) {
+            DB::table('orders')->where('id', $order)->update([
+                'shipping_label_generated_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return back()->with('success', 'Shipping label generated.');
+    }
+
     public function updateStatus(Request $request, int $order): RedirectResponse
     {
         $data = $request->validate(['status' => ['required', 'in:pending,confirmed,processing,ready_to_ship,shipped,completed,cancelled,returned']]);
@@ -47,6 +63,7 @@ class OrderDetailsController extends Controller
                 'note' => $record->note, 'paymentMethod' => $record->payment_method, 'paymentStatus' => $record->payment_status,
                 'status' => str($record->status)->replace('_', ' ')->title()->toString(), 'statusKey' => $record->status, 'subtotal' => (float) $record->subtotal, 'shippingTotal' => (float) $record->shipping_total, 'codSurcharge' => (float) ($record->cod_surcharge ?? 0), 'deliveryZone' => $record->delivery_zone ?? null,
                 'total' => (float) $record->total, 'date' => $createdAt->format('d M Y, h:i A'), 'hasStockShortage' => (bool) ($record->has_stock_shortage ?? false),
+                'shippingLabelGeneratedAt' => $record->shipping_label_generated_at ? Carbon::parse($record->shipping_label_generated_at, 'UTC')->setTimezone('Asia/Dhaka')->format('d M Y, h:i A') : null,
                 'items' => $items->map(fn (object $item): array => [
                     'title' => $item->product_title, 'variantName' => $item->variant_name ?? null, 'sku' => $item->sku, 'quantity' => $item->quantity,
                     'unitPrice' => (float) $item->unit_price, 'lineTotal' => (float) $item->line_total, 'stockShortageQuantity' => (int) ($item->stock_shortage_quantity ?? 0),

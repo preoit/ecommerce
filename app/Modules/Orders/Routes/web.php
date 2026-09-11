@@ -10,3 +10,4 @@ Route::get('/admin/orders/notifications', [OrderNotificationController::class, '
 Route::post('/admin/orders/{order}/view', [OrderNotificationController::class, 'markViewed'])->name('orders.view');
 Route::get('/admin/orders/{order}', [OrderDetailsController::class, 'show'])->name('orders.show');
 Route::patch('/admin/orders/{order}/status', [OrderDetailsController::class, 'updateStatus'])->name('orders.status.update');
+Route::post('/admin/orders/{order}/shipping-label', [OrderDetailsController::class, 'generateShippingLabel'])->name('orders.shipping-label.generate');
