@@ -16,7 +16,8 @@ class OrderIndexController extends Controller
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
             'status' => ['nullable', 'in:pending,confirmed,processing,ready_to_ship,shipped,completed,cancelled,returned'],
-            'date' => ['nullable', 'date_format:Y-m-d'],
+            'date_from' => ['nullable', 'date_format:Y-m-d'],
+            'date_to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:date_from'],
             'per_page' => ['nullable', 'integer', 'in:25,50,100'],
         ]);
 
@@ -24,7 +25,8 @@ class OrderIndexController extends Controller
             $term = '%'.addcslashes($filters['q'], '%_\\').'%';
             $query->where(fn ($nested) => $nested->where('order_number', 'like', $term)->orWhere('customer_name', 'like', $term)->orWhere('phone', 'like', $term)->orWhere('email', 'like', $term));
         })->when(filled($filters['status'] ?? null), fn ($query) => $query->where('status', $filters['status']))
-            ->when(filled($filters['date'] ?? null), fn ($query) => $query->whereDate('created_at', $filters['date']))
+            ->when(filled($filters['date_from'] ?? null), fn ($query) => $query->whereDate('created_at', '>=', $filters['date_from']))
+            ->when(filled($filters['date_to'] ?? null), fn ($query) => $query->whereDate('created_at', '<=', $filters['date_to']))
             ->orderByDesc('id');
 
         $paginator = $query->paginate((int) ($filters['per_page'] ?? 25))->withQueryString();
@@ -49,7 +51,7 @@ class OrderIndexController extends Controller
 
         return Inertia::render('app/modules/orders/pages/Index', [
             'orders' => $orders,
-            'filters' => ['q' => $filters['q'] ?? '', 'status' => $filters['status'] ?? '', 'date' => $filters['date'] ?? '', 'perPage' => (int) ($filters['per_page'] ?? 25)],
+            'filters' => ['q' => $filters['q'] ?? '', 'status' => $filters['status'] ?? '', 'dateFrom' => $filters['date_from'] ?? '', 'dateTo' => $filters['date_to'] ?? '', 'perPage' => (int) ($filters['per_page'] ?? 25)],
             'statusCounts' => DB::table('orders')->select('status', DB::raw('count(*) as total'))->groupBy('status')->pluck('total', 'status'),
             'pagination' => ['currentPage' => $paginator->currentPage(), 'lastPage' => $paginator->lastPage(), 'perPage' => $paginator->perPage(), 'total' => $paginator->total(), 'from' => $paginator->firstItem(), 'to' => $paginator->lastItem()],
         ]);

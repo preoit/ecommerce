@@ -22,6 +22,11 @@ class OrderManagementTest extends TestCase
             ->has('orders', 25)->where('pagination.total', 30)->where('pagination.lastPage', 2));
         $this->actingAs($user)->get(route('orders.index', ['status' => 'confirmed']))->assertOk()->assertInertia(fn ($page) => $page
             ->has('orders', 1)->where('orders.0.statusKey', 'confirmed')->where('pagination.total', 1));
+
+        DB::table('orders')->where('order_number', '#BULK30')->update(['created_at' => '2026-09-10 12:00:00']);
+        $this->actingAs($user)->get(route('orders.index', ['date_from' => '2026-09-10', 'date_to' => '2026-09-10']))->assertOk()->assertInertia(fn ($page) => $page
+            ->has('orders', 1)->where('orders.0.number', '#BULK30')->where('filters.dateFrom', '2026-09-10')->where('filters.dateTo', '2026-09-10'));
+        $this->actingAs($user)->get(route('orders.index', ['date_from' => '2026-09-11', 'date_to' => '2026-09-10']))->assertSessionHasErrors('date_to');
     }
 
     public function test_order_list_exposes_unviewed_state_and_details_marks_order_viewed(): void
