@@ -1,1 +1,0 @@
-import{t as e}from"./app-C4-j77eG.js";import{t}from"./CategoryFormModal-v8i7-XnY.js";var n=e();function r({category:e=null,parentOptions:r=[],resource:i=`categories`,entityLabel:a=`category`}){return(0,n.jsx)(t,{page:!0,open:!0,category:e,parentOptions:r,resource:i,entityLabel:a})}export{r as default};
