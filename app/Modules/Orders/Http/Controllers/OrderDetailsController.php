@@ -67,7 +67,7 @@ class OrderDetailsController extends Controller
                 'items' => $items->map(fn (object $item): array => [
                     'title' => $item->product_title, 'variantName' => $item->variant_name ?? null, 'sku' => $item->sku, 'quantity' => $item->quantity,
                     'unitPrice' => (float) $item->unit_price, 'lineTotal' => (float) $item->line_total, 'stockShortageQuantity' => (int) ($item->stock_shortage_quantity ?? 0),
-                    'image' => $item->featured_image_path ? asset('storage/'.$item->featured_image_path) : null,
+                    'image' => $item->featured_image_path ? '/image/'.rawurlencode(basename(str_replace('\\', '/', $item->featured_image_path))) : null,
                     'slug' => $item->slug,
                 ]),
             ],
