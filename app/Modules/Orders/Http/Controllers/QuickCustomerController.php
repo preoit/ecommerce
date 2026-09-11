@@ -55,4 +55,29 @@ class QuickCustomerController extends Controller
             'addressLabel' => $data['address_label'],
         ]], 201);
     }
+
+    public function update(Request $request, User $customer): JsonResponse
+    {
+        abort_if($customer->is_admin, 404);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'regex:/^\+?[0-9]{10,15}$/', Rule::unique('users', 'phone')->ignore($customer->id)],
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($customer->id)],
+            'city' => ['required', 'string', 'max:120'],
+            'address_label' => ['required', 'string', 'max:60'],
+            'address' => ['required', 'string', 'max:1000'],
+        ]);
+
+        DB::transaction(function () use ($customer, $data): void {
+            $customer->fill(['name' => $data['name'], 'phone' => $data['phone'], 'email' => filled($data['email'] ?? null) ? $data['email'] : null]);
+            if ($customer->isDirty('email')) $customer->email_verified_at = null;
+            if ($customer->isDirty('phone')) $customer->phone_verified_at = null;
+            $customer->save();
+            $address = $customer->addresses()->orderByDesc('is_default')->latest('id')->first();
+            $values = ['label' => $data['address_label'], 'recipient_name' => $data['name'], 'phone' => $data['phone'], 'delivery_zone' => str_contains(strtolower($data['city']), 'dhaka') ? 'inside_dhaka' : 'outside_dhaka', 'district' => $data['city'], 'city' => $data['city'], 'address' => $data['address'], 'is_default' => true];
+            $address ? $address->update($values) : $customer->addresses()->create($values);
+        });
+
+        return response()->json(['customer' => ['id' => $customer->id, 'name' => $data['name'], 'phone' => $data['phone'], 'email' => $data['email'] ?: null, 'city' => $data['city'], 'address' => $data['address'], 'addressLabel' => $data['address_label']]]);
+    }
 }

@@ -13,6 +13,9 @@ class ManualOrderTest extends TestCase {
   $customer=User::query()->where('phone','01712345678')->firstOrFail();
   $this->assertFalse($customer->is_admin);
   $this->assertDatabaseHas('customer_addresses',['user_id'=>$customer->id,'label'=>'Office','delivery_zone'=>'inside_dhaka','address'=>'Motijheel, Dhaka']);
+  $this->actingAs($admin)->patchJson(route('orders.customers.update',$customer),['name'=>'Updated Customer','phone'=>'01712345678','email'=>'updated@example.com','city'=>'Chattogram','address_label'=>'Home','address'=>'Agrabad'])->assertOk()->assertJsonPath('customer.name','Updated Customer');
+  $this->assertDatabaseHas('users',['id'=>$customer->id,'name'=>'Updated Customer','email'=>'updated@example.com']);
+  $this->assertDatabaseHas('customer_addresses',['user_id'=>$customer->id,'label'=>'Home','delivery_zone'=>'outside_dhaka','address'=>'Agrabad']);
  }
  public function test_admin_can_create_a_phone_order_with_products_and_discount(): void {
   $admin=User::factory()->create(['is_admin'=>true]);
