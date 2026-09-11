@@ -33,6 +33,8 @@ class FooterSectionController extends Controller
         $data = $request->validate([
             'description' => ['nullable', 'string', 'max:2000'],
             'phone' => ['nullable', 'string', 'max:60'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'address' => ['nullable', 'string', 'max:500'],
             'app_store_url' => ['nullable', 'string', 'max:500'],
             'google_play_url' => ['nullable', 'string', 'max:500'],
             'copyright_name' => ['nullable', 'string', 'max:120'],
@@ -84,7 +86,7 @@ class FooterSectionController extends Controller
     {
         return [
             'description' => 'Discover quality products, great value and dependable service—selected for everyday life.',
-            'phone' => '+880 0000 000 000', 'app_store_url' => '#', 'google_play_url' => '#', 'copyright_name' => 'iTTiBA International',
+            'phone' => '+880 0000 000 000', 'email' => '', 'address' => '', 'app_store_url' => '#', 'google_play_url' => '#', 'copyright_name' => 'iTTiBA International',
             'link_groups' => [
                 ['title' => 'Let Us Help You', 'links' => ['Account Info', 'Your Orders', 'Returns Policies', 'Shipping Rates']],
                 ['title' => 'Make Money with Us', 'links' => ['Sell on our store', 'Sell Your Services', 'Become an Affiliate']],
