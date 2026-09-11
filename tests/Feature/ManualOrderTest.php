@@ -20,7 +20,8 @@ class ManualOrderTest extends TestCase {
  public function test_admin_can_create_a_phone_order_with_products_and_discount(): void {
   $admin=User::factory()->create(['is_admin'=>true]);
   $productId=DB::table('products')->insertGetId(['title'=>'Manual Product','slug'=>'manual-product','regular_price'=>500,'sku'=>'MAN-1','stock_quantity'=>10,'status'=>'Published','visibility'=>'Public','created_at'=>now(),'updated_at'=>now()]);
-  $this->actingAs($admin)->get(route('orders.create'))->assertOk()->assertInertia(fn($page)=>$page->component('app/modules/orders/pages/Create',false)->where('products.0.id',$productId));
+  \App\Modules\Settings\Models\WebsiteSetting::firstOrCreate(['id'=>1])->update(['delivery_enabled'=>true,'delivery_inside_dhaka'=>80,'delivery_outside_dhaka'=>150]);
+  $this->actingAs($admin)->get(route('orders.create'))->assertOk()->assertInertia(fn($page)=>$page->component('app/modules/orders/pages/Create',false)->where('products.0.id',$productId)->where('deliveryCharges.insideDhaka',80)->where('deliveryCharges.outsideDhaka',150));
   $response=$this->actingAs($admin)->post(route('orders.store'),['source'=>'phone','customer_name'=>'Phone Customer','phone'=>'01700000000','email'=>'buyer@example.com','address'=>'Dhaka address','city'=>'Dhaka','delivery_zone'=>'inside_dhaka','note'=>'Call first','payment_method'=>'cod','payment_status'=>'pending','discount'=>50,'items'=>[['product_id'=>$productId,'variant_id'=>null,'quantity'=>2,'unit_price'=>450]]]);
   $orderId=DB::table('orders')->value('id');
   $response->assertRedirect(route('orders.show',$orderId));
