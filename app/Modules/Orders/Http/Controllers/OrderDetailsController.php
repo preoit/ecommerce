@@ -77,6 +77,21 @@ class OrderDetailsController extends Controller
         return back()->with('success', 'Order status updated.');
     }
 
+    public function updatePaymentStatus(Request $request, int $order): RedirectResponse
+    {
+        $data = $request->validate(['payment_status' => ['required', 'in:pending,paid']]);
+        abort_unless(DB::table('orders')->where('id', $order)->exists(), 404);
+
+        DB::table('orders')->where('id', $order)->update([
+            'payment_status' => $data['payment_status'],
+            'payment_status_updated_at' => now(),
+            'payment_status_updated_by' => $request->user()->id,
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', $data['payment_status'] === 'paid' ? 'Payment marked as paid.' : 'Payment marked as pending.');
+    }
+
     public function show(int $order): Response
     {
         $record = DB::table('orders')->find($order);
@@ -101,6 +116,7 @@ class OrderDetailsController extends Controller
                 'customerOrderCount' => $customerOrderCount,
                 'phone' => $record->phone, 'email' => $record->email, 'address' => $record->address, 'city' => $record->city,
                 'note' => $record->note, 'paymentMethod' => $record->payment_method, 'paymentStatus' => $record->payment_status,
+                'paymentStatusUpdatedAt' => $record->payment_status_updated_at ? Carbon::parse($record->payment_status_updated_at, 'UTC')->setTimezone('Asia/Dhaka')->format('d M Y, h:i A') : null,
                 'status' => str($record->status)->replace('_', ' ')->title()->toString(), 'statusKey' => $record->status, 'subtotal' => (float) $record->subtotal, 'shippingTotal' => (float) $record->shipping_total, 'codSurcharge' => (float) ($record->cod_surcharge ?? 0), 'deliveryZone' => $record->delivery_zone ?? null,
                 'total' => (float) $record->total, 'date' => $createdAt->format('d M Y, h:i A'), 'hasStockShortage' => (bool) ($record->has_stock_shortage ?? false),
                 'shippingLabelGeneratedAt' => $record->shipping_label_generated_at ? Carbon::parse($record->shipping_label_generated_at, 'UTC')->setTimezone('Asia/Dhaka')->format('d M Y, h:i A') : null,

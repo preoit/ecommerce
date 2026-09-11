@@ -64,6 +64,9 @@ class OrderManagementTest extends TestCase
         $this->actingAs($user)->post(route('orders.shipping-label.generate', $orderId))->assertStatus(422);
         $this->actingAs($user)->patch(route('orders.status.update', $orderId), ['status' => 'confirmed'])->assertRedirect();
         $this->assertDatabaseHas('orders', ['id' => $orderId, 'status' => 'confirmed']);
+        $this->actingAs($user)->patch(route('orders.payment-status.update', $orderId), ['payment_status' => 'paid'])->assertRedirect();
+        $this->assertDatabaseHas('orders', ['id' => $orderId, 'payment_status' => 'paid', 'payment_status_updated_by' => $user->id]);
+        $this->assertNotNull(DB::table('orders')->where('id', $orderId)->value('payment_status_updated_at'));
         $this->actingAs($user)->post(route('orders.shipping-label.generate', $orderId))
             ->assertRedirect(route('orders.shipping-label.show', $orderId));
         $this->assertDatabaseMissing('orders', ['id' => $orderId, 'shipping_label_generated_at' => null]);
