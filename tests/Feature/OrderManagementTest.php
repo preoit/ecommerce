@@ -88,6 +88,7 @@ class OrderManagementTest extends TestCase
         $this->actingAs($user)->post(route('orders.shipping-label.generate', $orderId))
             ->assertRedirect(route('orders.shipping-label.show', $orderId));
         $this->assertDatabaseMissing('orders', ['id' => $orderId, 'shipping_label_generated_at' => null]);
+        DB::table('orders')->where('id', $orderId)->update(['discount_total' => 50, 'total' => 450]);
         $this->actingAs($user)->get(route('orders.shipping-label.show', $orderId))
             ->assertOk()
             ->assertInertia(fn ($page) => $page
@@ -97,8 +98,9 @@ class OrderManagementTest extends TestCase
                 ->where('order.items.0.quantity', 1)
                 ->where('order.items.0.unitPrice', 500)
                 ->where('order.items.0.lineTotal', 500)
+                ->where('order.discountTotal', 50)
                 ->where('order.shippingTotal', 0)
-                ->where('order.total', 500));
+                ->where('order.total', 450));
         $this->actingAs($user)->get(route('orders.index'))
             ->assertInertia(fn ($page) => $page->where('orders.0.viewed', true)->where('orders.0.status', 'Confirmed'));
     }

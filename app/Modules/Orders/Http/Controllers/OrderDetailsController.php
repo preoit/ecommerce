@@ -52,6 +52,7 @@ class OrderDetailsController extends Controller
                 'paymentStatus' => $record->payment_status,
                 'deliveryZone' => $record->delivery_zone ?? null,
                 'subtotal' => (float) $record->subtotal,
+                'discountTotal' => (float) ($record->discount_total ?? 0),
                 'shippingTotal' => (float) $record->shipping_total,
                 'codSurcharge' => (float) ($record->cod_surcharge ?? 0),
                 'total' => (float) $record->total,
