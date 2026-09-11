@@ -20,6 +20,22 @@ function ShippingLabel({ order, website, close }) {
     const itemCount = order.items.reduce((total, item) => total + Number(item.quantity || 0), 0);
     const merchantPhone = website?.footer?.phone || '';
     const collectable = String(order.paymentStatus).toLowerCase() === 'paid' ? 0 : order.total;
+    const printLabel = () => {
+        const label = document.querySelector('.shipping-label');
+        const printWindow = window.open('', '_blank', 'width=900,height=900');
+        if (!label || !printWindow) return;
+        const styles = [...document.querySelectorAll('link[rel="stylesheet"], style')].map(node => node.outerHTML).join('');
+        printWindow.document.open();
+        printWindow.document.write(`<!doctype html><html><head><base href="${window.location.origin}/"><title>${order.number} Shipping Label</title>${styles}<style>@page{size:A5 portrait;margin:0}html,body{margin:0!important;padding:0!important;background:#fff!important}.shipping-label{width:148mm!important;min-height:210mm!important;height:210mm!important;max-width:none!important;margin:0!important;box-shadow:none!important;overflow:hidden!important;box-sizing:border-box!important}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>${label.outerHTML}</body></html>`);
+        printWindow.document.close();
+        printWindow.focus();
+        const printWhenReady = () => {
+            const images = [...printWindow.document.images];
+            Promise.all(images.map(image => image.complete ? Promise.resolve() : new Promise(resolve => { image.onload = resolve; image.onerror = resolve; }))).finally(() => window.setTimeout(() => printWindow.print(), 200));
+        };
+        if (printWindow.document.readyState === 'complete') printWhenReady();
+        else printWindow.addEventListener('load', printWhenReady, { once: true });
+    };
 
     return <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-sm print:static print:block print:bg-white print:p-0" role="dialog" aria-modal="true" aria-label="Shipping label preview" onMouseDown={event => event.target === event.currentTarget && close()}>
         <div className="w-full max-w-[760px] rounded-2xl bg-slate-100 p-4 shadow-2xl print:max-w-none print:rounded-none print:bg-white print:p-0 print:shadow-none">
@@ -31,9 +47,8 @@ function ShippingLabel({ order, website, close }) {
                 {order.note && <section className="mt-5 rounded-lg border-2 border-emerald-500 bg-emerald-50 p-4"><h3 className="text-xs font-black uppercase tracking-wide text-emerald-800">Read before confirm</h3><p className="mt-1 text-sm font-semibold leading-5">{order.note}</p></section>}
                 <footer className="mt-8"><Barcode value={order.number} /><p className="mt-6 text-center text-[10px] text-slate-400">Generated {order.shippingLabelGeneratedAt}</p></footer>
             </article>
-            <div className="mt-4 flex justify-end gap-3 print:hidden"><button type="button" onClick={close} className="h-11 rounded-xl border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700">Close</button><button type="button" onClick={() => window.print()} className="inline-flex h-11 items-center gap-2 rounded-xl bg-violet-600 px-5 text-sm font-bold text-white shadow-lg shadow-violet-200 hover:bg-violet-700"><Printer className="size-4" />Print A5 Label</button></div>
+            <div className="mt-4 flex justify-end gap-3 print:hidden"><button type="button" onClick={close} className="h-11 rounded-xl border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700">Close</button><button type="button" onClick={printLabel} className="inline-flex h-11 items-center gap-2 rounded-xl bg-violet-600 px-5 text-sm font-bold text-white shadow-lg shadow-violet-200 hover:bg-violet-700"><Printer className="size-4" />Print A5 Label</button></div>
         </div>
-        <style>{`@media print { @page { size: A5 portrait; margin: 0; } body * { visibility: hidden !important; } .shipping-label, .shipping-label * { visibility: visible !important; } .shipping-label { position: fixed !important; inset: 0 auto auto 0 !important; overflow: hidden !important; } }`}</style>
     </div>;
 }
 
