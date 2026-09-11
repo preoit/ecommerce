@@ -53,7 +53,10 @@ function ShippingLabel({ order, website, close }) {
 }
 
 function LabelButton({ order, processing, onClick, compact = false }) {
-    return <button type="button" onClick={onClick} disabled={processing} className={`inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 font-bold text-slate-950 shadow-md shadow-amber-200/70 transition hover:-translate-y-0.5 hover:from-amber-300 hover:to-yellow-400 disabled:opacity-50 ${compact ? 'mt-2 h-9 px-3 text-xs' : 'h-11 px-5 text-sm'}`}><FileText className={compact ? 'size-3.5' : 'size-4'} />{processing ? 'Generating...' : order.shippingLabelGeneratedAt ? 'View / Print Label' : 'Generate Shipping Label'}</button>;
+    const classes = `inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 font-bold text-slate-950 shadow-md shadow-amber-200/70 transition hover:-translate-y-0.5 hover:from-amber-300 hover:to-yellow-400 ${compact ? 'mt-2 h-9 px-3 text-xs' : 'h-11 px-5 text-sm'}`;
+    if (order.shippingLabelGeneratedAt) return <a href={route('orders.shipping-label.show', order.id)} target="_blank" rel="noopener noreferrer" className={classes}><FileText className={compact ? 'size-3.5' : 'size-4'} />View / Print Label</a>;
+    const token = typeof document === 'undefined' ? '' : document.querySelector('meta[name="csrf-token"]')?.content;
+    return <form action={route('orders.shipping-label.generate', order.id)} method="post" target="_blank"><input type="hidden" name="_token" value={token || ''} /><button type="submit" className={classes}><FileText className={compact ? 'size-3.5' : 'size-4'} />Generate Shipping Label</button></form>;
 }
 
 function StatusCard({ order, processing, updateStatus, labelProcessing, openLabel }) {

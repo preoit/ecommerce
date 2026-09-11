@@ -64,8 +64,15 @@ class OrderManagementTest extends TestCase
         $this->actingAs($user)->post(route('orders.shipping-label.generate', $orderId))->assertStatus(422);
         $this->actingAs($user)->patch(route('orders.status.update', $orderId), ['status' => 'confirmed'])->assertRedirect();
         $this->assertDatabaseHas('orders', ['id' => $orderId, 'status' => 'confirmed']);
-        $this->actingAs($user)->post(route('orders.shipping-label.generate', $orderId))->assertRedirect();
+        $this->actingAs($user)->post(route('orders.shipping-label.generate', $orderId))
+            ->assertRedirect(route('orders.shipping-label.show', $orderId));
         $this->assertDatabaseMissing('orders', ['id' => $orderId, 'shipping_label_generated_at' => null]);
+        $this->actingAs($user)->get(route('orders.shipping-label.show', $orderId))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('app/modules/orders/pages/ShippingLabel', false)
+                ->where('order.id', $orderId)
+                ->where('order.items.0.title', 'Test Product'));
         $this->actingAs($user)->get(route('orders.index'))
             ->assertInertia(fn ($page) => $page->where('orders.0.viewed', true)->where('orders.0.status', 'Confirmed'));
     }

@@ -25,7 +25,41 @@ class OrderDetailsController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Shipping label generated.');
+        return to_route('orders.shipping-label.show', $order);
+    }
+
+    public function shippingLabel(int $order): Response
+    {
+        $record = DB::table('orders')->find($order);
+        abort_unless($record, 404);
+        abort_unless($record->shipping_label_generated_at !== null, 404);
+
+        $items = DB::table('order_items')
+            ->where('order_id', $record->id)
+            ->select('product_title', 'variant_name', 'quantity')
+            ->get();
+
+        return Inertia::render('app/modules/orders/pages/ShippingLabel', [
+            'order' => [
+                'id' => $record->id,
+                'number' => $record->order_number,
+                'customerName' => $record->customer_name,
+                'phone' => $record->phone,
+                'address' => $record->address,
+                'city' => $record->city,
+                'note' => $record->note,
+                'paymentMethod' => $record->payment_method,
+                'paymentStatus' => $record->payment_status,
+                'deliveryZone' => $record->delivery_zone ?? null,
+                'total' => (float) $record->total,
+                'generatedAt' => Carbon::parse($record->shipping_label_generated_at, 'UTC')->setTimezone('Asia/Dhaka')->format('d M Y, h:i A'),
+                'items' => $items->map(fn (object $item): array => [
+                    'title' => $item->product_title,
+                    'variantName' => $item->variant_name ?? null,
+                    'quantity' => (int) $item->quantity,
+                ]),
+            ],
+        ]);
     }
 
     public function updateStatus(Request $request, int $order): RedirectResponse
