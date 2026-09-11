@@ -72,7 +72,10 @@ class OrderManagementTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->component('app/modules/orders/pages/ShippingLabel', false)
                 ->where('order.id', $orderId)
-                ->where('order.items.0.title', 'Test Product'));
+                ->where('order.items.0.title', 'Test Product')
+                ->where('order.items.0.quantity', 1)
+                ->where('order.items.0.unitPrice', 500)
+                ->where('order.items.0.lineTotal', 500));
         $this->actingAs($user)->get(route('orders.index'))
             ->assertInertia(fn ($page) => $page->where('orders.0.viewed', true)->where('orders.0.status', 'Confirmed'));
     }

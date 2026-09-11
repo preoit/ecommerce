@@ -36,7 +36,7 @@ class OrderDetailsController extends Controller
 
         $items = DB::table('order_items')
             ->where('order_id', $record->id)
-            ->select('product_title', 'variant_name', 'quantity')
+            ->select('product_title', 'variant_name', 'sku', 'quantity', 'unit_price', 'line_total')
             ->get();
 
         return Inertia::render('app/modules/orders/pages/ShippingLabel', [
@@ -56,7 +56,10 @@ class OrderDetailsController extends Controller
                 'items' => $items->map(fn (object $item): array => [
                     'title' => $item->product_title,
                     'variantName' => $item->variant_name ?? null,
+                    'sku' => $item->sku,
                     'quantity' => (int) $item->quantity,
+                    'unitPrice' => (float) $item->unit_price,
+                    'lineTotal' => (float) $item->line_total,
                 ]),
             ],
         ]);
