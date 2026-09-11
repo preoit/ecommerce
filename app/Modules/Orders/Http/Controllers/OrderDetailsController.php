@@ -51,6 +51,9 @@ class OrderDetailsController extends Controller
                 'paymentMethod' => $record->payment_method,
                 'paymentStatus' => $record->payment_status,
                 'deliveryZone' => $record->delivery_zone ?? null,
+                'subtotal' => (float) $record->subtotal,
+                'shippingTotal' => (float) $record->shipping_total,
+                'codSurcharge' => (float) ($record->cod_surcharge ?? 0),
                 'total' => (float) $record->total,
                 'generatedAt' => Carbon::parse($record->shipping_label_generated_at, 'UTC')->setTimezone('Asia/Dhaka')->format('d M Y, h:i A'),
                 'items' => $items->map(fn (object $item): array => [
