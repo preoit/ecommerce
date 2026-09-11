@@ -158,12 +158,22 @@ export default function AdminLayout({ children, showFlash = true }) {
     const [profileOpen, setProfileOpen] = useState(false);
     const [darkMode, setDarkMode] = useState(() => localStorage.getItem('admin-theme') === 'dark');
     const [unreadOrderCount, setUnreadOrderCount] = useState(0);
+    const [flashMessage, setFlashMessage] = useState(flash?.success || null);
+    const [flashVisible, setFlashVisible] = useState(Boolean(flash?.success));
 
     useEffect(() => setMobileOpen(false), [currentUrl]);
     useEffect(() => {
         document.documentElement.classList.toggle('dark', darkMode);
         localStorage.setItem('admin-theme', darkMode ? 'dark' : 'light');
     }, [darkMode]);
+    useEffect(() => {
+        if (!flash?.success) return;
+        setFlashMessage(flash.success);
+        setFlashVisible(true);
+        const fadeTimer = window.setTimeout(() => setFlashVisible(false), 4500);
+        const removeTimer = window.setTimeout(() => setFlashMessage(null), 5000);
+        return () => { window.clearTimeout(fadeTimer); window.clearTimeout(removeTimer); };
+    }, [flash?.success]);
 
     return (
         <div className={cn('min-h-screen transition-colors', darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-[#f8f7fa] text-slate-900')}>
@@ -200,10 +210,11 @@ export default function AdminLayout({ children, showFlash = true }) {
                     </div>
                 </header>
                 <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-                    {showFlash && flash?.success && (
-                        <div className="relative z-10 mb-4 ml-auto flex w-full max-w-xl items-center gap-3 rounded-xl border border-emerald-300 border-l-4 border-l-emerald-500 bg-emerald-50 px-4 py-3 shadow-[0_6px_18px_rgba(5,150,105,.10)] dark:border-emerald-900 dark:border-l-emerald-500 dark:bg-emerald-950/30" role="status">
+                    {showFlash && flashMessage && (
+                        <div className={cn('relative z-10 mb-5 flex w-full items-center gap-3 rounded-xl border border-emerald-300 border-l-4 border-l-emerald-500 bg-emerald-50 px-4 py-3 shadow-[0_6px_18px_rgba(5,150,105,.10)] transition-all duration-500 dark:border-emerald-900 dark:border-l-emerald-500 dark:bg-emerald-950/30', flashVisible ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0')} role="status" aria-live="polite">
                             <span className="grid size-9 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-800"><CheckCircle2 className="size-5" aria-hidden="true" /></span>
-                            <div className="min-w-0"><b className="block text-[11px] font-extrabold uppercase tracking-[.12em] text-emerald-700 dark:text-emerald-300">Success</b><p className="mt-0.5 truncate text-sm font-semibold text-slate-700 dark:text-slate-200">{flash.success}</p></div>
+                            <div className="min-w-0 flex-1"><b className="block text-[11px] font-extrabold uppercase tracking-[.12em] text-emerald-700 dark:text-emerald-300">Success</b><p className="mt-0.5 text-sm font-semibold text-slate-700 dark:text-slate-200">{flashMessage}</p></div>
+                            <button type="button" onClick={() => setFlashMessage(null)} className="grid size-8 shrink-0 place-items-center rounded-lg text-emerald-700 transition-colors hover:bg-emerald-100" aria-label="Dismiss message"><X className="size-4" /></button>
                         </div>
                     )}
                     {children}
