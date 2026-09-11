@@ -118,6 +118,7 @@ class OrderDetailsController extends Controller
                 'note' => $record->note, 'paymentMethod' => $record->payment_method, 'paymentStatus' => $record->payment_status,
                 'paymentStatusUpdatedAt' => $record->payment_status_updated_at ? Carbon::parse($record->payment_status_updated_at, 'UTC')->setTimezone('Asia/Dhaka')->format('d M Y, h:i A') : null,
                 'status' => str($record->status)->replace('_', ' ')->title()->toString(), 'statusKey' => $record->status, 'subtotal' => (float) $record->subtotal, 'shippingTotal' => (float) $record->shipping_total, 'codSurcharge' => (float) ($record->cod_surcharge ?? 0), 'deliveryZone' => $record->delivery_zone ?? null,
+                'source' => $record->source ?? 'storefront', 'discountTotal' => (float) ($record->discount_total ?? 0),
                 'total' => (float) $record->total, 'date' => $createdAt->format('d M Y, h:i A'), 'hasStockShortage' => (bool) ($record->has_stock_shortage ?? false),
                 'shippingLabelGeneratedAt' => $record->shipping_label_generated_at ? Carbon::parse($record->shipping_label_generated_at, 'UTC')->setTimezone('Asia/Dhaka')->format('d M Y, h:i A') : null,
                 'items' => $items->map(fn (object $item): array => [
