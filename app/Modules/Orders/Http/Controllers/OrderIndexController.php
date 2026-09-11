@@ -46,6 +46,8 @@ class OrderIndexController extends Controller
                 'codSurcharge' => (float) ($order->cod_surcharge ?? 0), 'total' => (float) $order->total,
                 'status' => str($order->status)->replace('_', ' ')->title()->toString(), 'statusKey' => $order->status,
                 'viewed' => $order->viewed_at !== null, 'date' => $createdAt->toDateString(), 'time' => $createdAt->format('h:i A'),
+                'canEdit' => in_array($order->status, ['pending', 'confirmed', 'processing'], true),
+                'canDelete' => $order->status === 'pending' && $order->payment_status !== 'paid',
             ];
         })->values();
 

@@ -6,6 +6,20 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 class ManualOrderTest extends TestCase {
  use RefreshDatabase;
+ public function test_admin_can_edit_and_delete_a_safe_order_with_stock_restoration(): void {
+  $admin=User::factory()->create(['is_admin'=>true]);
+  $productId=DB::table('products')->insertGetId(['title'=>'Editable Product','slug'=>'editable-product','regular_price'=>500,'sku'=>'EDIT-1','stock_quantity'=>8,'status'=>'Published','visibility'=>'Public','created_at'=>now(),'updated_at'=>now()]);
+  $orderId=DB::table('orders')->insertGetId(['order_number'=>'#EDIT01','source'=>'phone','customer_name'=>'Edit Customer','phone'=>'01700000000','address'=>'Dhaka','city'=>'Dhaka','delivery_zone'=>'inside_dhaka','payment_method'=>'cod','payment_status'=>'pending','status'=>'pending','subtotal'=>1000,'discount_total'=>0,'shipping_total'=>0,'total'=>1000,'shipping_label_generated_at'=>now(),'created_at'=>now(),'updated_at'=>now()]);
+  DB::table('order_items')->insert(['order_id'=>$orderId,'product_id'=>$productId,'product_title'=>'Editable Product','sku'=>'EDIT-1','unit_price'=>500,'quantity'=>2,'line_total'=>1000,'stock_shortage_quantity'=>0,'created_at'=>now(),'updated_at'=>now()]);
+  $this->actingAs($admin)->get(route('orders.edit',$orderId))->assertOk()->assertInertia(fn($page)=>$page->component('app/modules/orders/pages/Create',false)->where('editingOrder.id',$orderId)->where('editingOrder.items.0.quantity',2));
+  $payload=['source'=>'phone','customer_name'=>'Updated Buyer','phone'=>'01700000000','email'=>null,'address'=>'Updated address','city'=>'Dhaka','delivery_zone'=>'inside_dhaka','note'=>null,'payment_method'=>'cod','payment_status'=>'pending','discount'=>50,'items'=>[['product_id'=>$productId,'variant_id'=>null,'quantity'=>1,'unit_price'=>500]]];
+  $this->actingAs($admin)->patch(route('orders.update',$orderId),$payload)->assertRedirect(route('orders.show',$orderId));
+  $this->assertDatabaseHas('orders',['id'=>$orderId,'customer_name'=>'Updated Buyer','subtotal'=>500,'discount_total'=>50,'shipping_label_generated_at'=>null]);
+  $this->assertDatabaseHas('products',['id'=>$productId,'stock_quantity'=>9]);
+  $this->actingAs($admin)->delete(route('orders.destroy',$orderId))->assertRedirect(route('orders.index'));
+  $this->assertDatabaseMissing('orders',['id'=>$orderId]);
+  $this->assertDatabaseHas('products',['id'=>$productId,'stock_quantity'=>10]);
+ }
  public function test_admin_can_quick_create_a_customer_with_an_address(): void {
   $admin=User::factory()->create(['is_admin'=>true]);
   $response=$this->actingAs($admin)->postJson(route('orders.customers.store'),['name'=>'Quick Customer','phone'=>'01712345678','email'=>'quick@example.com','city'=>'Dhaka','address_label'=>'Office','address'=>'Motijheel, Dhaka']);
