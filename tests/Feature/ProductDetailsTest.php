@@ -209,4 +209,21 @@ class ProductDetailsTest extends TestCase
             ->where('product.specification_groups.0.items.0.name', 'Size')
             ->where('product.specification_groups.0.items.1.value', 'PP'));
     }
+
+    public function test_product_edit_saves_tags(): void
+    {
+        $product = Product::create(['title' => 'Filter', 'slug' => 'tagged-filter', 'regular_price' => 100, 'stock_quantity' => 1, 'status' => 'Published', 'visibility' => 'Public']);
+
+        $this->actingAs(User::factory()->create())->patch(route('inventories.products.update', $product), [
+            'title' => 'Filter',
+            'regular' => 100,
+            'sale' => null,
+            'stock' => 1,
+            'status' => 'Published',
+            'visibility' => 'Public',
+            'tags' => 'water filter, sediment, purifier',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame('water filter, sediment, purifier', $product->fresh()->tags);
+    }
 }

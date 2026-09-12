@@ -87,6 +87,11 @@ export default function CreateProduct({ categories = [], brands = [], units = []
     const richTextValue = useRef('');
     const score = useMemo(() => Math.min(100, (data.title ? 25 : 0) + (data.description ? 25 : 0) + (data.seoTitle ? 25 : 0) + (data.meta ? 25 : 0)), [data]);
     const set = (key, value) => setData((current) => ({ ...current, [key]: value }));
+    const tagsIncludingDraft = () => {
+        const tagsPanel = [...document.querySelectorAll('h2')].find((element) => element.textContent?.trim() === 'Tags')?.closest('section');
+        const draft = tagsPanel?.querySelector('input')?.value?.trim();
+        return draft ? [...new Set([...data.tags.split(',').map((tag) => tag.trim()).filter(Boolean), draft])].join(', ') : data.tags;
+    };
     useEffect(() => {
         if (!editingProduct) return;
         const fileForPath = (path) => media.find(file => file.path === path) || { id: path, path, url: `/storage/${path}` };
@@ -94,6 +99,7 @@ export default function CreateProduct({ categories = [], brands = [], units = []
         const galleryFiles = galleryPaths.map(fileForPath);
         setData((current) => ({ ...current, title: editingProduct.title || '', shortDescription: editingProduct.short_description || '', description: editingProduct.description || '', regular: editingProduct.regular_price || '', sale: editingProduct.sale_price || '', sku: editingProduct.sku || '', barcode: editingProduct.barcode || '', stock: editingProduct.stock_quantity || '0', lowStockThreshold: editingProduct.low_stock_threshold || '5', minOrder: editingProduct.min_order_quantity || '1', maxOrder: editingProduct.max_order_quantity || '', quantityStep: editingProduct.quantity_step || '1', unit: editingProduct.unit?.name || '', status: editingProduct.status || 'Draft', visibility: editingProduct.visibility || 'Public', category: (editingProduct.categories || []).map(item => item.id), brand: editingProduct.brand?.name || 'No brand', model: editingProduct.model || '', manufacturer: editingProduct.manufacturer || '', countryOfOrigin: editingProduct.country_of_origin || '', weight: editingProduct.weight || '', length: editingProduct.length || '', width: editingProduct.width || '', height: editingProduct.height || '', warranty: editingProduct.warranty || '', seoTitle: editingProduct.seo_title || '', meta: editingProduct.meta_description || '', canonicalUrl: editingProduct.canonical_url || '', metaRobots: editingProduct.meta_robots || 'index,follow', focusKeyword: editingProduct.focus_keyword || '', ogTitle: editingProduct.og_title || '', ogDescription: editingProduct.og_description || '', featuredImage: editingProduct.featured_image_path ? fileForPath(editingProduct.featured_image_path) : galleryFiles[0] || null, gallery: galleryFiles, ogImage: editingProduct.og_image_path ? fileForPath(editingProduct.og_image_path) : null, twitterImage: editingProduct.twitter_image_path ? fileForPath(editingProduct.twitter_image_path) : null, variants: (editingProduct.variants || []).map(variant => ({ ...variant, attributes: Object.entries(variant.attributes || {}).map(([key, value]) => `${key}: ${value}`).join(', '), image: variant.image_path ? fileForPath(variant.image_path) : null })) }));
         set('specifications', (editingProduct.specifications || []).map(({ group_title, name, value }) => ({ group_title, name, value })));
+        set('tags', editingProduct.tags || '');
         setCustomSlug(editingProduct.slug || '');
 
     }, [editingProduct, media]);
@@ -104,7 +110,7 @@ export default function CreateProduct({ categories = [], brands = [], units = []
     const updateSpecification = (index, key, value) => set('specifications', data.specifications.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item));
     const removeSpecification = (index) => set('specifications', data.specifications.filter((_, itemIndex) => itemIndex !== index));
     useEffect(() => {
-        const publish = (event) => { const button = event.target.closest('button[data-product-publish]'); if (!button || submitting) return; event.preventDefault(); setSubmitErrors({}); setSubmitting(true); const payload = { ...data, status: 'Published', description: richTextValue.current || data.description, slug: customSlug }; const options = { preserveScroll: true, onError: (errors) => { setSubmitErrors(errors); requestAnimationFrame(() => document.querySelector('[data-product-errors]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })); }, onFinish: () => setSubmitting(false) }; if (editingProduct) { router.patch(route('inventories.products.update', editingProduct.id), payload, options); return; } router.post(route('inventories.products.store'), payload, options); };
+        const publish = (event) => { const button = event.target.closest('button[data-product-publish]'); if (!button || submitting) return; event.preventDefault(); setSubmitErrors({}); setSubmitting(true); const payload = { ...data, tags: tagsIncludingDraft(), status: 'Published', description: richTextValue.current || data.description, slug: customSlug }; const options = { preserveScroll: true, onError: (errors) => { setSubmitErrors(errors); requestAnimationFrame(() => document.querySelector('[data-product-errors]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })); }, onFinish: () => setSubmitting(false) }; if (editingProduct) { router.patch(route('inventories.products.update', editingProduct.id), payload, options); return; } router.post(route('inventories.products.store'), payload, options); };
         document.addEventListener('click', publish); return () => document.removeEventListener('click', publish);
     }, [data, customSlug, editingProduct, submitting]);
     useEffect(() => {
