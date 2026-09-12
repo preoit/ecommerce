@@ -51,7 +51,7 @@ export default function RichTextEditor({ id, value = '', onChange, placeholder =
         editorProps: {
             attributes: {
                 id,
-                class: 'rich-text-content min-h-36 px-3 py-3 text-sm text-slate-800 focus:outline-none',
+                class: 'rich-text-content min-h-64 px-4 py-4 text-base leading-7 text-slate-800 focus:outline-none dark:text-slate-200',
             },
         },
         onUpdate: ({ editor: currentEditor }) => {
@@ -108,12 +108,12 @@ export default function RichTextEditor({ id, value = '', onChange, placeholder =
                     className="h-8 rounded-md border-slate-300 bg-white py-0 pl-2 pr-7 text-xs font-medium text-slate-700 focus:border-brand-500 focus:ring-brand-500"
                 >
                     <option value="0">Paragraph</option>
-                    <option value="1">Title (Heading 1)</option>
-                    <option value="2">Heading (Heading 2)</option>
-                    <option value="3">Subheading (Heading 3)</option>
-                    <option value="4">Heading 4</option>
-                    <option value="5">Heading 5</option>
-                    <option value="6">Heading 6</option>
+                    <option value="1">Large title (H1)</option>
+                    <option value="2">Section title (H2)</option>
+                    <option value="3">Subsection title (H3)</option>
+                    <option value="4">Small heading (H4)</option>
+                    <option value="5">Minor heading (H5)</option>
+                    <option value="6">Label heading (H6)</option>
                 </select>
                 <span className="mx-1 h-6 w-px bg-slate-200" aria-hidden="true" />
                 <ToolbarButton label="Bullet list" icon={List} active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} />

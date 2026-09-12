@@ -115,6 +115,11 @@ export default function CreateProduct({ categories = [], brands = [], units = []
         const heading = [...document.querySelectorAll('h2')].find((element) => element.textContent?.trim() === 'Product media');
         const description = heading?.nextElementSibling;
         if (!description || description.dataset.imageRecommendation) return;
+        const mediaPanel = heading.closest('section');
+        const contentColumn = mediaPanel?.parentElement;
+        if (mediaPanel && contentColumn?.firstElementChild !== mediaPanel) contentColumn.prepend(mediaPanel);
+        heading.textContent = 'Product images & gallery';
+        description.textContent = 'Choose the main storefront image and optional gallery images from the Media Library.';
         const recommendation = document.createElement('span');
         recommendation.className = 'mt-1 block text-xs font-medium text-slate-500';
         recommendation.textContent = 'Recommended: 1200 × 1200 px (1:1 square), JPG or WebP, under 2 MB.';
