@@ -91,6 +91,12 @@ export default function StorefrontLayout({ children }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [cartOpen, setCartOpen] = useState(false);
     const [liveCartCount, setLiveCartCount] = useState(cartCount);
+    useEffect(() => {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
+
+        return () => { document.documentElement.style.colorScheme = ''; };
+    }, []);
     useEffect(() => { setLiveCartCount(cartCount); }, [cartCount]);
     useEffect(() => {
         const update = event => setLiveCartCount(Number(event.detail?.count || 0));
