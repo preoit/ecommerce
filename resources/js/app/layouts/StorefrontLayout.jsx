@@ -12,9 +12,12 @@ const footerGroups = [
 const socialNetworks = ['Facebook', 'X', 'Instagram', 'YouTube', 'TikTok', 'WhatsApp'];
 
 function Brand({ website }) {
-    return <Link href="/" className="flex shrink-0 items-center text-xl font-black tracking-[-0.06em] text-[#202631]" aria-label={`${website?.name || 'Store'} home`}>
+    const { auth } = usePage().props;
+    const accountHref = auth?.user ? (auth.user.is_admin ? '/dashboard' : '/account') : '/customer/login';
+
+    return <><Link href="/" className="flex shrink-0 items-center text-xl font-black tracking-[-0.06em] text-[#202631]" aria-label={`${website?.name || 'Store'} home`}>
         {website?.logo ? <img src={website.logo} alt={website.name || 'Store'} className="h-16 w-[120px] object-contain object-left" /> : <span className="text-2xl">{website?.name || 'Store'}</span>}
-    </Link>;
+    </Link><Link href={accountHref} className="mobile-account-action hidden" aria-label={auth?.user ? 'Open account' : 'Customer login'}><UserRound className="size-5"/></Link></>;
 }
 
 function SearchBar() {

@@ -162,10 +162,11 @@
 
 @media (max-width: 767px) {
     header[data-storefront-header] > div:first-of-type {
-        height: 124px !important;
+        height: 112px !important;
         flex-wrap: wrap;
         align-content: center;
-        gap: 0.625rem !important;
+        column-gap: 0.5rem !important;
+        row-gap: 0.25rem !important;
         padding-left: 0.75rem !important;
         padding-right: 0.75rem !important;
     }
@@ -188,19 +189,35 @@
     }
 
     header[data-storefront-header] > div:first-of-type > button[aria-label$="menu"] {
-        order: 3;
+        order: 4;
     }
 
     header[data-storefront-header] > div:first-of-type > button[aria-label="Open shopping cart"] {
+        order: 3;
+    }
+
+    header[data-storefront-header] .mobile-account-action {
         order: 2;
+        display: grid !important;
+        width: 2.5rem;
+        height: 2.5rem;
+        flex-shrink: 0;
+        place-items: center;
         margin-left: auto;
+        border-radius: 0.5rem;
+        color: #1f2937;
+    }
+
+    header[data-storefront-header] .mobile-account-action:hover {
+        background: #f5f3ff;
+        color: #6d28d9;
     }
 
     header[data-storefront-header] > div:first-of-type form[role="search"] {
         order: 4;
         flex: 0 0 100%;
         width: 100%;
-        height: 44px;
+        height: 40px;
     }
 
     header[data-storefront-header] > div:first-of-type form[role="search"] input {
