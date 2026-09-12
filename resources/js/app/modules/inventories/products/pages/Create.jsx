@@ -130,6 +130,13 @@ export default function CreateProduct({ categories = [], brands = [], units = []
         description.dataset.imageRecommendation = 'true';
     }, []);
     useEffect(() => {
+        const specificationPanels = [...document.querySelectorAll('h2')]
+            .filter((element) => element.textContent?.trim() === 'Specifications')
+            .map((element) => element.closest('section'))
+            .filter(Boolean);
+        if (specificationPanels.length > 1) specificationPanels[0].classList.add('hidden');
+    }, []);
+    useEffect(() => {
         const editPermalink = (event) => { const button = event.target.closest('button'); if (!button) return; if (button.textContent?.trim() === 'Done') { const row = button.parentElement; const value = row?.querySelector('input')?.value?.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'product-slug'; setCustomSlug(value); row.innerHTML = `<span class="font-medium">Permalink:</span><span data-product-permalink="true" class="text-violet-600">${window.location.origin}/${value}/</span><button type="button" class="ml-1 rounded border px-2 py-0.5 text-violet-600">Edit</button>`; return; } if (button.textContent?.trim() !== 'Edit') return; event.preventDefault(); const current = customSlug || data.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'product-slug'; const row = button.parentElement; row.innerHTML = `<span class="font-medium">Permalink:</span><span>${window.location.origin}/</span><input aria-label="Product permalink slug" class="h-8 min-w-40 flex-1 rounded-md border-slate-300 px-2 py-1 text-xs focus:border-violet-500 focus:ring-violet-500" value="${current}"><button type="button" class="h-8 rounded-md border border-violet-600 bg-white px-3 font-semibold text-violet-700 hover:bg-violet-50">Done</button>`; row.querySelector('input').focus(); };
         document.addEventListener('click', editPermalink); return () => document.removeEventListener('click', editPermalink);
     }, [data.title, customSlug]);
