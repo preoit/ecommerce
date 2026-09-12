@@ -117,7 +117,10 @@ export default function CreateProduct({ categories = [], brands = [], units = []
         if (!description || description.dataset.imageRecommendation) return;
         const mediaPanel = heading.closest('section');
         const contentColumn = mediaPanel?.parentElement;
-        if (mediaPanel && contentColumn?.firstElementChild !== mediaPanel) contentColumn.prepend(mediaPanel);
+        const descriptionPanel = contentColumn?.firstElementChild;
+        if (mediaPanel && descriptionPanel && descriptionPanel.nextElementSibling !== mediaPanel) {
+            descriptionPanel.after(mediaPanel);
+        }
         heading.textContent = 'Product images & gallery';
         description.textContent = 'Choose the main storefront image and optional gallery images from the Media Library.';
         const recommendation = document.createElement('span');
