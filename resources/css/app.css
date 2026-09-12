@@ -345,8 +345,7 @@ html.dark body.storefront-theme header[data-storefront-header] button {
 .xl\:grid-cols-\[minmax\(0\2c 1fr\)_360px\] > .space-y-6 > section:nth-of-type(4),
 .xl\:grid-cols-\[minmax\(0\2c 1fr\)_360px\] > .space-y-6 > section:nth-of-type(5),
 .xl\:grid-cols-\[minmax\(0\2c 1fr\)_360px\] > .space-y-6 > section:nth-of-type(6),
-.xl\:grid-cols-\[minmax\(0\2c 1fr\)_360px\] > .space-y-6 > section:nth-of-type(7),
-.xl\:grid-cols-\[minmax\(0\2c 1fr\)_360px\] > .space-y-6 > section:nth-of-type(9) {
+.xl\:grid-cols-\[minmax\(0\2c 1fr\)_360px\] > .space-y-6 > section:nth-of-type(7) {
     display: none;
 }
 
