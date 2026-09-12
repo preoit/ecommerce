@@ -213,6 +213,7 @@ class ProductDetailsTest extends TestCase
     public function test_product_edit_saves_tags(): void
     {
         $product = Product::create(['title' => 'Filter', 'slug' => 'tagged-filter', 'regular_price' => 100, 'stock_quantity' => 1, 'status' => 'Published', 'visibility' => 'Public']);
+        $tags = implode(', ', array_map(fn ($number) => "water purifier filter keyword {$number}", range(1, 15)));
 
         $this->actingAs(User::factory()->create())->patch(route('inventories.products.update', $product), [
             'title' => 'Filter',
@@ -221,9 +222,10 @@ class ProductDetailsTest extends TestCase
             'stock' => 1,
             'status' => 'Published',
             'visibility' => 'Public',
-            'tags' => 'water filter, sediment, purifier',
+            'tags' => $tags,
         ])->assertSessionHasNoErrors();
 
-        $this->assertSame('water filter, sediment, purifier', $product->fresh()->tags);
+        $this->assertGreaterThan(255, strlen($tags));
+        $this->assertSame($tags, $product->fresh()->tags);
     }
 }
