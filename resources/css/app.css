@@ -176,9 +176,7 @@
     }
 
     header[data-storefront-header] > div:first-of-type > div[class~="md:flex"] {
-        order: 2;
-        display: flex !important;
-        margin-left: 0;
+        display: none !important;
     }
 
     header[data-storefront-header] > div:first-of-type > div[class~="md:flex"] > a:first-child {
@@ -191,6 +189,11 @@
 
     header[data-storefront-header] > div:first-of-type > button[aria-label$="menu"] {
         order: 3;
+    }
+
+    header[data-storefront-header] > div:first-of-type > button[aria-label="Open shopping cart"] {
+        order: 2;
+        margin-left: auto;
     }
 
     header[data-storefront-header] > div:first-of-type form[role="search"] {
