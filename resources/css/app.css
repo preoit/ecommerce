@@ -541,6 +541,54 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     .product-description-content strong {
         @apply font-bold text-slate-900 dark:text-slate-100;
     }
+
+    .product-details-sidebar {
+        @apply self-start;
+    }
+
+    .related-products-sidebar {
+        @apply py-3;
+    }
+
+    @media (min-width: 1024px) {
+        .product-details-sidebar {
+            @apply sticky top-20;
+        }
+
+        .related-products-sidebar > h2 {
+            @apply text-xl;
+        }
+
+        .related-products-sidebar > div {
+            grid-template-columns: minmax(0, 1fr) !important;
+            @apply mt-4 gap-3;
+        }
+
+        .related-products-sidebar article {
+            @apply grid grid-cols-[88px_minmax(0,1fr)] rounded-xl;
+        }
+
+        .related-products-sidebar article > a {
+            @apply aspect-square h-full min-h-[88px] rounded-l-xl;
+        }
+
+        .related-products-sidebar article > div {
+            @apply min-w-0 p-3;
+        }
+
+        .related-products-sidebar article h3 {
+            @apply min-h-0 text-sm;
+        }
+
+        .related-products-sidebar article > div > p,
+        .related-products-sidebar article > div > a {
+            @apply hidden;
+        }
+
+        .related-products-sidebar article > div > div {
+            @apply mt-2;
+        }
+    }
     .rich-text-content p.is-editor-empty:first-child::before {
         @apply pointer-events-none float-left h-0 text-slate-400;
         content: attr(data-placeholder);

@@ -122,6 +122,17 @@ export default function ProductShow({ product, reviews = [], rating, questions =
             if (reviewSection) reviewSection.before(questionSection);
         }
     }, [questions.length, rating.total]);
+    useEffect(() => {
+        const descriptionHeading = [...document.querySelectorAll('h2')].find((item) => item.textContent === 'Product Description');
+        const relatedHeading = [...document.querySelectorAll('h2')].find((item) => item.textContent === 'Related Products');
+        const detailsLayout = descriptionHeading?.closest('section')?.parentElement?.parentElement;
+        const sidebar = detailsLayout?.querySelector(':scope > aside');
+        const relatedSection = relatedHeading?.closest('section');
+        if (!sidebar || !relatedSection || sidebar.contains(relatedSection)) return;
+        sidebar.classList.add('product-details-sidebar');
+        relatedSection.classList.add('related-products-sidebar');
+        sidebar.append(relatedSection);
+    }, [related.length]);
     const categoryBreadcrumb = product.category_breadcrumb || [];
     const canonical = product.canonical_url || route('storefront.products.show', product.slug);
     const siteUrl = typeof window === 'undefined' ? '' : window.location.origin;
