@@ -34,7 +34,7 @@ function ProductCard({ product }) {
         </div>
     </article>;
 }
-function HtmlSection({ title, content }) { if (!content) return null; return <section className="border-b border-slate-200 py-7"><h2 className="text-xl font-bold text-slate-950">{title}</h2><div className="prose prose-slate mt-4 max-w-none text-sm leading-7" dangerouslySetInnerHTML={{ __html: content }} /></section>; }
+function HtmlSection({ title, content }) { if (!content) return null; return <section className="border-b border-slate-200 py-7 dark:border-slate-800"><h2 className="text-xl font-bold text-slate-950 dark:text-white">{title}</h2><div className="product-description-content rich-text-content mt-5 max-w-none text-base leading-8 text-slate-700 dark:text-slate-200" dangerouslySetInnerHTML={{ __html: content }} /></section>; }
 function SpecificationGroups({ groups = [] }) { if (!groups.length) return null; return <section className="border-b border-slate-200 py-7"><h2 className="text-xl font-bold text-slate-950">Specifications</h2><div className="mt-5 space-y-5">{groups.map((group) => <div key={group.title} className="overflow-hidden rounded-xl border border-slate-200"><h3 className="border-b border-slate-200 bg-violet-50 px-4 py-3 text-base font-bold text-violet-800">{group.title}</h3><table className="w-full text-sm"><tbody>{group.items.map((spec) => <tr key={spec.id} className="border-b border-slate-200 last:border-0"><th className="w-2/5 bg-slate-50 px-4 py-3 text-left font-semibold text-slate-700">{spec.name}</th><td className="px-4 py-3 text-slate-700">{spec.value}</td></tr>)}</tbody></table></div>)}</div></section>; }
 
 function ProductMedia({ product, media, activeImage, setActiveImage, setFullscreen }) {
