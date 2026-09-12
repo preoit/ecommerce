@@ -185,4 +185,28 @@ class ProductDetailsTest extends TestCase
         $this->assertSame('image/featured.webp', $product->featured_image_path);
         $this->assertSame(['image/gallery-one.webp', 'image/gallery-two.webp'], $product->gallery);
     }
+
+    public function test_product_edit_saves_and_exposes_grouped_specifications_on_storefront(): void
+    {
+        $product = Product::create(['title' => 'Filter', 'slug' => 'filter', 'regular_price' => 100, 'stock_quantity' => 1, 'status' => 'Published', 'visibility' => 'Public']);
+
+        $this->actingAs(User::factory()->create())->patch(route('inventories.products.update', $product), [
+            'title' => 'Filter',
+            'regular' => 100,
+            'sale' => null,
+            'stock' => 1,
+            'status' => 'Published',
+            'visibility' => 'Public',
+            'specifications' => [
+                ['group_title' => 'Filter Details', 'name' => 'Size', 'value' => '10 Inch'],
+                ['group_title' => 'Filter Details', 'name' => 'Material', 'value' => 'PP'],
+            ],
+        ])->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('product_specifications', ['product_id' => $product->id, 'group_title' => 'Filter Details', 'name' => 'Size', 'value' => '10 Inch']);
+        $this->get(route('storefront.products.show', $product->slug))->assertOk()->assertInertia(fn ($page) => $page
+            ->where('product.specification_groups.0.title', 'Filter Details')
+            ->where('product.specification_groups.0.items.0.name', 'Size')
+            ->where('product.specification_groups.0.items.1.value', 'PP'));
+    }
 }

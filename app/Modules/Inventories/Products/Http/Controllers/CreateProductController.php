@@ -114,6 +114,10 @@ class CreateProductController extends Controller
             'featuredImage.path' => ['nullable', 'string', 'max:2048'],
             'gallery' => ['nullable', 'array'],
             'gallery.*.path' => ['required', 'string', 'max:2048'],
+            'specifications' => ['nullable', 'array'],
+            'specifications.*.group_title' => ['nullable', 'string', 'max:150'],
+            'specifications.*.name' => ['required_with:specifications.*.value', 'nullable', 'string', 'max:150'],
+            'specifications.*.value' => ['required_with:specifications.*.name', 'nullable', 'string', 'max:1000'],
             'variants' => ['nullable', 'array'],
             'variants.*.id' => ['nullable', 'integer'],
             'variants.*.name' => ['required', 'string', 'max:150'],
@@ -152,6 +156,20 @@ class CreateProductController extends Controller
         }
 
         $product->update($updates);
+        if (array_key_exists('specifications', $data)) {
+            $product->specifications()->delete();
+            $product->specifications()->createMany(
+                collect($data['specifications'] ?? [])
+                    ->filter(fn ($item) => filled($item['name'] ?? null) && filled($item['value'] ?? null))
+                    ->values()
+                    ->map(fn ($item, $index) => [
+                        'group_title' => $item['group_title'] ?? null,
+                        'name' => $item['name'],
+                        'value' => $item['value'],
+                        'sort_order' => $index,
+                    ])->all()
+            );
+        }
         $this->syncVariants($product, $data['variants'] ?? []);
 
         return back()->with('success', 'Product updated successfully.');
@@ -189,7 +207,7 @@ class CreateProductController extends Controller
                 'url' => $file->publicUrl(),
                 'path' => $file->path,
             ]),
-            'editingProduct' => $request->integer('edit') ? Product::with(['categories', 'brand', 'unit', 'images', 'variants'])->find($request->integer('edit'))?->toArray() : null,
+            'editingProduct' => $request->integer('edit') ? Product::with(['categories', 'brand', 'unit', 'images', 'variants', 'specifications'])->find($request->integer('edit'))?->toArray() : null,
         ]);
     }
 
