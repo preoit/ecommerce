@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Apple, ArrowUp, ChevronDown, Mail, Menu, MessageCircle, Music2, Phone, Play, Search, ShoppingCart, UserRound, X } from 'lucide-react';
+import { Apple, ArrowUp, ChevronDown, Mail, Menu, MessageCircle, Moon, Music2, Phone, Play, Search, ShoppingCart, Sun, UserRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import CartDrawer from '@/app/components/CartDrawer';
 
@@ -14,10 +14,17 @@ const socialNetworks = ['Facebook', 'X', 'Instagram', 'YouTube', 'TikTok', 'What
 function Brand({ website }) {
     const { auth } = usePage().props;
     const accountHref = auth?.user ? (auth.user.is_admin ? '/dashboard' : '/account') : '/customer/login';
+    const [darkMode, setDarkMode] = useState(() => localStorage.getItem('storefront-theme') === 'dark');
+
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', darkMode);
+        document.documentElement.style.colorScheme = darkMode ? 'dark' : 'light';
+        localStorage.setItem('storefront-theme', darkMode ? 'dark' : 'light');
+    }, [darkMode]);
 
     return <><Link href="/" className="flex shrink-0 items-center text-xl font-black tracking-[-0.06em] text-[#202631]" aria-label={`${website?.name || 'Store'} home`}>
         {website?.logo ? <img src={website.logo} alt={website.name || 'Store'} className="h-16 w-[120px] object-contain object-left" /> : <span className="text-2xl">{website?.name || 'Store'}</span>}
-    </Link><Link href={accountHref} className="mobile-account-action hidden" aria-label={auth?.user ? 'Open account' : 'Customer login'}><UserRound className="size-5"/></Link></>;
+    </Link><Link href={accountHref} className="mobile-account-action hidden" aria-label={auth?.user ? 'Open account' : 'Customer login'}><UserRound className="size-5"/></Link><button type="button" onClick={()=>setDarkMode(value=>!value)} className="storefront-theme-action hidden" aria-label={darkMode?'Use light mode':'Use dark mode'} title={darkMode?'Light mode':'Dark mode'}>{darkMode?<Sun className="size-5"/>:<Moon className="size-5"/>}</button></>;
 }
 
 function SearchBar() {
@@ -92,10 +99,8 @@ export default function StorefrontLayout({ children }) {
     const [cartOpen, setCartOpen] = useState(false);
     const [liveCartCount, setLiveCartCount] = useState(cartCount);
     useEffect(() => {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.style.colorScheme = 'light';
-
-        return () => { document.documentElement.style.colorScheme = ''; };
+        document.body.classList.add('storefront-theme');
+        return () => document.body.classList.remove('storefront-theme');
     }, []);
     useEffect(() => { setLiveCartCount(cartCount); }, [cartCount]);
     useEffect(() => {

@@ -189,11 +189,11 @@
     }
 
     header[data-storefront-header] > div:first-of-type > button[aria-label$="menu"] {
-        order: 4;
+        order: 5;
     }
 
     header[data-storefront-header] > div:first-of-type > button[aria-label="Open shopping cart"] {
-        order: 3;
+        order: 4;
     }
 
     header[data-storefront-header] .mobile-account-action {
@@ -213,8 +213,24 @@
         color: #6d28d9;
     }
 
+    header[data-storefront-header] .storefront-theme-action {
+        order: 3;
+        display: grid !important;
+        width: 2.5rem;
+        height: 2.5rem;
+        flex-shrink: 0;
+        place-items: center;
+        border-radius: 0.5rem;
+        color: #1f2937;
+    }
+
+    header[data-storefront-header] .storefront-theme-action:hover {
+        background: #f5f3ff;
+        color: #6d28d9;
+    }
+
     header[data-storefront-header] > div:first-of-type form[role="search"] {
-        order: 4;
+        order: 6;
         flex: 0 0 100%;
         width: 100%;
         height: 40px;
@@ -237,6 +253,81 @@
         height: 76px !important;
         flex-wrap: nowrap;
     }
+}
+
+@media (min-width: 768px) {
+    header[data-storefront-header] > div:first-of-type {
+        position: relative;
+    }
+
+    header[data-storefront-header] .storefront-theme-action {
+        position: absolute;
+        right: 8.75rem;
+        display: grid !important;
+        width: 2.5rem;
+        height: 2.5rem;
+        place-items: center;
+        border-radius: 0.5rem;
+        color: #475569;
+    }
+}
+
+html.dark body.storefront-theme {
+    background: #020617;
+    color: #e2e8f0;
+}
+
+html.dark body.storefront-theme header[data-storefront-header],
+html.dark body.storefront-theme header[data-storefront-header] > div,
+html.dark body.storefront-theme main,
+html.dark body.storefront-theme footer {
+    border-color: #1e293b !important;
+    background-color: #020617 !important;
+}
+
+html.dark body.storefront-theme [class~="bg-white"],
+html.dark body.storefront-theme [class*="bg-white/"] {
+    border-color: #334155 !important;
+    background-color: #0f172a !important;
+}
+
+html.dark body.storefront-theme [class~="bg-slate-50"],
+html.dark body.storefront-theme [class*="bg-slate-50/"] {
+    background-color: #111c2f !important;
+}
+
+html.dark body.storefront-theme [class~="bg-[#f8f8f8]"],
+html.dark body.storefront-theme [class~="bg-[#f1f3f6]"] {
+    background-color: #111827 !important;
+}
+
+html.dark body.storefront-theme [class*="text-slate-950"],
+html.dark body.storefront-theme [class*="text-slate-900"],
+html.dark body.storefront-theme [class*="text-slate-800"] {
+    color: #f8fafc !important;
+}
+
+html.dark body.storefront-theme [class*="text-slate-700"],
+html.dark body.storefront-theme [class*="text-slate-600"] {
+    color: #cbd5e1 !important;
+}
+
+html.dark body.storefront-theme [class*="text-slate-500"] {
+    color: #94a3b8 !important;
+}
+
+html.dark body.storefront-theme input,
+html.dark body.storefront-theme select,
+html.dark body.storefront-theme textarea {
+    border-color: #334155;
+    background-color: #111827;
+    color: #f8fafc;
+}
+
+html.dark body.storefront-theme .storefront-theme-action,
+html.dark body.storefront-theme .mobile-account-action,
+html.dark body.storefront-theme header[data-storefront-header] button {
+    color: #e2e8f0;
 }
 
 /* Add Product: the legacy general/physical details panel is intentionally removed. */
