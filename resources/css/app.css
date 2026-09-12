@@ -259,17 +259,28 @@
     header[data-storefront-header] > div:first-of-type {
         position: relative;
     }
+}
 
-    header[data-storefront-header] .storefront-theme-action {
-        position: absolute;
-        right: 8.75rem;
-        display: grid !important;
-        width: 2.5rem;
-        height: 2.5rem;
-        place-items: center;
-        border-radius: 0.5rem;
-        color: #475569;
-    }
+html.dark body.storefront-theme footer.relative.overflow-hidden {
+    background: linear-gradient(to top, #020617 0%, #0f172a 100%) !important;
+    border-color: #1e293b !important;
+}
+
+html.dark body.storefront-theme footer.relative.overflow-hidden > div:first-child {
+    background: linear-gradient(to bottom, #334155 0%, #0f172a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+html.dark body.storefront-theme footer.relative.overflow-hidden > div:nth-child(2),
+html.dark body.storefront-theme footer.relative.overflow-hidden > .relative > .mt-12 {
+    border-color: #334155 !important;
+}
+
+html.dark body.storefront-theme footer.relative.overflow-hidden > .relative > .mt-12 > .flex.items-center.gap-2 > span:first-child {
+    border-color: #334155;
+    background: #0f172a;
+    color: #cbd5e1;
 }
 
 html.dark body.storefront-theme {
