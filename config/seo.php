@@ -3,6 +3,7 @@
 return [
     'reserved_slugs' => [
         'admin',
+        'blog',
         'api',
         'cart',
         'categories',

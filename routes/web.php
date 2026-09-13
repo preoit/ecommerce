@@ -71,6 +71,12 @@ Route::get('/sitemap-products.xml', function () {
     return response()->view('sitemaps.products', compact('products'))->header('Content-Type','application/xml');
 })->name('sitemap.products');
 
+Route::get('/blog', [\App\Modules\Blog\BlogController::class, 'listing'])->name('blog.public.index');
+Route::get('/blog/category/{category}', [\App\Modules\Blog\BlogController::class, 'listing'])->name('blog.public.category');
+Route::get('/blog/author/{author}', fn (\Illuminate\Http\Request $request, string $author) => app(\App\Modules\Blog\BlogController::class)->listing($request, null, $author))->name('blog.public.author');
+Route::get('/blog/{slug}', [\App\Modules\Blog\BlogController::class, 'show'])->name('blog.public.show');
+Route::get('/sitemap-blog.xml', [\App\Modules\Blog\BlogController::class, 'sitemap'])->name('sitemap.blog');
+
 Route::get('/{slug}', [StorefrontProductController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('storefront.products.show');

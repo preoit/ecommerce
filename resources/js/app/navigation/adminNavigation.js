@@ -33,6 +33,14 @@ export const adminNavigation = [
         ],
     },
     { label: 'Orders', href: '/admin/orders', icon: ShoppingBag },
+    {
+        label: 'Blog', icon: PanelsTopLeft,
+        children: [
+            { label: 'Categories', href: '/admin/blog/categories', icon: FolderTree },
+            { label: 'All Blogs', href: '/admin/blog', icon: PanelsTopLeft },
+            { label: 'Add New Blog', href: '/admin/blog/create', icon: CirclePlus },
+        ],
+    },
     { label: 'Customers', href: '/admin/customers', icon: Users },
     { label: 'Coupons', href: '/admin/coupons', icon: BadgePercent },
     { label: 'Reviews', href: '/admin/reviews', icon: Star },
