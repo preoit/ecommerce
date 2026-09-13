@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
-import { ChevronRight, Package } from 'lucide-react';
+import { ChevronRight, Tag } from 'lucide-react';
 
-export default function ListingHero({ title, description, count, parent, label, children }) {
+export default function ListingHero({ title, description, brandNames = [], parent, label, children }) {
     return <header>
         <nav aria-label="Breadcrumb" className="mb-5 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
             <Link href="/" className="hover:text-violet-600">Home</Link><ChevronRight className="size-3 text-slate-300" />
@@ -13,7 +13,7 @@ export default function ListingHero({ title, description, count, parent, label, 
             <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest">{label}</span>
             <h1 className="mt-4 break-words text-3xl font-bold leading-tight sm:text-4xl" style={{ color: '#fff' }}>{title}</h1>
             {description && <p className="mt-3 max-w-3xl text-sm leading-7 sm:text-base" style={{ color: '#ede9fe' }}>{description}</p>}
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2 text-sm font-semibold"><Package className="size-4" />{count} products</div>
+            {brandNames.length > 0 && <div className="mt-5 flex flex-wrap gap-2">{brandNames.map(name => <span key={name} className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2 text-sm font-semibold"><Tag className="size-4 shrink-0" />{name}</span>)}</div>}
         </div>
         {children && <div className="mt-4 flex flex-wrap items-center gap-2">{children}</div>}
     </header>;
