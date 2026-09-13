@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { House, Image } from 'lucide-react';
+import ListingHero from '@/app/components/ListingHero';
 import Seo from '@/app/components/Seo';
 import ProductListingFilters from '@/app/components/ProductListingFilters';
 import ProductCardActions from '@/app/components/ProductCardActions';
@@ -28,26 +29,15 @@ export default function CategoryShow({ category, products, brands = [], selected
                 }}
             />
             <Head><link rel="canonical" href={canonical} /><meta name="robots" content={category.meta_robots || 'index,follow'} /><meta property="og:title" content={category.og_title || category.seo_title || ''} /><meta property="og:description" content={category.og_description || category.meta_description || plainDescription.slice(0, 160)} /><meta property="og:url" content={canonical} /></Head>
-            <div className="border-b border-slate-200 bg-slate-50">
-                <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
-                    <nav className="flex items-center gap-3 text-sm font-medium text-slate-600" aria-label="Breadcrumb">
-                        <Link href="/" className="text-slate-500 transition-colors hover:text-violet-700" aria-label="Home"><House className="size-4" /></Link>
-                        <span className="text-slate-400" aria-hidden="true">/</span>
-                        {category.parent && <><Link href={`/${category.parent.slug}`} className="transition-colors hover:text-violet-700">{category.parent.name}</Link><span className="text-slate-400" aria-hidden="true">/</span></>}
-                        <span className="text-violet-700" aria-current="page">{category.name}</span>
-                    </nav>
-                    <div className="mt-5">
-                        <h1 className="text-[22px] font-medium leading-7 text-violet-700">{category.seo_title || ''}</h1>
-                        {category.short_description && <div className="rich-text-content mt-2 max-w-none text-sm font-normal leading-6 text-slate-700" dangerouslySetInnerHTML={{ __html: category.short_description }} />}
-                        {brands.length > 0 && <nav className="mt-5 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible" aria-label="Filter products by brand">
-                            <Link href={categoryUrl(category.slug)} data={{ ...filters, brand: undefined }} preserveScroll className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${!selectedBrand ? 'border-violet-600 bg-violet-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-violet-300 hover:text-violet-700'}`}>All Brands</Link>
-                            {brands.map((brand) => <Link key={brand.id} href={categoryUrl(category.slug)} data={{ ...filters, brand: brand.slug }} preserveScroll className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${selectedBrand === brand.slug ? 'border-violet-600 bg-violet-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-violet-300 hover:text-violet-700'}`}>{brand.name}</Link>)}
-                        </nav>}
-                    </div>
-                </div>
+            <div className="mx-auto max-w-[1280px] px-4 pt-6 sm:px-6 lg:px-8">
+                <ListingHero title={category.name} description={plainDescription} count={products.total} label={category.parent?.name || 'Categories'} parent={category.parent ? { name: category.parent.name, href: categoryUrl(category.parent.slug) } : null}>
+                    {brands.length > 0 && <><span className="mr-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Browse</span>
+                    <Link href={categoryUrl(category.slug)} data={{ ...filters, brand: undefined }} preserveScroll className="rounded-full border border-slate-200 px-4 py-2 text-sm text-violet-600">All Brands</Link>
+                    {brands.map(brand => <Link key={brand.id} href={categoryUrl(category.slug)} data={{ ...filters, brand: brand.slug }} preserveScroll className={`rounded-full border px-4 py-2 text-sm ${selectedBrand === brand.slug ? 'border-violet-500 bg-violet-50 text-violet-700' : 'border-slate-200 text-slate-600 dark:text-slate-300'}`}>{brand.name}</Link>)}</>}
+                </ListingHero>
             </div>
             <section className="mx-auto min-h-64 max-w-[1280px] px-4 py-10 sm:px-6 lg:px-8">
-                {category.children.length > 0 && <div><h2 className="text-xl font-bold text-slate-950">Browse subcategories</h2><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{category.children.map((child) => <Link key={child.id} href={categoryUrl(child.slug)} className="rounded-md border border-slate-200 p-4 font-semibold text-slate-800 hover:border-brand-300 hover:text-brand-700">{child.name}</Link>)}</div></div>}
+                {category.children.length > 0 && <div><h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Browse subcategories</h2><div className="mt-3 flex flex-wrap gap-2">{category.children.map((child) => <Link key={child.id} href={categoryUrl(child.slug)} className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-800 hover:border-brand-300 hover:text-brand-700">{child.name}</Link>)}</div></div>}
                 <div className={`grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] ${category.children.length > 0 ? 'mt-10' : ''}`}>
                     <aside><ProductListingFilters url={categoryUrl(category.slug)} filters={filters} priceBounds={priceBounds} /></aside><div className="min-w-0">
                     <div className="flex items-end justify-between gap-4"><div><p className="text-sm font-semibold text-violet-600">{category.name}</p><h2 className="mt-1 text-2xl font-bold text-slate-950">Products</h2></div><p className="text-sm font-medium text-slate-500">{products.total} products</p></div>
