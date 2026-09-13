@@ -14,6 +14,18 @@ class ProductDetailsTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_card_quick_add_increments_by_step_and_respects_stock(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false]);
+        $product = Product::create(['title' => 'Quick add', 'slug' => 'quick-add', 'regular_price' => 100, 'stock_quantity' => 6, 'min_order_quantity' => 2, 'quantity_step' => 2, 'status' => 'Published', 'visibility' => 'Public']);
+        $url = route('storefront.products.cart', $product);
+        $this->postJson($url, ['quantity' => 1, 'increment' => true])->assertOk()->assertJsonPath('item.quantity', 2);
+        $this->postJson($url, ['quantity' => 1, 'increment' => true])->assertOk()->assertJsonPath('item.quantity', 4);
+        $this->postJson($url, ['quantity' => 1, 'increment' => true])->assertOk()->assertJsonPath('item.quantity', 6);
+        $this->postJson($url, ['quantity' => 1, 'increment' => true])->assertUnprocessable();
+        $this->getJson(route('storefront.cart.summary'))->assertOk()->assertJsonPath('cartCount', 6);
+    }
+
     public function test_product_store_only_lists_published_public_products(): void
     {
         Product::create(['title'=>'Public Product','slug'=>'public-product','regular_price'=>100,'stock_quantity'=>5,'status'=>'Published','visibility'=>'Public']);

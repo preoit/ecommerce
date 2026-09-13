@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import ProductCardActions from '@/app/components/ProductCardActions';
 import { Eye, Heart, Image as ImageIcon, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Seo from '@/app/components/Seo';
@@ -23,7 +24,7 @@ function ProductCard({ product }) {
             <div className="absolute left-3 top-3 flex flex-col items-start gap-2">{product.isNewArrival && <span className="rounded-full bg-slate-950 px-2.5 py-1 text-[11px] font-bold text-white">New</span>}</div>
             <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-sm transition hover:bg-violet-600 hover:text-white sm:translate-y-1 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"><Heart className="size-4" /></span>
         </Link>
-        <div className="flex flex-1 flex-col p-3 sm:p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{product.brand || product.category}</p><h3 className="mt-1.5 line-clamp-2 min-h-11 text-[15px] font-bold leading-[1.45] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.name}</Link></h3><div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700">৳{Number(product.price).toLocaleString('en-BD')}</span>{product.discount > 0 && <><span className="text-xs font-semibold text-slate-400 line-through">৳{Number(product.regularPrice).toLocaleString('en-BD')}</span><span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">-{product.discount}%</span></>}</div><Link href={href} className="mt-4 inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-slate-950 px-2 text-xs font-bold sm:gap-2 sm:px-4 sm:text-sm text-white transition hover:bg-violet-600"><Eye className="size-4" /> View details</Link></div>
+        <div className="flex flex-1 flex-col p-3 sm:p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{product.brand || product.category}</p><h3 className="mt-1.5 line-clamp-2 min-h-11 text-[15px] font-medium leading-[1.45] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.name}</Link></h3><div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700">৳{Number(product.price).toLocaleString('en-BD')}</span>{product.discount > 0 && <><span className="text-xs font-semibold text-slate-400 line-through">৳{Number(product.regularPrice).toLocaleString('en-BD')}</span><span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">-{product.discount}%</span></>}</div><ProductCardActions product={product}/></div>
     </article>;
 }
 

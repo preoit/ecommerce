@@ -102,11 +102,20 @@ class StorefrontProductController extends Controller
 
     public function cart(Request $request, Product $product): JsonResponse
     {
-        $data = $request->validate(['quantity' => ['required', 'integer', 'min:1'], 'variant_id' => ['nullable', 'integer']]);
+        $data = $request->validate(['quantity' => ['required', 'integer', 'min:1'], 'variant_id' => ['nullable', 'integer'], 'increment' => ['sometimes', 'boolean']]);
         abort_unless(in_array($product->status, ['Published', 'Active']) && $product->visibility === 'Public', 404);
         $hasVariants = $product->variants()->where('is_active', true)->exists();
         $variant = filled($data['variant_id'] ?? null) ? $product->variants()->where('is_active', true)->find($data['variant_id']) : null;
         if ($hasVariants && !$variant) return response()->json(['message' => 'Please select a product option.'], 422);
+
+        $cart = $request->session()->get('cart', []);
+        $cartKey = $variant ? "{$product->id}:{$variant->id}" : (string) $product->id;
+        if ($request->boolean('increment')) {
+            $currentQuantity = (int) ($cart[$cartKey]['quantity'] ?? 0);
+            $data['quantity'] = $currentQuantity > 0
+                ? $currentQuantity + max(1, (int) $product->quantity_step)
+                : max(1, (int) $product->min_order_quantity);
+        }
 
         $settings = $this->stockSettings();
         $stock = $variant?->stock_quantity ?? $product->stock_quantity;

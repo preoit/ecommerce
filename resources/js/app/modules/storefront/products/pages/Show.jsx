@@ -1,4 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import ProductCardActions from '@/app/components/ProductCardActions';
 import { Copy, Eye, Heart, House, Image as ImageIcon, Maximize2, MessageCircle, Minus, Phone, Plus, Scale, Share2, ShoppingCart, Star, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import Seo from '@/app/components/Seo';
@@ -28,9 +29,9 @@ function ProductCard({ product }) {
         </Link>
         <div className="flex flex-1 flex-col p-3 sm:p-4">
             <p className="truncate text-xs font-semibold uppercase tracking-wide text-slate-500">{product.brand || 'Products'}</p>
-            <h3 className="mt-1.5 line-clamp-2 min-h-11 text-[15px] font-bold leading-[1.45] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.title}</Link></h3>
+            <h3 className="mt-1.5 line-clamp-2 min-h-11 text-[15px] font-medium leading-[1.45] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.title}</Link></h3>
             <div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700">{money(product.price)}</span>{product.discount > 0 && <span className="text-xs font-semibold text-slate-400 line-through">{money(product.regularPrice)}</span>}</div>
-            <Link href={href} className="mt-4 inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-slate-950 px-2 text-xs font-bold text-white transition hover:bg-violet-600 sm:gap-2 sm:px-4 sm:text-sm"><Eye className="size-4" />View details</Link>
+            <ProductCardActions product={product}/>
         </div>
     </article>;
 }

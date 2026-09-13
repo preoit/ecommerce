@@ -548,6 +548,38 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         min-width: 0;
     }
 
+    .product-card-action-slot { position: relative; min-height: 44px; }
+    .product-card-view, .product-card-buy, .product-card-add {
+        display: flex; align-items: center; justify-content: center; gap: 4px;
+        min-height: 44px; border-radius: 10px; padding: 8px 5px;
+        font-size: 12px; font-weight: 600; transition: background-color .15s;
+    }
+    .product-card-view { background: #020617; color: white; }
+    .product-card-buy { background: #7c3aed; color: white; }
+    .product-card-add { background: #ede9fe; color: #5b21b6; }
+    .product-card-buy:hover { background: #6d28d9; }
+    .product-card-add:hover { background: #ddd6fe; }
+    .product-card-purchase {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px;
+        position: absolute; inset: 0; visibility: hidden; opacity: 0; transition: opacity .15s;
+    }
+    .group:hover .product-card-purchase, .group:focus-within .product-card-purchase { visibility: visible; opacity: 1; }
+    .group:hover .product-card-view, .group:focus-within .product-card-view { opacity: 0; pointer-events: none; }
+    .product-card-purchase button:disabled { opacity: .6; cursor: wait; }
+    @media (hover: none) {
+        .product-card-action-slot { min-height: 92px; }
+        .product-card-purchase { position: static; visibility: visible; opacity: 1; margin-top: 5px; }
+        .group:hover .product-card-view, .group:focus-within .product-card-view { opacity: 1; pointer-events: auto; }
+    }
+    .related-products-sidebar .product-card-purchase { grid-template-columns: 1fr; position: static; }
+    .related-products-sidebar .product-card-action-slot { min-height: 44px; }
+    .related-products-sidebar .product-card-purchase { display: none; }
+    .related-products-sidebar .group:hover .product-card-purchase,
+    .related-products-sidebar .group:focus-within .product-card-purchase { display: grid; }
+    .related-products-sidebar .group:hover .product-card-view,
+    .related-products-sidebar .group:focus-within .product-card-view { display: none; }
+    @media (hover: none) { .related-products-sidebar .product-card-purchase { display: grid; } }
+
     .product-details-sidebar {
         @apply self-start;
     }
