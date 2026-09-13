@@ -1,19 +1,19 @@
 /* Admin-only design tokens. The body scope also covers portalled dialogs.
    Storefront, checkout and standalone shipping labels keep their own theme. */
 body.admin-ui {
-    --admin-canvas: #fafafa;
+    --admin-canvas: #f8f7fa;
     --admin-surface: #fff;
-    --admin-subtle: #f4f4f5;
-    --admin-border: #e4e4e7;
-    --admin-input-border: #d4d4d8;
-    --admin-text: #18181b;
-    --admin-muted: #71717a;
-    --admin-primary: #f59e0b;
-    --admin-on-primary: #18181b;
-    --admin-primary-hover: #d97706;
-    --admin-primary-soft: #fffbeb;
-    --admin-primary-text: #92400e;
-    --admin-ring: #f59e0b;
+    --admin-subtle: #f8fafc;
+    --admin-border: #e2e8f0;
+    --admin-input-border: #cbd5e1;
+    --admin-text: #0f172a;
+    --admin-muted: #64748b;
+    --admin-primary: #7c3aed;
+    --admin-on-primary: #fff;
+    --admin-primary-hover: #6d28d9;
+    --admin-primary-soft: #f5f3ff;
+    --admin-primary-text: #6d28d9;
+    --admin-ring: #8b5cf6;
     --admin-shadow: 0 1px 2px rgb(0 0 0 / .05);
     color: var(--admin-text);
     background: var(--admin-canvas);
@@ -23,17 +23,17 @@ body.admin-ui {
     -webkit-font-smoothing: antialiased;
 }
 html.dark body.admin-ui {
-    --admin-canvas: #09090b;
-    --admin-surface: #18181b;
-    --admin-subtle: #27272a;
-    --admin-border: #3f3f46;
-    --admin-input-border: #52525b;
-    --admin-text: #fafafa;
-    --admin-muted: #a1a1aa;
-    --admin-primary: #f59e0b;
-    --admin-primary-hover: #fbbf24;
-    --admin-primary-soft: #33270d;
-    --admin-primary-text: #fcd34d;
+    --admin-canvas: #020617;
+    --admin-surface: #0f172a;
+    --admin-subtle: #1e293b;
+    --admin-border: #334155;
+    --admin-input-border: #475569;
+    --admin-text: #f1f5f9;
+    --admin-muted: #94a3b8;
+    --admin-primary: #7c3aed;
+    --admin-primary-hover: #6d28d9;
+    --admin-primary-soft: #2e1065;
+    --admin-primary-text: #c4b5fd;
     --admin-shadow: 0 1px 2px rgb(0 0 0 / .2);
     color-scheme: dark;
 }
@@ -144,9 +144,9 @@ html.dark body.admin-ui {
 .admin-ui [data-admin-panel] > aside { border-right: 1px solid var(--admin-border); }
 .admin-ui [data-admin-panel] > div > header { box-shadow: none; }
 .admin-ui [data-admin-panel] nav a { font-size: 14px; font-weight: 500; }
-html.dark .admin-ui :is([class~="bg-violet-500"], [class~="bg-violet-600"], [data-ui-button="primary"], [data-product-publish]) { color: #18181b; }
+html.dark .admin-ui :is([class~="bg-violet-500"], [class~="bg-violet-600"], [data-ui-button="primary"], [data-product-publish]) { color: var(--admin-on-primary); }
 html.dark .admin-ui :is(button, a)[class~="from-violet-600"],
-html.dark .admin-ui :is(button, a)[class~="from-violet-500"] { color: #18181b; }
+html.dark .admin-ui :is(button, a)[class~="from-violet-500"] { color: var(--admin-on-primary); }
 html.dark .admin-ui :is([class~="bg-emerald-50"], [class~="bg-emerald-100"]) { background-color: #052e24; }
 html.dark .admin-ui :is([class~="text-emerald-600"], [class~="text-emerald-700"]) { color: #6ee7b7; }
 html.dark .admin-ui :is([class~="bg-rose-50"], [class~="bg-red-50"]) { background-color: #450a0a; }
