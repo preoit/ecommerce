@@ -107,6 +107,10 @@ class CreateProductController extends Controller
             'regular' => ['required', 'numeric', 'min:0'],
             'sale' => ['nullable', 'numeric', 'min:0', 'lt:regular'],
             'stock' => ['required', 'integer', 'min:0'],
+            'unit' => ['nullable', 'string'],
+            'brand' => ['nullable', 'string'],
+            'category' => ['nullable', 'array'],
+            'category.*' => ['integer', 'exists:categories,id'],
             'status' => ['required', Rule::in(['Draft', 'Published', 'Active', 'Inactive', 'Discontinued'])],
             'visibility' => ['required', Rule::in(['Public', 'Private'])],
             'description' => ['nullable', 'string'],
@@ -142,6 +146,8 @@ class CreateProductController extends Controller
             'regular_price' => $data['regular'],
             'sale_price' => $data['sale'] ?? null,
             'stock_quantity' => $data['stock'],
+            'unit_id' => Unit::query()->where('name', $data['unit'] ?? null)->value('id'),
+            'brand_id' => Brand::query()->where('name', $data['brand'] ?? null)->value('id'),
             'status' => $data['status'],
             'visibility' => $data['visibility'],
             'description' => $this->sanitizer->sanitize($data['description'] ?? null),
@@ -158,6 +164,9 @@ class CreateProductController extends Controller
         }
 
         $product->update($updates);
+        if (array_key_exists('category', $data)) {
+            $product->categories()->sync($data['category'] ?? []);
+        }
         if (array_key_exists('specifications', $data)) {
             $product->specifications()->delete();
             $product->specifications()->createMany(

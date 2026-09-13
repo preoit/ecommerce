@@ -93,4 +93,45 @@ class ProductManagementTest extends TestCase
             'old_slug' => 'six-piece-pp-filter-d81ol',
         ]);
     }
+
+    public function test_editing_a_product_updates_its_brand_category_and_unit(): void
+    {
+        $oldBrand = Brand::query()->create(['name' => 'Old Brand', 'slug' => 'old-brand']);
+        $newBrand = Brand::query()->create(['name' => 'New Brand', 'slug' => 'new-brand']);
+        $oldCategory = Category::query()->create(['name' => 'Old Category', 'slug' => 'old-category']);
+        $newCategory = Category::query()->create(['name' => 'New Category', 'slug' => 'new-category']);
+        $oldUnit = Unit::query()->create(['name' => 'Piece', 'slug' => 'piece']);
+        $newUnit = Unit::query()->create(['name' => 'Box', 'slug' => 'box']);
+        $product = Product::query()->create([
+            'title' => 'Editable Product',
+            'slug' => 'editable-product',
+            'regular_price' => 500,
+            'stock_quantity' => 10,
+            'brand_id' => $oldBrand->id,
+            'unit_id' => $oldUnit->id,
+            'status' => 'Published',
+            'visibility' => 'Public',
+        ]);
+        $product->categories()->attach($oldCategory);
+
+        $this->actingAs(User::factory()->create())
+            ->patch(route('inventories.products.update', $product), [
+                'title' => $product->title,
+                'slug' => $product->slug,
+                'regular' => 500,
+                'sale' => null,
+                'stock' => 10,
+                'brand' => $newBrand->name,
+                'unit' => $newUnit->name,
+                'category' => [$newCategory->id],
+                'status' => 'Published',
+                'visibility' => 'Public',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $product->refresh();
+        $this->assertSame($newBrand->id, $product->brand_id);
+        $this->assertSame($newUnit->id, $product->unit_id);
+        $this->assertEquals([$newCategory->id], $product->categories()->pluck('categories.id')->all());
+    }
 }
