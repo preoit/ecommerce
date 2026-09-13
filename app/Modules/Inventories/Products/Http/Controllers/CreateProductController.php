@@ -107,6 +107,7 @@ class CreateProductController extends Controller
             'regular' => ['required', 'numeric', 'min:0'],
             'sale' => ['nullable', 'numeric', 'min:0', 'lt:regular'],
             'stock' => ['required', 'integer', 'min:0'],
+            'sku' => ['sometimes', 'nullable', 'string', 'max:100', Rule::unique('products', 'sku')->ignore($product->id)],
             'unit' => ['nullable', 'string'],
             'brand' => ['nullable', 'string'],
             'category' => ['nullable', 'array'],
@@ -157,6 +158,10 @@ class CreateProductController extends Controller
 
         if (array_key_exists('featuredImage', $data)) {
             $updates['featured_image_path'] = $data['featuredImage']['path'] ?? null;
+        }
+
+        if (array_key_exists('sku', $data)) {
+            $updates['sku'] = $data['sku'];
         }
 
         if (array_key_exists('gallery', $data)) {

@@ -14,6 +14,24 @@ class ProductManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_product_sku_can_be_updated_kept_cleared_and_cannot_duplicate(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $product = Product::create(['title' => 'SKU test', 'slug' => 'sku-test', 'sku' => 'OLD-SKU', 'regular_price' => 100, 'stock_quantity' => 5, 'status' => 'Published', 'visibility' => 'Public']);
+        Product::create(['title' => 'Other', 'slug' => 'other-sku', 'sku' => 'TAKEN-SKU', 'regular_price' => 100, 'stock_quantity' => 1, 'status' => 'Published', 'visibility' => 'Public']);
+        $payload = ['title' => $product->title, 'slug' => $product->slug, 'regular' => 100, 'stock' => 5, 'status' => 'Published', 'visibility' => 'Public'];
+        $url = route('inventories.products.update', $product);
+        $this->patch($url, [...$payload, 'sku' => 'NEW-SKU'])->assertSessionHasNoErrors();
+        $this->assertSame('NEW-SKU', $product->fresh()->sku);
+        $this->patch($url, [...$payload, 'sku' => 'NEW-SKU'])->assertSessionHasNoErrors();
+        $this->patch($url, $payload)->assertSessionHasNoErrors();
+        $this->assertSame('NEW-SKU', $product->fresh()->sku);
+        $this->patch($url, [...$payload, 'sku' => 'TAKEN-SKU'])->assertSessionHasErrors('sku');
+        $this->assertSame('NEW-SKU', $product->fresh()->sku);
+        $this->patch($url, [...$payload, 'sku' => ''])->assertSessionHasNoErrors();
+        $this->assertNull($product->fresh()->sku);
+    }
+
     public function test_authenticated_user_can_create_products_with_clean_unique_slugs(): void
     {
         $category = Category::query()->create(['name' => 'Filters', 'slug' => 'filters']);
