@@ -41,9 +41,9 @@ export default function Button({
     );
 
     if (href) {
-        return <Link href={href} className={classes} {...props}>{content}</Link>;
+        return <Link href={href} data-ui-button={variant} data-ui-size={size} className={classes} {...props}>{content}</Link>;
     }
 
     const Component = as;
-    return <Component className={classes} disabled={disabled || loading} {...props}>{content}</Component>;
+    return <Component data-ui-button={variant} data-ui-size={size} className={classes} disabled={disabled || loading} {...props}>{content}</Component>;
 }

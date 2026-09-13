@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import IconButton from '@/app/design-system/components/IconButton';
 import { adminNavigation } from '@/app/navigation/adminNavigation';
 import { cn } from '@/app/utils/cn';
+import '../../../css/admin.css';
 
 function isCurrent(url, href) {
     return url === href || (href !== '/dashboard' && url.startsWith(`${href}/`));
@@ -163,6 +164,10 @@ export default function AdminLayout({ children, showFlash = true }) {
 
     useEffect(() => setMobileOpen(false), [currentUrl]);
     useEffect(() => {
+        document.body.classList.add('admin-ui');
+        return () => document.body.classList.remove('admin-ui');
+    }, []);
+    useEffect(() => {
         document.documentElement.classList.toggle('dark', darkMode);
         localStorage.setItem('admin-theme', darkMode ? 'dark' : 'light');
     }, [darkMode]);
@@ -176,7 +181,7 @@ export default function AdminLayout({ children, showFlash = true }) {
     }, [flash?.success]);
 
     return (
-        <div className={cn('min-h-screen transition-colors', darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-[#f8f7fa] text-slate-900')}>
+        <div data-admin-panel className={cn('min-h-screen transition-colors', darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-[#f8f7fa] text-slate-900')}>
             <Head>{website?.favicon && <link rel="icon" href={website.favicon} />}</Head>
             <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-[#f8f7fa] dark:bg-slate-950 lg:block"><Sidebar url={currentUrl} website={website} orderCount={unreadOrderCount} /></aside>
 

@@ -1,6 +1,6 @@
 export default function FormField({ label, htmlFor, required = false, hint, error, children }) {
     return (
-        <div>
+        <div data-ui-field data-invalid={error ? 'true' : undefined}>
             <label htmlFor={htmlFor} className="block text-sm font-semibold text-slate-800">
                 {label}{required && <span className="ml-1 text-red-600" aria-hidden="true">*</span>}
             </label>
