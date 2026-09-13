@@ -31,8 +31,9 @@ class StorefrontProductController extends Controller
             ->where('visibility','Public')
             ->when($request->string('search')->trim()->toString(), fn($query,$search)=>$query->where(fn($query)=>$query->where('title','like',"%{$search}%")->orWhere('sku','like',"%{$search}%")))
             ->when($request->string('category')->trim()->toString(), fn($query,$slug)=>$query->whereHas('categories',fn($query)=>$query->where('slug',$slug)))
-            ->when($request->string('brand')->trim()->toString(), fn($query,$slug)=>$query->whereHas('brand',fn($query)=>$query->where('slug',$slug)))
-            ->latest('published_at')->latest('id')->paginate(16)->withQueryString();
+            ->when($request->string('brand')->trim()->toString(), fn($query,$slug)=>$query->whereHas('brand',fn($query)=>$query->where('slug',$slug)));
+        $priceBounds = \App\Support\ProductListingFilters::apply($products, $request);
+        $products = $products->latest('published_at')->latest('id')->paginate(16)->withQueryString();
         $products->through(fn(Product $product)=>$this->cardData($product));
 
         $categorySlug = $request->string('category')->trim()->toString();
@@ -42,7 +43,8 @@ class StorefrontProductController extends Controller
             : ($categorySlug ? \App\Modules\Inventories\Categories\Models\Category::query()->where('slug', $categorySlug)->first(['seo_title', 'meta_description', 'meta_robots', 'canonical_url', 'og_title', 'og_description']) : null);
         return Inertia::render('app/modules/storefront/products/pages/Index', [
             'products'=>$products,
-            'filters'=>$request->only(['search','category','brand']),
+            'filters'=>$request->only(['search','category','brand','min_price','max_price','in_stock']),
+            'priceBounds'=>$priceBounds,
             'listingSeo'=>$listingSeo,
             'categories'=>\App\Modules\Inventories\Categories\Models\Category::where('is_active',true)->orderBy('name')->get(['id','name','slug']),
             'brands'=>\App\Modules\Inventories\Brands\Models\Brand::where('is_active',true)->orderBy('name')->get(['id','name','slug']),

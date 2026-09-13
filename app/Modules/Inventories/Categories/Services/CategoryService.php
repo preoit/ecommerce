@@ -81,8 +81,9 @@ class CategoryService
             ->whereIn('status', ['Published', 'Active'])
             ->where('visibility', 'Public')
             ->when($brandSlug, fn ($query, $slug) => $query->whereHas('brand', fn ($brandQuery) => $brandQuery->where('slug', $slug)))
-            ->whereHas('categories', fn ($query) => $query->whereIn('categories.id', $categoryIds->unique()))
-            ->latest('published_at')
+            ->whereHas('categories', fn ($query) => $query->whereIn('categories.id', $categoryIds->unique()));
+        $priceBounds = \App\Support\ProductListingFilters::apply($products, $request);
+        $products = $products->latest('published_at')
             ->latest('id')
             ->paginate(12)
             ->withQueryString()
@@ -103,6 +104,8 @@ class CategoryService
             'products' => $products,
             'brands' => $brands,
             'selectedBrand' => $brandSlug,
+            'filters' => $request->only(['brand', 'min_price', 'max_price', 'in_stock']),
+            'priceBounds' => $priceBounds,
         ]);
     }
 
