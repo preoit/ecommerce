@@ -1,10 +1,10 @@
 import { Link } from '@inertiajs/react';
-import { ChevronRight, Tag } from 'lucide-react';
+import { ChevronRight, House, Tag } from 'lucide-react';
 
 export default function ListingHero({ title, description, brandNames = [], parent, label, children }) {
     return <header>
         <nav aria-label="Breadcrumb" className="mb-5 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-            <Link href="/" className="hover:text-violet-600">Home</Link><ChevronRight className="size-3 text-slate-300" />
+            <Link href="/" aria-label="Home" className="inline-flex items-center rounded p-1 hover:text-violet-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-500"><House aria-hidden="true" className="size-4" /></Link><ChevronRight className="size-3 text-slate-300" />
             {parent && <><Link href={parent.href} className="hover:text-violet-600">{parent.name}</Link><ChevronRight className="size-3 text-slate-300" /></>}
             <span aria-current="page" className="font-medium text-slate-900 dark:text-slate-100">{title}</span>
         </nav>
