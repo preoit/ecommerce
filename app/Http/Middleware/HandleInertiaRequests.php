@@ -68,6 +68,8 @@ class HandleInertiaRequests extends Middleware
 
         return [
             'name' => $settings?->website_name ?: null,
+            'orderWhatsapp' => $settings ? $settings->order_whatsapp : '8801736741793',
+            'orderPhone' => $settings ? $settings->order_phone : '8801736741793',
             'logo' => $assetUrl($settings?->logo_path),
             'favicon' => $assetUrl($settings?->favicon_path),
             'seoTitle' => $settings?->seo_title,

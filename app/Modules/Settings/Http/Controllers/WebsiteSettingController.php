@@ -22,6 +22,8 @@ class WebsiteSettingController extends Controller
 
         return Inertia::render('app/modules/settings/pages/Index', [
             'website' => [
+                'orderWhatsapp' => $settings->order_whatsapp,
+                'orderPhone' => $settings->order_phone,
                 'name' => $settings->website_name,
                 'logoPath' => $settings->logo_path,
                 'logo' => $settings->logo_path ? '/image/'.rawurlencode(basename($settings->logo_path)) : null,
@@ -62,7 +64,16 @@ class WebsiteSettingController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
+        foreach (['order_whatsapp', 'order_phone'] as $field) {
+            if ($request->has($field) && is_string($request->input($field))) {
+                $number = preg_replace('/[\s()+-]+/', '', $request->input($field));
+                if (preg_match('/^01[3-9][0-9]{8}$/', $number)) $number = '88'.$number;
+                $request->merge([$field => $number === '' ? null : $number]);
+            }
+        }
         $data = $request->validate([
+            'order_whatsapp' => ['sometimes', 'nullable', 'string', 'regex:/^[1-9][0-9]{7,14}$/'],
+            'order_phone' => ['sometimes', 'nullable', 'string', 'regex:/^[1-9][0-9]{7,14}$/'],
             'website_name' => ['required', 'string', 'max:120'],
             'logo_path' => ['nullable', 'string', 'max:255', Rule::exists('website_media', 'path')],
             'favicon_path' => ['nullable', 'string', 'max:255', Rule::exists('website_media', 'path')],
