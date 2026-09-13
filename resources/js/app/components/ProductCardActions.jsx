@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { Eye, ShoppingBag, ShoppingCart } from 'lucide-react';
+import { Eye, ShoppingBag } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 export default function ProductCardActions({ product }) {
@@ -7,7 +7,7 @@ export default function ProductCardActions({ product }) {
     const [message, setMessage] = useState('');
     const locked = useRef(false);
     const href = route('storefront.products.show', product.slug);
-    const add = async (checkout) => {
+    const orderNow = async () => {
         if (locked.current) return;
         locked.current = true;
         setBusy(true);
@@ -24,18 +24,14 @@ export default function ProductCardActions({ product }) {
                 throw new Error(result.message || 'Could not add this product. Please try again.');
             }
             window.dispatchEvent(new CustomEvent('cart:updated', { detail: { count: result.count } }));
-            if (checkout) router.visit(route('storefront.checkout'));
-            else setMessage('Added to cart');
+            router.visit(route('storefront.checkout'));
         } catch (error) { setMessage(error.message || 'Connection failed. Please try again.'); }
         finally { locked.current = false; setBusy(false); }
     };
     return <div className="product-card-actions mt-4">
         <div className="product-card-action-slot">
             <Link href={href} className="product-card-view"><Eye size={15}/>View details</Link>
-            <div className="product-card-purchase">
-                <button type="button" disabled={busy} onClick={() => add(true)} className="product-card-buy"><ShoppingBag size={15}/><span>Buy Now</span></button>
-                <button type="button" disabled={busy} onClick={() => add(false)} className="product-card-add"><ShoppingCart size={15}/><span>{busy ? 'Adding…' : 'Add to Cart'}</span></button>
-            </div>
+            <button type="button" disabled={busy} onClick={orderNow} className="product-card-buy"><ShoppingBag size={15}/><span>{busy ? 'Please wait…' : 'Order Now'}</span></button>
         </div>
         {message && <p role="status" className="mt-2 text-xs leading-5 text-violet-700 dark:text-violet-300">{message}</p>}
     </div>;
