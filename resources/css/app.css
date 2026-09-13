@@ -554,13 +554,17 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     .product-card-view, .product-card-buy {
         display: flex; align-items: center; justify-content: center; gap: 4px;
         min-width: 0; min-height: 44px; border-radius: 10px; padding: 8px 5px;
-        font-size: 12px; font-weight: 600; text-align: center;
+        font-size: 12px; font-weight: 500; text-align: center;
         transition: background-color .15s;
     }
-    .product-card-view { background: #020617; color: white; }
-    .product-card-view:hover { background: #1e293b; }
-    .product-card-buy { background: #7c3aed; color: white; }
-    .product-card-buy:hover { background: #6d28d9; }
+    .product-card-view { background: #f1f5f9; color: #475569; }
+    .product-card-view:hover { background: #e2e8f0; }
+    .product-card-buy { background: #f5f3ff; color: #6d28d9; }
+    .product-card-buy:hover { background: #ede9fe; }
+    .dark .product-card-view { background: #1e293b; color: #cbd5e1; }
+    .dark .product-card-view:hover { background: #334155; }
+    .dark .product-card-buy { background: #2e1c4a; color: #c4b5fd; }
+    .dark .product-card-buy:hover { background: #3b2560; }
     .product-card-buy:disabled { opacity: .6; cursor: wait; }
     .product-card-actions { container-type: inline-size; }
     @container (max-width: 210px) {

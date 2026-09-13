@@ -30,8 +30,8 @@ export default function ProductCardActions({ product }) {
     };
     return <div className="product-card-actions mt-4">
         <div className="product-card-action-slot">
-            <Link href={href} className="product-card-view"><Eye size={15}/>View details</Link>
-            <button type="button" disabled={busy} onClick={orderNow} className="product-card-buy"><ShoppingBag size={15}/><span>{busy ? 'Please wait…' : 'Order Now'}</span></button>
+            <Link href={href} className="product-card-view"><Eye size={14} strokeWidth={1.5}/>View details</Link>
+            <button type="button" disabled={busy} onClick={orderNow} className="product-card-buy"><ShoppingBag size={14} strokeWidth={1.5}/><span>{busy ? 'Please wait…' : 'Order Now'}</span></button>
         </div>
         {message && <p role="status" className="mt-2 text-xs leading-5 text-violet-700 dark:text-violet-300">{message}</p>}
     </div>;
