@@ -542,6 +542,12 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         @apply font-bold text-slate-900 dark:text-slate-100;
     }
 
+    .product-details-layout,
+    .product-details-layout > div,
+    .product-details-layout > aside {
+        min-width: 0;
+    }
+
     .product-details-sidebar {
         @apply self-start;
     }
@@ -551,6 +557,12 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     }
 
     @media (min-width: 1024px) {
+        .product-details-layout {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) 320px !important;
+            align-items: start;
+        }
+
         .product-details-sidebar {
             @apply sticky top-20;
         }

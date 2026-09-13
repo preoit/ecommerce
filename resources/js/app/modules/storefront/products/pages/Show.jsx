@@ -123,15 +123,22 @@ export default function ProductShow({ product, reviews = [], rating, questions =
         }
     }, [questions.length, rating.total]);
     useEffect(() => {
-        const descriptionHeading = [...document.querySelectorAll('h2')].find((item) => item.textContent === 'Product Description');
-        const relatedHeading = [...document.querySelectorAll('h2')].find((item) => item.textContent === 'Related Products');
-        const detailsLayout = descriptionHeading?.closest('section')?.parentElement?.parentElement;
-        const sidebar = detailsLayout?.querySelector(':scope > aside');
-        const relatedSection = relatedHeading?.closest('section');
-        if (!sidebar || !relatedSection || sidebar.contains(relatedSection)) return;
-        sidebar.classList.add('product-details-sidebar');
-        relatedSection.classList.add('related-products-sidebar');
-        sidebar.append(relatedSection);
+        const frame = window.requestAnimationFrame(() => {
+            const detailsLayout = document.querySelector('main > div > div.mt-12.grid');
+            const relatedHeading = [...document.querySelectorAll('h2')].find((item) => item.textContent?.trim() === 'Related Products');
+            const sidebar = detailsLayout?.querySelector(':scope > aside');
+            const relatedSection = relatedHeading?.closest('section');
+
+            if (!detailsLayout || !sidebar || !relatedSection) return;
+
+            detailsLayout.classList.add('product-details-layout');
+            sidebar.classList.add('product-details-sidebar');
+            relatedSection.classList.add('related-products-sidebar');
+
+            if (!sidebar.contains(relatedSection)) sidebar.prepend(relatedSection);
+        });
+
+        return () => window.cancelAnimationFrame(frame);
     }, [related.length]);
     const categoryBreadcrumb = product.category_breadcrumb || [];
     const canonical = product.canonical_url || route('storefront.products.show', product.slug);
