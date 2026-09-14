@@ -11,6 +11,7 @@ use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Inventories\Categories\Services\CategoryService;
 use App\Modules\Settings\Models\WebsiteSetting;
 use App\Modules\Orders\Services\DeliveryChargeCalculator;
+use App\Modules\Orders\Services\DeliveryZoneDetector;
 use App\Modules\Customers\Models\CustomerAddress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -243,6 +244,13 @@ class StorefrontProductController extends Controller
             $data['address'] = $selectedAddress->address;
             $data['city'] = $selectedAddress->city;
             $data['delivery_zone'] = $selectedAddress->delivery_zone;
+        }
+        if (! $selectedAddress) {
+            $data['delivery_zone'] = app(DeliveryZoneDetector::class)->detect(
+                $data['district'] ?? null,
+                $data['city'],
+                $data['address'],
+            );
         }
         $cart = $request->session()->get('cart', []);
         if (!$cart) return redirect()->route('storefront.cart')->with('success', 'Your cart is empty.');

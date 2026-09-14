@@ -1,8 +1,9 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Mail, MapPin, MessageCircle, Minus, Package, Pencil, Phone, Plus, Save, Search, ShoppingBag, Trash2, UserRound, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AdminLayout from '@/app/layouts/AdminLayout';
 import QuickCustomerModal from '@/app/modules/orders/components/QuickCustomerModal';
+import { detectDeliveryZone } from '@/app/utils/deliveryZone';
 
 const money = value => `BDT ${Number(value || 0).toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const input = 'mt-2 h-11 w-full rounded-xl border-slate-300 bg-slate-50 text-sm focus:border-violet-500 focus:bg-white focus:ring-violet-500';
@@ -28,6 +29,9 @@ export default function CreateOrder({ products = [], customers = [], deliveryCha
     const [selectedCustomer, setSelectedCustomer] = useState(()=>editingOrder?.user_id?customers.find(customer=>Number(customer.id)===Number(editingOrder.user_id))||null:null);
     const [guestMode, setGuestMode] = useState(false);
     const form = useForm(editingOrder ? { source: editingOrder.source, user_id: editingOrder.user_id||'', customer_name: editingOrder.customer_name, phone: editingOrder.phone, email: editingOrder.email||'', address: editingOrder.address, city: editingOrder.city, delivery_zone: editingOrder.delivery_zone, note: editingOrder.note||'', payment_method: editingOrder.payment_method, payment_status: editingOrder.payment_status, discount: editingOrder.discount, items: editingOrder.items } : { source: 'phone', user_id: '', customer_name: '', phone: '', email: '', address: '', city: 'Dhaka', delivery_zone: 'inside_dhaka', note: '', payment_method: 'cod', payment_status: 'pending', discount: 0, items: [] });
+    useEffect(() => {
+        if (form.data.city || form.data.address) form.setData('delivery_zone', detectDeliveryZone({ city: form.data.city, address: form.data.address }));
+    }, [form.data.city, form.data.address]);
     const selectedIds = new Set(form.data.items.map(item => Number(item.product_id)));
     const availableProducts = products.filter(product => !selectedIds.has(Number(product.id)));
     const filteredProducts = availableProducts.filter(product => `${product.title} ${product.sku || ''}`.toLowerCase().includes(productSearch.toLowerCase()));

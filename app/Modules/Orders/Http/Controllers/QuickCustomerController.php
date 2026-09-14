@@ -4,6 +4,7 @@ namespace App\Modules\Orders\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\Orders\Services\DeliveryZoneDetector;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +36,7 @@ class QuickCustomerController extends Controller
                 'label' => $data['address_label'],
                 'recipient_name' => $data['name'],
                 'phone' => $data['phone'],
-                'delivery_zone' => str_contains(strtolower($data['city']), 'dhaka') ? 'inside_dhaka' : 'outside_dhaka',
+                'delivery_zone' => app(DeliveryZoneDetector::class)->detect(null, $data['city'], $data['address']),
                 'district' => $data['city'],
                 'city' => $data['city'],
                 'address' => $data['address'],
@@ -74,7 +75,7 @@ class QuickCustomerController extends Controller
             if ($customer->isDirty('phone')) $customer->phone_verified_at = null;
             $customer->save();
             $address = $customer->addresses()->orderByDesc('is_default')->latest('id')->first();
-            $values = ['label' => $data['address_label'], 'recipient_name' => $data['name'], 'phone' => $data['phone'], 'delivery_zone' => str_contains(strtolower($data['city']), 'dhaka') ? 'inside_dhaka' : 'outside_dhaka', 'district' => $data['city'], 'city' => $data['city'], 'address' => $data['address'], 'is_default' => true];
+            $values = ['label' => $data['address_label'], 'recipient_name' => $data['name'], 'phone' => $data['phone'], 'delivery_zone' => app(DeliveryZoneDetector::class)->detect(null, $data['city'], $data['address']), 'district' => $data['city'], 'city' => $data['city'], 'address' => $data['address'], 'is_default' => true];
             $address ? $address->update($values) : $customer->addresses()->create($values);
         });
 

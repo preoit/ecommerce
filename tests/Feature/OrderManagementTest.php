@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Modules\Orders\Services\DeliveryZoneDetector;
+
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -9,6 +11,15 @@ use Tests\TestCase;
 
 class OrderManagementTest extends TestCase
 {
+    public function test_delivery_zone_is_detected_from_district_or_dhaka_area(): void
+    {
+        $detector = app(DeliveryZoneDetector::class);
+
+        $this->assertSame('inside_dhaka', $detector->detect('Dhaka', 'Uttara'));
+        $this->assertSame('outside_dhaka', $detector->detect('Gazipur', 'Tongi'));
+        $this->assertSame('inside_dhaka', $detector->detect(null, 'Mirpur'));
+    }
+
     use RefreshDatabase;
 
     public function test_order_index_is_paginated_and_filters_on_the_server(): void

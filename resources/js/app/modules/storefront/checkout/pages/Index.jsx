@@ -1,7 +1,8 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { ArrowRight, Info, MapPin, Minus, Plus, Truck, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import CheckoutLayout from '@/app/layouts/CheckoutLayout';
+import { detectDeliveryZone } from '@/app/utils/deliveryZone';
 
 const money = value => `৳${Number(value || 0).toLocaleString('en-BD', { maximumFractionDigits: 2 })}`;
 
@@ -15,6 +16,11 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
     const [subtotal, setSubtotal] = useState(Number(initialSubtotal));
     const [pendingItem, setPendingItem] = useState(null);
     const [cartNotice, setCartNotice] = useState('');
+    useEffect(() => {
+        if (!data.address_id && (data.district || data.city || data.address)) {
+            setData('delivery_zone', detectDeliveryZone(data));
+        }
+    }, [data.address_id, data.district, data.city, data.address]);
     const updateCart = async (item, quantity = null) => {
         setPendingItem(item.cart_key); setCartNotice('');
         try {
