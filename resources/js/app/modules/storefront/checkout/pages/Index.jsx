@@ -2,7 +2,7 @@ import { Head, router, useForm } from '@inertiajs/react';
 import { AlertCircle, ArrowRight, Info, MapPin, Minus, Plus, Truck, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import CheckoutLayout from '@/app/layouts/CheckoutLayout';
-import { bangladeshDistricts, detectDeliveryZone } from '@/app/utils/deliveryZone';
+import { bangladeshDistricts, detectDeliveryZone, thanasByDistrict } from '@/app/utils/deliveryZone';
 
 const money = value => `৳${Number(value || 0).toLocaleString('en-BD', { maximumFractionDigits: 2 })}`;
 
@@ -74,7 +74,7 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
         else if (!/^(?:\+?88)?01[3-9]\d{8}$/.test(data.phone.replace(/[\s-]/g, ''))) validation.phone = 'Enter a valid Bangladesh phone number.';
         if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) validation.email = 'Enter a valid email address.';
         if (!data.address_id && !data.district.trim()) validation.district = 'District is required.';
-        if (!data.city.trim()) validation.city = 'City or area is required.';
+        if (!data.city.trim()) validation.city = data.district === 'Dhaka' ? 'Thana or area is required.' : 'City or area is required.';
         if (!data.address.trim()) validation.address = 'Full delivery address is required.';
         if (Object.keys(validation).length) { setErrors(validation); return; }
         setProcessing(true); setErrors({});
@@ -86,12 +86,18 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
     <FloatingField name="phone" label="Phone number" value={data.phone} error={errors.phone} onChange={value => updateField('phone', value)} type="tel" required />
     <FloatingField name="email" label="Email (optional)" value={data.email} error={errors.email} onChange={value => updateField('email', value)} type="email" />
     <FloatingField name="district" label="District" value={data.district} error={errors.district} required={!data.address_id}>
-        <select name="district" value={data.district} onChange={event => { setData(current => ({ ...current, district: event.target.value, address_id: null })); if (errors.district) setErrors(current => { const next = { ...current }; delete next.district; return next; }); }} aria-invalid={Boolean(errors.district)} aria-describedby={errors.district ? 'district-error' : undefined} className="h-12 w-full rounded-xl border-0 bg-transparent px-4 pr-10 text-sm text-slate-900 focus:ring-0">
+        <select name="district" value={data.district} onChange={event => { setData(current => ({ ...current, district: event.target.value, city: '', area: '', address_id: null })); if (errors.district) setErrors(current => { const next = { ...current }; delete next.district; return next; }); }} aria-invalid={Boolean(errors.district)} aria-describedby={errors.district ? 'district-error' : undefined} className="h-12 w-full rounded-xl border-0 bg-transparent px-4 pr-10 text-sm text-slate-900 focus:ring-0">
             <option value="">Select district</option>
             {bangladeshDistricts.map(district => <option key={district} value={district}>{district}</option>)}
         </select>
     </FloatingField>
-    <div className="sm:col-span-2"><FloatingField name="city" label="City / area" value={data.city} error={errors.city} onChange={value => updateField('city', value)} required /></div>
+    <div className="sm:col-span-2">{thanasByDistrict[data.district] ? <FloatingField name="city" label="Thana / area" value={data.city} error={errors.city} required>
+        <select name="city" value={data.city} onChange={event => { const value = event.target.value; setData(current => ({ ...current, city: value, area: value, address_id: null })); if (errors.city) setErrors(current => { const next = { ...current }; delete next.city; return next; }); }} aria-invalid={Boolean(errors.city)} aria-describedby={errors.city ? 'city-error' : undefined} className="h-12 w-full rounded-xl border-0 bg-transparent px-4 pr-10 text-sm text-slate-900 focus:ring-0">
+            <option value="">Select thana / area</option>
+            {!thanasByDistrict[data.district].includes(data.city) && data.city && <option value={data.city}>{data.city}</option>}
+            {thanasByDistrict[data.district].map(thana => <option key={thana} value={thana}>{thana}</option>)}
+        </select>
+    </FloatingField> : <FloatingField name="city" label="City / thana / area" value={data.city} error={errors.city} onChange={value => { updateField('city', value); setData('area', value); }} required />}</div>
     <div className="sm:col-span-2"><FloatingField name="address" label="Full delivery address" value={data.address} error={errors.address} required>
         <textarea name="address" value={data.address} onChange={event => updateField('address', event.target.value)} aria-invalid={Boolean(errors.address)} aria-describedby={errors.address ? 'address-error' : undefined} rows="3" className="min-h-24 w-full resize-y rounded-xl border-0 bg-transparent px-4 py-3 text-sm text-slate-900 focus:ring-0" />
     </FloatingField></div>
