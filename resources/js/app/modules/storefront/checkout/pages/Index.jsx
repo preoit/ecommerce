@@ -56,6 +56,7 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
         const cod = deliverySettings.codEnabled && data.payment_method === 'cod' ? Number(deliverySettings.codSurcharge || 0) : 0;
         return { shipping, cod, total: shipping + cod, free, heavy };
     }, [data.delivery_zone, data.payment_method, deliverySettings, items, subtotal]);
+    const thanaOptions = thanasByDistrict[data.district] || (data.delivery_zone === 'inside_dhaka' ? thanasByDistrict.Dhaka : null);
     const deliveryAmountFor = zone => {
         if (!deliverySettings.enabled) return 'Free';
         if (deliverySettings.freeEnabled && deliverySettings.freeThreshold !== null && Number(subtotal) >= Number(deliverySettings.freeThreshold)) return 'Free';
@@ -91,11 +92,11 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
             {bangladeshDistricts.map(district => <option key={district} value={district}>{district}</option>)}
         </select>
     </FloatingField>
-    <div className="sm:col-span-2">{thanasByDistrict[data.district] ? <FloatingField name="city" label="Thana / area" value={data.city} error={errors.city} required>
+    <div className="sm:col-span-2">{thanaOptions ? <FloatingField name="city" label="Thana / area" value={data.city} error={errors.city} required>
         <select name="city" value={data.city} onChange={event => { const value = event.target.value; setData(current => ({ ...current, city: value, area: value, address_id: null })); if (errors.city) setErrors(current => { const next = { ...current }; delete next.city; return next; }); }} aria-invalid={Boolean(errors.city)} aria-describedby={errors.city ? 'city-error' : undefined} className="h-12 w-full rounded-xl border-0 bg-transparent px-4 pr-10 text-sm text-slate-900 focus:ring-0">
             <option value="">Select thana / area</option>
-            {!thanasByDistrict[data.district].includes(data.city) && data.city && <option value={data.city}>{data.city}</option>}
-            {thanasByDistrict[data.district].map(thana => <option key={thana} value={thana}>{thana}</option>)}
+            {!thanaOptions.includes(data.city) && data.city && <option value={data.city}>{data.city}</option>}
+            {thanaOptions.map(thana => <option key={thana} value={thana}>{thana}</option>)}
         </select>
     </FloatingField> : <FloatingField name="city" label="City / thana / area" value={data.city} error={errors.city} onChange={value => { updateField('city', value); setData('area', value); }} required />}</div>
     <div className="sm:col-span-2"><FloatingField name="address" label="Full delivery address" value={data.address} error={errors.address} required>
