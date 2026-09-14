@@ -390,11 +390,11 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         box-shadow: 0 0 0 1px #7c3aed;
     }
     table thead {
-        border-color: #dbe3ee !important;
-        background-color: #f8fafc !important;
+        border-color: var(--admin-border, #dbe3ee) !important;
+        background-color: var(--admin-subtle, #f8fafc) !important;
     }
     table thead th {
-        color: #5f6f86 !important;
+        color: var(--admin-muted, #5f6f86) !important;
         font-size: 14px !important;
         font-weight: 600 !important;
         line-height: 20px !important;

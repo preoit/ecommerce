@@ -11,12 +11,12 @@ const iconMap = {
 };
 
 const statusColors = {
-    pending: 'bg-amber-50 text-amber-700 ring-amber-200',
-    processing: 'bg-sky-50 text-sky-700 ring-sky-200',
-    shipped: 'bg-indigo-50 text-indigo-700 ring-indigo-200',
-    delivered: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-    cancelled: 'bg-rose-50 text-rose-700 ring-rose-200',
-    returned: 'bg-slate-100 text-slate-700 ring-slate-200',
+    pending: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-800',
+    processing: 'bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950 dark:text-sky-300 dark:ring-sky-800',
+    shipped: 'bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-950 dark:text-indigo-300 dark:ring-indigo-800',
+    delivered: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-800',
+    cancelled: 'bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:ring-rose-800',
+    returned: 'bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600',
 };
 
 const pipelineColors = {
@@ -207,7 +207,7 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                             </div>
                             <Link href="/admin/inventories/products" className="text-sm font-bold text-violet-700 hover:underline dark:text-violet-300">Manage products</Link>
                         </div>
-                        {stockAlerts.length > 0 ? <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{stockAlerts.map(product => <Link key={product.id} href={product.href} className="flex items-start gap-3 rounded-lg border border-amber-100 bg-amber-50/60 p-4 shadow-[0_1px_3px_rgba(120,53,15,.05),0_7px_18px_rgba(120,53,15,.06)] transition duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-[0_2px_5px_rgba(120,53,15,.08),0_12px_26px_rgba(120,53,15,.11)] dark:border-amber-900 dark:bg-amber-950/20 dark:shadow-[0_1px_3px_rgba(0,0,0,.2)]"><span className="grid size-10 shrink-0 place-items-center rounded-md bg-white text-amber-600 shadow-[0_1px_3px_rgba(120,53,15,.08)] dark:bg-slate-900"><AlertTriangle className="size-5" /></span><span className="min-w-0 flex-1"><b className="block truncate text-sm text-slate-950 dark:text-white">{product.title}</b><small className="block text-slate-500">{product.sku}</small><span className="mt-2 inline-flex rounded-full bg-white px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200 dark:bg-slate-900">{product.status}: {product.stock}</span></span></Link>)}</div> : <EmptyState>No low-stock product right now.</EmptyState>}
+                        {stockAlerts.length > 0 ? <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{stockAlerts.map(product => <Link key={product.id} href={product.href} className="flex items-start gap-3 rounded-lg border border-amber-100 bg-amber-50/60 p-4 shadow-[0_1px_3px_rgba(120,53,15,.05),0_7px_18px_rgba(120,53,15,.06)] transition duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-[0_2px_5px_rgba(120,53,15,.08),0_12px_26px_rgba(120,53,15,.11)] dark:border-amber-900 dark:bg-amber-950/20 dark:shadow-[0_1px_3px_rgba(0,0,0,.2)]"><span className="grid size-10 shrink-0 place-items-center rounded-md bg-white text-amber-600 dark:text-amber-300 shadow-[0_1px_3px_rgba(120,53,15,.08)] dark:bg-slate-900"><AlertTriangle className="size-5" /></span><span className="min-w-0 flex-1"><b className="block truncate text-sm text-slate-950 dark:text-white">{product.title}</b><small className="block text-slate-500">{product.sku}</small><span className="mt-2 inline-flex rounded-full bg-white px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200 dark:bg-slate-900 dark:text-amber-300 dark:ring-amber-800">{product.status}: {product.stock}</span></span></Link>)}</div> : <EmptyState>No low-stock product right now.</EmptyState>}
                     </Card>
                 </div>
             </main>

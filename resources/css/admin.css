@@ -56,6 +56,10 @@ html.dark body.admin-ui {
 }
 .admin-ui :is([class~="shadow-sm"], [class~="shadow-md"], [class~="shadow-lg"]):not([role="dialog"]) { box-shadow: var(--admin-shadow); }
 .admin-ui :is(button, a)[class*="bg-gradient-"] { background-image: none; }
+.admin-ui :is(button, a)[class~="from-slate-800"] { background-color: #1e293b; color: #fff; }
+.admin-ui :is(button, a)[class~="from-slate-800"]:hover { background-color: #334155; }
+html.dark .admin-ui :is(button, a)[class~="from-slate-800"] { background-color: #334155; border: 1px solid #475569; }
+html.dark .admin-ui :is(button, a)[class~="from-slate-800"]:hover { background-color: #475569; }
 .admin-ui :is(button, a)[class~="from-violet-600"],
 .admin-ui :is(button, a)[class~="from-violet-500"] { background: var(--admin-primary); color: var(--admin-on-primary); }
 .admin-ui :is(button, a)[class~="from-violet-600"]:hover,
