@@ -137,6 +137,7 @@ html.dark .admin-ui :is(button, a)[class~="from-slate-800"]:hover { background-c
 }
 .admin-ui table tbody td { padding: 12px 16px; color: var(--admin-text); border-color: var(--admin-border); }
 .admin-ui table tbody tr { border-color: var(--admin-border); }
+html.dark .admin-ui .orders-table tbody tr { border-color: #1e293b; }
 .admin-ui table tbody tr:hover { background-color: var(--admin-subtle); }
 .admin-ui table tbody :is(td, td *) { font-weight: inherit !important; }
 .admin-ui table tbody :is(b, strong, [class~="font-semibold"], [class~="font-bold"]) { font-weight: 600 !important; }
