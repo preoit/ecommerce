@@ -77,7 +77,7 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
         <AdminLayout>
             <Head title="Dashboard" />
             <main className="dashboard-content -mx-4 -my-6 min-h-screen bg-[#f8f7fa] px-4 py-5 font-sans text-[#172033] transition-colors dark:bg-slate-950 dark:text-slate-200 sm:-mx-6 sm:px-6 lg:-mx-8 lg:-my-8 lg:px-8 lg:py-8">
-                <div className="w-full space-y-6"><CourierSummary/>
+                <div className="w-full space-y-6">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <p className="text-sm font-bold text-violet-600">Ecommerce overview</p>
@@ -93,6 +93,8 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                         {summary.map(metric => <MetricCard key={metric.label} metric={metric} />)}
                     </div>
+
+                    <CourierSummary />
 
                     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,.65fr)]">
                         <Card className="overflow-hidden">

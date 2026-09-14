@@ -93,6 +93,7 @@ class CourierController extends Controller {
         $stats=(clone $q)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total','status');
         $booked=(clone $q)->whereNotNull('booked_at');
         $payload=['counts'=>$stats,'total'=>(clone $booked)->count(),'cod'=>(clone $booked)->sum('cod_amount'),'collected'=>(clone $booked)->sum('collected_cod'),'collectionVerified'=>(clone $booked)->whereNotNull('collected_cod')->count(),'filters'=>$d,'bookings'=>$q->with('courier:id,name')->latest()->paginate(25)->withQueryString()];
+        $payload['bookedCounts']=(clone $booked)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total','status');
         if ($r->expectsJson()) return response()->json($payload);
         return Inertia::render('app/modules/courier/pages/Dashboard',$payload);
     }
