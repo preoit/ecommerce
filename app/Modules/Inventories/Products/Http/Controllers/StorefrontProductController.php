@@ -13,6 +13,7 @@ use App\Modules\Settings\Models\WebsiteSetting;
 use App\Modules\Orders\Services\DeliveryChargeCalculator;
 use App\Modules\Orders\Services\DeliveryZoneDetector;
 use App\Modules\Customers\Models\CustomerAddress;
+use App\Services\CheckoutPhoneVerificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -202,7 +203,7 @@ class StorefrontProductController extends Controller
         return response()->json(['message' => 'Item removed from cart.', ...$this->cartSummary($request)]);
     }
 
-    public function checkout(Request $request): Response
+    public function checkout(Request $request, CheckoutPhoneVerificationService $phoneVerification): Response
     {
         $summary = $this->cartSummary($request);
         if (empty($summary['items'])) {
@@ -211,11 +212,13 @@ class StorefrontProductController extends Controller
 
         $summary['addresses'] = $request->user()?->addresses()->latest('is_default')->latest()->get() ?? [];
         $summary['customer'] = $request->user() ? ['name' => $request->user()->name, 'phone' => $request->user()->phone, 'email' => $request->user()->email] : null;
+        $initialPhone = $summary['addresses']->firstWhere('is_default', true)?->phone ?? ($summary['customer']['phone'] ?? '');
+        $summary['phoneVerification'] = ['phone' => $initialPhone, 'verified' => $phoneVerification->isVerified($request, $initialPhone)];
 
         return Inertia::render('app/modules/storefront/checkout/pages/Index', $summary);
     }
 
-    public function placeOrder(Request $request): RedirectResponse
+    public function placeOrder(Request $request, CheckoutPhoneVerificationService $phoneVerification): RedirectResponse
     {
         $data = $request->validate([
             'customer_name' => ['required', 'string', 'max:120'],
@@ -252,12 +255,13 @@ class StorefrontProductController extends Controller
                 $data['address'],
             );
         }
+        $phoneVerified = $phoneVerification->isVerified($request, $data['phone']);
         $cart = $request->session()->get('cart', []);
         if (!$cart) return redirect()->route('storefront.cart')->with('success', 'Your cart is empty.');
 
         $orderNumber = null;
         $orderId = null;
-        DB::transaction(function () use ($cart, $data, $request, $selectedAddress, &$orderNumber, &$orderId): void {
+        DB::transaction(function () use ($cart, $data, $request, $selectedAddress, $phoneVerified, &$orderNumber, &$orderId): void {
             $products = Product::query()->whereIn('id', collect($cart)->pluck('product_id'))->lockForUpdate()->get()->keyBy('id');
             $variants = ProductVariant::query()->whereIn('id', collect($cart)->pluck('variant_id')->filter())->lockForUpdate()->get()->keyBy('id');
             $settings = $this->stockSettings();
@@ -283,7 +287,7 @@ class StorefrontProductController extends Controller
             $orderNumber = '#ORD'.str_pad((string) ((int) DB::table('orders')->max('id') + 1), 2, '0', STR_PAD_LEFT);
             $orderId = DB::table('orders')->insertGetId([
                 'order_number' => $orderNumber, 'user_id' => $request->user()?->id, 'customer_address_id' => $selectedAddress?->id,
-                'customer_name' => $data['customer_name'], 'phone' => $data['phone'], 'email' => $data['email'] ?? null,
+                'customer_name' => $data['customer_name'], 'phone' => $data['phone'], 'phone_verified_at' => $phoneVerified ? now() : null, 'email' => $data['email'] ?? null,
                 'address' => $data['address'], 'city' => $data['city'], 'delivery_zone' => $data['delivery_zone'], 'note' => $data['note'] ?? null,
                 'payment_method' => $data['payment_method'], 'payment_status' => 'pending', 'status' => 'pending',
                 'subtotal' => $subtotal, 'shipping_total' => $delivery['shipping'], 'cod_surcharge' => $delivery['cod'], 'delivery_breakdown' => json_encode($delivery), 'total' => $subtotal + $delivery['total'], 'has_stock_shortage' => $hasStockShortage,
@@ -311,6 +315,7 @@ class StorefrontProductController extends Controller
             }
         });
         $request->session()->forget('cart');
+        $phoneVerification->clear($request);
 
         return redirect()->route('storefront.order.success', $orderId);
     }

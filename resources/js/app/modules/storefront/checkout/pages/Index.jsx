@@ -1,5 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { AlertCircle, ArrowRight, ChevronDown, Info, MapPin, Minus, Plus, Search, Truck, X } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, ChevronDown, Info, LoaderCircle, MapPin, Minus, Plus, Search, ShieldCheck, Truck, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CheckoutLayout from '@/app/layouts/CheckoutLayout';
 import { bangladeshDistricts, detectDeliveryZone, thanasByDistrict } from '@/app/utils/deliveryZone';
@@ -26,7 +26,7 @@ function SearchableSelect({ name, value, options, placeholder, onChange, error }
     return <div ref={root} className="relative"><Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400"/><input name={name} value={query} autoComplete="off" autoCorrect="off" spellCheck={false} role="combobox" aria-expanded={open} aria-controls={`${name}-options`} aria-autocomplete="none" aria-invalid={Boolean(error)} aria-describedby={error ? `${name}-error` : undefined} placeholder={placeholder} onFocus={() => setOpen(true)} onChange={event => { setQuery(event.target.value); if (value) onChange(''); setOpen(true); }} onKeyDown={event => { if (event.key === 'Escape') setOpen(false); if (event.key === 'Enter' && open) event.preventDefault(); }} className="h-12 w-full rounded-xl border-0 bg-transparent pl-11 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-0"/><ChevronDown className={`pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400 transition ${open ? 'rotate-180' : ''}`}/>{open && <div id={`${name}-options`} role="listbox" className="absolute z-40 mt-2 max-h-64 w-full overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-2 shadow-xl">{filtered.map(option => <button key={option} type="button" role="option" aria-selected={option === value} onClick={() => choose(option)} className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm ${option === value ? 'bg-violet-50 font-semibold text-violet-700' : 'text-slate-700 hover:bg-slate-50'}`}>{option}</button>)}{!filtered.length && <p className="px-3 py-6 text-center text-sm text-slate-500">No matching option found.</p>}</div>}</div>;
 }
 
-export default function CheckoutPage({ items: initialItems = [], subtotal: initialSubtotal = 0, deliverySettings = {}, addresses = [], customer = null }) {
+export default function CheckoutPage({ items: initialItems = [], subtotal: initialSubtotal = 0, deliverySettings = {}, addresses = [], customer = null, phoneVerification = {} }) {
     const defaultAddress = addresses.find(address => address.is_default) || null;
     const { data, setData } = useForm({ customer_name: defaultAddress?.recipient_name || customer?.name || '', phone: defaultAddress?.phone || customer?.phone || '', email: customer?.email || '', city: defaultAddress?.city || '', address: defaultAddress?.address || '', note: '', delivery_zone: defaultAddress?.delivery_zone || 'inside_dhaka', payment_method: 'cod', address_id: defaultAddress?.id || null, save_address: false, address_label: 'Home', district: defaultAddress?.district || '', area: defaultAddress?.area || '', postal_code: defaultAddress?.postal_code || '', landmark: defaultAddress?.landmark || '' });
     const chooseAddress = address => setData({ ...data, address_id: address.id, customer_name: address.recipient_name, phone: address.phone, city: address.city, address: address.address, delivery_zone: address.delivery_zone, district: address.district || '', area: address.area || '', postal_code: address.postal_code || '', landmark: address.landmark || '' });
@@ -36,6 +36,14 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
     const [subtotal, setSubtotal] = useState(Number(initialSubtotal));
     const [pendingItem, setPendingItem] = useState(null);
     const [cartNotice, setCartNotice] = useState('');
+    const normalizePhone = value => String(value || '').replace(/\D/g, '').replace(/^880/, '0');
+    const [verifiedPhone, setVerifiedPhone] = useState(phoneVerification.verified ? normalizePhone(phoneVerification.phone) : '');
+    const [otpCode, setOtpCode] = useState('');
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpBusy, setOtpBusy] = useState(false);
+    const [otpNotice, setOtpNotice] = useState('');
+    const [otpError, setOtpError] = useState('');
+    const phoneIsVerified = Boolean(verifiedPhone) && verifiedPhone === normalizePhone(data.phone);
     useEffect(() => {
         if (!data.address_id && (data.district || data.city || data.address)) {
             setData('delivery_zone', detectDeliveryZone(data));
@@ -83,6 +91,29 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
         const heavy = deliverySettings.heavyEnabled && weight > Number(deliverySettings.heavyThreshold || 0) ? Math.ceil(weight - Number(deliverySettings.heavyThreshold || 0)) * Number(deliverySettings.heavyPerKg || 0) : 0;
         return money((override || base) + heavy);
     };
+    const otpRequest = async (url, payload) => {
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }, body: JSON.stringify(payload) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(Object.values(result.errors || {}).flat()[0] || result.message || 'Phone verification could not be completed.');
+        return result;
+    };
+    const sendOtp = async () => {
+        setOtpError(''); setOtpNotice('');
+        if (!/^(?:\+?88)?01[3-9]\d{8}$/.test(data.phone.replace(/[\s-]/g, ''))) { setOtpError('Enter a valid Bangladesh phone number first.'); return; }
+        setOtpBusy(true);
+        try {
+            const result = await otpRequest(route('storefront.checkout.phone-verification.send'), { phone: data.phone });
+            setOtpNotice(result.message); setOtpSent(Boolean(result.sent));
+            if (result.verified) setVerifiedPhone(normalizePhone(data.phone));
+        } catch (error) { setOtpError(error.message); } finally { setOtpBusy(false); }
+    };
+    const verifyOtp = async () => {
+        setOtpError(''); setOtpNotice(''); setOtpBusy(true);
+        try {
+            const result = await otpRequest(route('storefront.checkout.phone-verification.verify'), { phone: data.phone, code: otpCode });
+            setVerifiedPhone(normalizePhone(data.phone)); setOtpSent(false); setOtpCode(''); setOtpNotice(result.message);
+        } catch (error) { setOtpError(error.message); } finally { setOtpBusy(false); }
+    };
     const submit = event => {
         event.preventDefault();
         const validation = {};
@@ -100,7 +131,11 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
 
     return <CheckoutLayout><Head title="Checkout" /><div className="grid gap-7 lg:grid-cols-[1fr_360px]"><form onSubmit={submit} className="order-2 rounded-2xl border border-slate-200 bg-white p-6 lg:order-1"><h1 className="text-2xl font-bold">Delivery information</h1><p className="mt-1 text-sm text-slate-500">Enter your details to place the order.</p>{addresses.length > 0 && <section className="mt-6"><div className="flex items-center justify-between"><h2 className="font-bold">Choose a saved address</h2><button type="button" onClick={()=>setData('address_id',null)} className="text-sm font-bold text-violet-600">Use new address</button></div><div className="mt-3 grid gap-3 sm:grid-cols-2">{addresses.map(address=><button type="button" key={address.id} onClick={()=>chooseAddress(address)} className={`rounded-xl border-2 p-4 text-left transition ${data.address_id===address.id?'border-violet-600 bg-violet-50':'border-slate-200 hover:border-violet-300'}`}><span className="flex items-center justify-between"><b>{address.label}</b>{address.is_default&&<small className="rounded-full bg-emerald-50 px-2 py-1 font-bold text-emerald-700">Default</small>}</span><span className="mt-2 block text-sm font-semibold">{address.recipient_name} · {address.phone}</span><span className="mt-1 line-clamp-2 block text-xs leading-5 text-slate-500">{address.address}, {address.city}</span></button>)}</div></section>}<div className="mt-7 grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
     <FloatingField name="customer_name" label="Full name" value={data.customer_name} error={errors.customer_name} onChange={value => updateField('customer_name', value)} required />
-    <FloatingField name="phone" label="Phone number" value={data.phone} error={errors.phone} onChange={value => updateField('phone', value)} type="tel" required />
+    <div><FloatingField name="phone" label="Phone number" value={data.phone} error={errors.phone} onChange={value => { updateField('phone', value); setOtpSent(false); setOtpCode(''); setOtpNotice(''); setOtpError(''); }} type="tel" required />
+        <div className="mt-2 flex min-h-7 flex-wrap items-center gap-2">{phoneIsVerified ? <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600"><CheckCircle2 className="size-4"/>Verified phone</span> : <><button type="button" onClick={sendOtp} disabled={otpBusy || !data.phone} className="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-bold text-violet-700 transition hover:bg-violet-50 disabled:opacity-50"><ShieldCheck className="size-3.5"/>{otpBusy && !otpSent ? <LoaderCircle className="size-3.5 animate-spin"/> : null}Verify phone (optional)</button><span className="text-[11px] text-slate-400">You can place the order without verification.</span></>}</div>
+        {otpSent && !phoneIsVerified && <div className="mt-2 flex gap-2"><input value={otpCode} onChange={event=>setOtpCode(event.target.value.replace(/\D/g,'').slice(0,6))} inputMode="numeric" autoComplete="one-time-code" placeholder="6-digit OTP" className="h-10 min-w-0 flex-1 rounded-lg border-slate-300 text-sm"/><button type="button" onClick={verifyOtp} disabled={otpBusy || otpCode.length !== 6} className="inline-flex h-10 items-center justify-center rounded-lg bg-violet-600 px-4 text-xs font-bold text-white disabled:opacity-50">{otpBusy?<LoaderCircle className="size-4 animate-spin"/>:'Confirm'}</button></div>}
+        {otpNotice && <p className="mt-2 text-xs font-semibold text-emerald-600">{otpNotice}</p>}{otpError && <p className="mt-2 text-xs font-semibold text-rose-600">{otpError}</p>}
+    </div>
     <FloatingField name="email" label="Email (optional)" value={data.email} error={errors.email} onChange={value => updateField('email', value)} type="email" />
     <FloatingField name="district" label="District" value={data.district} error={errors.district} required={!data.address_id}>
         <SearchableSelect name="district" value={data.district} options={bangladeshDistricts} placeholder="Search district..." error={errors.district} onChange={value => { setData(current => ({ ...current, district: value, city: '', area: '', address_id: null })); if (errors.district) setErrors(current => { const next = { ...current }; delete next.district; return next; }); }} />

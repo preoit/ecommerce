@@ -115,7 +115,7 @@ class OrderDetailsController extends Controller
             'order' => [
                 'id' => $record->id, 'number' => $record->order_number, 'customerName' => $record->customer_name,
                 'customerOrderCount' => $customerOrderCount,
-                'phone' => $record->phone, 'email' => $record->email, 'address' => $record->address, 'city' => $record->city,
+                'phone' => $record->phone, 'phoneVerified' => $record->phone_verified_at !== null, 'email' => $record->email, 'address' => $record->address, 'city' => $record->city,
                 'note' => $record->note, 'paymentMethod' => $record->payment_method, 'paymentStatus' => $record->payment_status,
                 'paymentStatusUpdatedAt' => $record->payment_status_updated_at ? Carbon::parse($record->payment_status_updated_at, 'UTC')->setTimezone('Asia/Dhaka')->format('d M Y, h:i A') : null,
                 'status' => str($record->status)->replace('_', ' ')->title()->toString(), 'statusKey' => $record->status, 'subtotal' => (float) $record->subtotal, 'shippingTotal' => (float) $record->shipping_total, 'codSurcharge' => (float) ($record->cod_surcharge ?? 0), 'deliveryZone' => $record->delivery_zone ?? null,
