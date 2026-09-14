@@ -1,3 +1,4 @@
+import CourierSummary from '@/app/modules/courier/Summary';
 import { Head, Link } from '@inertiajs/react';
 import { AlertTriangle, Archive, BadgeCheck, BadgeDollarSign, Boxes, ChevronRight, ClipboardList, FileClock, FolderTree, PackageCheck, PackageX, Plus, ShoppingBag, UsersRound } from 'lucide-react';
 import AdminLayout from '@/app/layouts/AdminLayout';
@@ -76,7 +77,7 @@ export default function Dashboard({ summary = [], orderStatus = [], recentOrders
         <AdminLayout>
             <Head title="Dashboard" />
             <main className="dashboard-content -mx-4 -my-6 min-h-screen bg-[#f8f7fa] px-4 py-5 font-sans text-[#172033] transition-colors dark:bg-slate-950 dark:text-slate-200 sm:-mx-6 sm:px-6 lg:-mx-8 lg:-my-8 lg:px-8 lg:py-8">
-                <div className="w-full space-y-6">
+                <div className="w-full space-y-6"><CourierSummary/>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <p className="text-sm font-bold text-violet-600">Ecommerce overview</p>

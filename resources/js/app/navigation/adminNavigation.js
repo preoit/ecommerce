@@ -33,6 +33,7 @@ export const adminNavigation = [
         ],
     },
     { label: 'Orders', href: '/admin/orders', icon: ShoppingBag },
+    { label: 'Courier Dashboard', href: '/admin/couriers', icon: Package },
     {
         label: 'Blog', icon: PanelsTopLeft,
         children: [
@@ -60,6 +61,7 @@ export const adminNavigation = [
         children: [
             { label: 'Website Settings', href: '/admin/settings/website', icon: Globe2 },
             { label: 'Email & SMS', href: '/admin/settings/communication', icon: MessagesSquare },
+            { label: 'Courier Integration', href: '/admin/couriers/settings', icon: Package },
         ],
     },
 ];
