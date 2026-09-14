@@ -20,6 +20,7 @@ class OrderManagementTest extends TestCase
 
         $this->actingAs($user)->get(route('orders.index'))->assertOk()->assertInertia(fn ($page) => $page
             ->has('orders', 25)->where('pagination.total', 30)->where('pagination.lastPage', 2));
+        $this->getJson(route('orders.notifications'))->assertOk()->assertJsonCount(20, 'orders')->assertJsonPath('unreadCount', 30)->assertJsonStructure(['orders'=>[['status','phone','date']]]);
         $this->actingAs($user)->get(route('orders.index', ['status' => 'confirmed']))->assertOk()->assertInertia(fn ($page) => $page
             ->has('orders', 1)->where('orders.0.statusKey', 'confirmed')->where('pagination.total', 1));
 

@@ -16,14 +16,17 @@ class OrderNotificationController extends Controller
             'number' => $order->order_number,
             'customer' => $order->customer_name,
             'total' => (float) $order->total,
+            'status' => str($order->status)->replace('_', ' ')->title()->toString(),
+            'phone' => $order->phone,
             'viewed' => $order->viewed_at !== null,
             'hasStockShortage' => (bool) $order->has_stock_shortage,
             'createdAt' => Carbon::parse($order->created_at, 'UTC')->setTimezone('Asia/Dhaka')->diffForHumans(),
+            'date' => Carbon::parse($order->created_at, 'UTC')->setTimezone('Asia/Dhaka')->format('d M Y, h:i A'),
         ]);
 
         return response()->json([
             'orders' => $orders,
-            'unreadCount' => $orders->where('viewed', false)->count(),
+            'unreadCount' => DB::table('orders')->whereNull('viewed_at')->count(),
         ]);
     }
 
