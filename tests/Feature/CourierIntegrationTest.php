@@ -25,6 +25,7 @@ class CourierIntegrationTest extends TestCase {
         $this->postJson(route('couriers.book'),$data)->assertOk()->assertJsonPath('results.0.success',true);
         $this->postJson(route('couriers.book'),$data)->assertOk()->assertJsonPath('results.0.success',false);
         $this->assertDatabaseCount('courier_orders',1);Queue::assertNothingPushed();Http::assertSentCount(1);$this->assertDatabaseHas('courier_orders',['consignment_id'=>'456','status'=>'pending']);
+        $this->get(route('orders.index'))->assertOk()->assertInertia(fn($page)=>$page->where('orders.0.canCourierBook',false));
     }
     public function test_provider_booking_status_mapping_and_payment_are_separate(): void {
         $c=$this->courier();$c->update(['status_mapping'=>['delivered'=>'completed']]);$id=$this->order();$s=new BookingService;

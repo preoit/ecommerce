@@ -33,8 +33,12 @@ class OrderIndexController extends Controller
         $orderIds = collect($paginator->items())->pluck('id');
         $itemsByOrder = DB::table('order_items')->leftJoin('products', 'products.id', '=', 'order_items.product_id')
             ->whereIn('order_items.order_id', $orderIds)->get(['order_items.order_id', 'order_items.product_title', 'order_items.variant_name', 'order_items.quantity', 'products.slug'])->groupBy('order_id');
+        $courierBookedOrderIds = DB::table('courier_orders')
+            ->whereIn('active_order_id', $orderIds)
+            ->pluck('active_order_id')
+            ->mapWithKeys(fn (int $id): array => [$id => true]);
 
-        $orders = collect($paginator->items())->map(function (object $order) use ($itemsByOrder): array {
+        $orders = collect($paginator->items())->map(function (object $order) use ($itemsByOrder, $courierBookedOrderIds): array {
             $items = $itemsByOrder->get($order->id, collect());
             $createdAt = Carbon::parse($order->created_at, 'UTC')->setTimezone('Asia/Dhaka');
             return [
@@ -48,6 +52,7 @@ class OrderIndexController extends Controller
                 'viewed' => $order->viewed_at !== null, 'date' => $createdAt->toDateString(), 'time' => $createdAt->format('h:i A'),
                 'canEdit' => in_array($order->status, ['pending', 'confirmed', 'processing'], true),
                 'canDelete' => $order->status === 'pending' && $order->payment_status !== 'paid',
+                'canCourierBook' => in_array($order->status, ['confirmed', 'processing', 'ready_to_ship'], true) && ! $courierBookedOrderIds->has($order->id),
             ];
         })->values();
 
