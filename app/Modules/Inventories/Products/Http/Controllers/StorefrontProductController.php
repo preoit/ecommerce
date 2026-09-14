@@ -212,7 +212,7 @@ class StorefrontProductController extends Controller
 
         $summary['addresses'] = $request->user()?->addresses()->latest('is_default')->latest()->get() ?? [];
         $summary['customer'] = $request->user() ? ['name' => $request->user()->name, 'phone' => $request->user()->phone, 'email' => $request->user()->email] : null;
-        $initialPhone = $summary['addresses']->firstWhere('is_default', true)?->phone ?? ($summary['customer']['phone'] ?? '');
+        $initialPhone = collect($summary['addresses'])->firstWhere('is_default', true)?->phone ?? ($summary['customer']['phone'] ?? '');
         $summary['phoneVerification'] = ['phone' => $initialPhone, 'verified' => $phoneVerification->isVerified($request, $initialPhone)];
 
         return Inertia::render('app/modules/storefront/checkout/pages/Index', $summary);

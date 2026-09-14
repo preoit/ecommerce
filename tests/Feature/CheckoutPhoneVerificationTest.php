@@ -38,6 +38,11 @@ class CheckoutPhoneVerificationTest extends TestCase
     public function test_phone_verification_is_not_required_to_place_an_order(): void
     {
         $this->addProductToCart();
+        $this->get(route('storefront.checkout'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('app/modules/storefront/checkout/pages/Index', false)
+                ->where('phoneVerification.verified', false));
         $this->post(route('storefront.checkout.place-order'), $this->orderData())->assertRedirect();
         $this->assertNull(\DB::table('orders')->value('phone_verified_at'));
     }
