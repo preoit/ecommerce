@@ -19,12 +19,12 @@ class CourierIntegrationTest extends TestCase {
         $this->patchJson(route('couriers.save',$c),['active'=>true,'sandbox_mode'=>false,'api_url'=>'https://attacker.test'])->assertUnprocessable();
         $this->actingAs(User::factory()->create(['is_admin'=>false]))->get(route('couriers.settings'))->assertRedirect();
     }
-    public function test_booking_is_queued_and_duplicates_cannot_be_submitted(): void {
-        Queue::fake();$c=$this->courier();$id=$this->order();$this->actingAs(User::factory()->create());
+    public function test_booking_is_sent_directly_and_duplicates_cannot_be_submitted(): void {
+        Queue::fake();Http::fake(['*'=>Http::response(['status'=>200,'consignment'=>['consignment_id'=>456,'tracking_code'=>'DIRECT']])]);$c=$this->courier();$id=$this->order();$this->actingAs(User::factory()->create());
         $data=['courier_id'=>$c->id,'orders'=>[['id'=>$id]]];
         $this->postJson(route('couriers.book'),$data)->assertOk()->assertJsonPath('results.0.success',true);
         $this->postJson(route('couriers.book'),$data)->assertOk()->assertJsonPath('results.0.success',false);
-        $this->assertDatabaseCount('courier_orders',1);Queue::assertPushed(\App\Modules\Courier\Jobs\SubmitParcel::class,1);
+        $this->assertDatabaseCount('courier_orders',1);Queue::assertNothingPushed();Http::assertSentCount(1);$this->assertDatabaseHas('courier_orders',['consignment_id'=>'456','status'=>'pending']);
     }
     public function test_provider_booking_status_mapping_and_payment_are_separate(): void {
         $c=$this->courier();$c->update(['status_mapping'=>['delivered'=>'completed']]);$id=$this->order();$s=new BookingService;

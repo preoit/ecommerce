@@ -3,7 +3,6 @@ namespace App\Modules\Courier;
 use App\Http\Controllers\Controller;
 use App\Modules\Courier\Models\{Courier,CourierOrder};
 use App\Modules\Courier\Services\{Provider,BookingService};
-use App\Modules\Courier\Jobs\SubmitParcel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\{Rule,ValidationException};
@@ -43,12 +42,18 @@ class CourierController extends Controller {
         return [...$b->toArray(),'logs'=>DB::table('courier_status_logs')->where('courier_order_id',$b->id)->latest('id')->limit(50)->get(['status','api_status','created_at'])];
     }
     public function book(Request $r,BookingService $service) {
-        $d=$r->validate(['courier_id'=>'required|exists:couriers,id','orders'=>'required|array|min:1|max:50','orders.*.id'=>'required|integer|distinct|exists:orders,id','orders.*.fields'=>'nullable|array']);
+        $d=$r->validate(['courier_id'=>'required|exists:couriers,id','orders'=>'required|array|size:1','orders.*.id'=>'required|integer|distinct|exists:orders,id','orders.*.fields'=>'nullable|array']);
         $courier=Courier::findOrFail($d['courier_id']); $results=[];
         foreach($d['orders'] as $entry) {
-            try { DB::transaction(function() use($service,$entry,$courier) { $b=$service->reserve($entry['id'],$courier,$entry['fields']??[]); SubmitParcel::dispatch($b->id)->onConnection('database')->onQueue('couriers'); }); $results[]=['order_id'=>$entry['id'],'message'=>'Queued for '.$courier->name,'success'=>true]; }
+            try {
+                $b=$service->reserve($entry['id'],$courier,$entry['fields']??[]);
+                $service->submit($b);
+                $b->refresh();
+                $success=$b->consignment_id!==null;
+                $results[]=['order_id'=>$entry['id'],'message'=>$success?'Parcel successfully submitted to '.$courier->name.'.':$b->error,'success'=>$success,'consignment_id'=>$b->consignment_id,'status'=>$b->status];
+            }
             catch (ValidationException $e) { $results[]=['order_id'=>$entry['id'],'message'=>collect($e->errors())->flatten()->implode(' '),'success'=>false]; }
-            catch (\Throwable $e) { $results[]=['order_id'=>$entry['id'],'message'=>'Booking could not be queued. Check the order booking details before retrying.','success'=>false]; }
+            catch (\Throwable $e) { $results[]=['order_id'=>$entry['id'],'message'=>'Booking could not be confirmed. Check the order booking details before retrying.','success'=>false]; }
         }
         return response()->json(['results'=>$results]);
     }

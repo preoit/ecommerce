@@ -3,8 +3,8 @@
 ## Deploy
 
 Run `php artisan migrate --force`, then `php artisan optimize:clear`.
-Keep a process supervisor running `php artisan queue:work database --queue=couriers --tries=1 --timeout=70`.
-The database queue retry_after must exceed 70 seconds (Laravel default: 90).
+New bookings run directly during the HTTP request; no queue worker is required. Bulk booking sends one request per order sequentially and shows progress. Keep the page open until finished.
+Allow at least 70 seconds for PHP/web-server request timeouts. Existing queued bookings from older versions can be drained with the old worker; do not resubmit them.
 Run `php artisan schedule:run` every minute via cron. Status polling runs every ten minutes.
 Keep APP_KEY stable and backed up: credentials and parcel payloads use Laravel encryption.
 
@@ -31,7 +31,7 @@ Polling is available; inbound webhook endpoints are deliberately not exposed wit
 ## Booking lifecycle
 
 A unique active_order_id prevents duplicate queued or uncertain submissions across providers.
-Queue jobs do not retry create requests. Timeouts / missing consignment IDs retain the lock as needs_verification.
+Direct requests do not retry create requests. Timeouts / missing consignment IDs retain the lock as needs_verification.
 The scheduler marks interrupted submissions for verification; it never resubmits them.
 Use the reference in the merchant panel to investigate. Linking a consignment requires API confirmation of its merchant reference. If unavailable, contact provider support; never clear the lock based only on a timeout.
 Cancellation must be performed in the merchant panel and then confirmed through status sync.
