@@ -161,8 +161,19 @@ export default function AdminLayout({ children, showFlash = true }) {
     const [unreadOrderCount, setUnreadOrderCount] = useState(0);
     const [flashMessage, setFlashMessage] = useState(flash?.success || null);
     const [flashVisible, setFlashVisible] = useState(Boolean(flash?.success));
+    const searchRef = useRef(null);
 
     useEffect(() => setMobileOpen(false), [currentUrl]);
+    useEffect(() => {
+        const focusSearch = event => {
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+                event.preventDefault();
+                searchRef.current?.focus();
+            }
+        };
+        window.addEventListener('keydown', focusSearch);
+        return () => window.removeEventListener('keydown', focusSearch);
+    }, []);
     useEffect(() => {
         document.body.classList.add('admin-ui');
         return () => document.body.classList.remove('admin-ui');
@@ -199,7 +210,7 @@ export default function AdminLayout({ children, showFlash = true }) {
                 <header className={cn('sticky top-0 z-20 p-0', darkMode ? 'bg-slate-950' : 'bg-[#f8f7fa]')}>
                     <div className={cn('flex h-16 w-full items-center gap-3 border-b px-5', darkMode ? 'border-slate-700 bg-slate-900' : 'border-violet-100 bg-white')}>
                         <IconButton icon={Menu} label="Open navigation" className="lg:hidden" onClick={() => setMobileOpen(true)} />
-                        <div className="relative hidden max-w-xl flex-1 md:block"><Search className="pointer-events-none absolute left-0 top-1/2 size-5 -translate-y-1/2 text-slate-500" /><input type="search" placeholder="Search [CTRL + K]" className={cn('h-10 w-full border-0 bg-transparent pl-10 pr-3 text-sm focus:ring-0', darkMode ? 'text-white placeholder:text-slate-500' : 'text-slate-700 placeholder:text-slate-400')} /></div>
+                        <div className="relative hidden w-full max-w-lg md:block"><Search className="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-slate-400" /><input ref={searchRef} type="search" aria-label="Search admin panel" placeholder="Search" className={cn('h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-20 text-sm shadow-none outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-700 dark:bg-slate-800 dark:focus:border-violet-500 dark:focus:ring-violet-950', darkMode ? 'text-white placeholder:text-slate-500' : 'text-slate-700 placeholder:text-slate-400')} /><kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-400 dark:border-slate-600 dark:bg-slate-900">Ctrl K</kbd></div>
                         <div className="ml-auto flex items-center gap-3 text-slate-600 dark:text-slate-300"><button aria-label="Language" className="hidden rounded-md p-2 hover:bg-slate-100 sm:block dark:hover:bg-slate-800"><Languages className="size-5" /></button><button aria-label="Toggle colour mode" onClick={() => setDarkMode((value) => !value)} className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800">{darkMode ? <Moon className="size-5" /> : <Sun className="size-5" />}</button><button aria-label="Apps" className="hidden rounded-md p-2 hover:bg-slate-100 sm:block dark:hover:bg-slate-800"><Grid2X2 className="size-5" /></button><OrderNotifications darkMode={darkMode} onCountChange={setUnreadOrderCount} toastEnabled={currentUrl.split('?')[0] === '/dashboard'} /></div>
                         <div className="relative">
                             <button type="button" aria-expanded={profileOpen} onClick={() => setProfileOpen((open) => !open)} className="flex items-center gap-2 rounded-full p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"><span className="flex size-9 items-center justify-center rounded-full bg-violet-200 text-sm font-bold text-violet-700 ring-4 ring-violet-100">{auth.user.name.charAt(0).toUpperCase()}</span><ChevronDown className="hidden size-4 sm:block" /></button>
