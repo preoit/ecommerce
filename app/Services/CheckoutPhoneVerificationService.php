@@ -26,8 +26,8 @@ class CheckoutPhoneVerificationService
             throw ValidationException::withMessages(['phone' => 'Please wait one minute before requesting another OTP.']);
         }
 
-        $code = (string) random_int(100000, 999999);
-        $this->sms->send($phone, 'Your '.config('app.name')." checkout verification code is {$code}. It expires in 10 minutes.");
+        $code = (string) random_int(1000, 9999);
+        $this->sms->send($phone, "Your iTTiBA verification code is {$code}. It expires in 10 minutes.");
         $request->session()->put(self::SESSION_KEY, [
             'phone' => $phone,
             'code' => Hash::make($code),

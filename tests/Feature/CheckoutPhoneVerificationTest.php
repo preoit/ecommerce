@@ -18,7 +18,7 @@ class CheckoutPhoneVerificationTest extends TestCase
         config(['services.mram.api_key' => 'test-key']);
         $otp = null;
         Http::fake(function (Request $request) use (&$otp) {
-            preg_match('/\b(\d{6})\b/', (string) $request['msg'], $matches);
+            preg_match('/\b(\d{4})\b/', (string) $request['msg'], $matches);
             $otp = $matches[1] ?? null;
             return Http::response('SMS SUBMITTED', 200);
         });

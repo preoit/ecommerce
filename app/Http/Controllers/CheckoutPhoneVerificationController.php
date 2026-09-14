@@ -34,7 +34,7 @@ class CheckoutPhoneVerificationController extends Controller
     {
         $data = $request->validate([
             'phone' => ['required', 'string', 'max:30'],
-            'code' => ['required', 'digits:6'],
+            'code' => ['required', 'digits:4'],
         ]);
         $this->ensureValidPhone($verification, $data['phone']);
         $verification->verify($request, $data['phone'], $data['code']);
