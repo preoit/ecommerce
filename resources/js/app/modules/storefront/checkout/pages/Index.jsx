@@ -45,6 +45,20 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
     const [otpError, setOtpError] = useState('');
     const phoneIsVerified = Boolean(verifiedPhone) && verifiedPhone === normalizePhone(data.phone);
     useEffect(() => {
+        const phone = normalizePhone(data.phone);
+        if (!/^01[3-9]\d{8}$/.test(phone)) return;
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+            try {
+                const response = await fetch(route('storefront.checkout.phone-verification.check'), { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }, body: JSON.stringify({ phone }) });
+                if (!response.ok) return;
+                const result = await response.json();
+                setVerifiedPhone(current => result.verified ? phone : (current === phone ? '' : current));
+            } catch (error) { if (error.name !== 'AbortError') console.error(error); }
+        }, 450);
+        return () => { clearTimeout(timer); controller.abort(); };
+    }, [data.phone]);
+    useEffect(() => {
         if (!data.address_id && (data.district || data.city || data.address)) {
             setData('delivery_zone', detectDeliveryZone(data));
         }

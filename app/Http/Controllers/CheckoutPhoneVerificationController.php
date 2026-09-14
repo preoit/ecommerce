@@ -9,6 +9,14 @@ use Illuminate\Validation\ValidationException;
 
 class CheckoutPhoneVerificationController extends Controller
 {
+    public function check(Request $request, CheckoutPhoneVerificationService $verification): JsonResponse
+    {
+        $data = $request->validate(['phone' => ['required', 'string', 'max:30']]);
+        $this->ensureValidPhone($verification, $data['phone']);
+
+        return response()->json(['verified' => $verification->isVerified($request, $data['phone'])]);
+    }
+
     public function send(Request $request, CheckoutPhoneVerificationService $verification): JsonResponse
     {
         $data = $request->validate(['phone' => ['required', 'string', 'max:30']]);

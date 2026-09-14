@@ -54,6 +54,7 @@ Route::get('/cart/summary', [StorefrontProductController::class, 'cartSummaryJso
 Route::patch('/cart/{cartKey}', [StorefrontProductController::class, 'updateCart'])->middleware('throttle:30,1')->name('storefront.cart.update');
 Route::delete('/cart/{cartKey}', [StorefrontProductController::class, 'removeCart'])->middleware('throttle:30,1')->name('storefront.cart.remove');
 Route::get('/checkout', [StorefrontProductController::class, 'checkout'])->name('storefront.checkout');
+Route::post('/checkout/phone-verification/check', [CheckoutPhoneVerificationController::class, 'check'])->middleware('throttle:30,1')->name('storefront.checkout.phone-verification.check');
 Route::post('/checkout/phone-verification/send', [CheckoutPhoneVerificationController::class, 'send'])->middleware('throttle:3,1')->name('storefront.checkout.phone-verification.send');
 Route::post('/checkout/phone-verification/verify', [CheckoutPhoneVerificationController::class, 'verify'])->middleware('throttle:10,1')->name('storefront.checkout.phone-verification.verify');
 Route::post('/checkout', [StorefrontProductController::class, 'placeOrder'])->middleware('throttle:10,1')->name('storefront.checkout.place-order');

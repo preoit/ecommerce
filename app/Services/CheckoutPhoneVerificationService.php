@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutPhoneVerificationService
@@ -16,7 +17,7 @@ class CheckoutPhoneVerificationService
     {
         $phone = $this->normalize($phone);
 
-        if ($this->verifiedByAccount($request, $phone)) {
+        if ($this->isVerified($request, $phone)) {
             $this->markVerified($request, $phone);
             return false;
         }
@@ -56,6 +57,7 @@ class CheckoutPhoneVerificationService
     {
         if (blank($phone)) return false;
         $phone = $this->normalize($phone);
+        if (DB::table('verified_phone_numbers')->where('phone', $phone)->exists()) return true;
         if ($this->verifiedByAccount($request, $phone)) return true;
         $current = $request->session()->get(self::SESSION_KEY, []);
 
@@ -82,6 +84,10 @@ class CheckoutPhoneVerificationService
 
     private function markVerified(Request $request, string $phone): void
     {
+        DB::table('verified_phone_numbers')->updateOrInsert(
+            ['phone' => $phone],
+            ['verified_at' => now(), 'created_at' => now(), 'updated_at' => now()],
+        );
         $request->session()->put(self::SESSION_KEY, [
             'phone' => $phone,
             'code' => null,
