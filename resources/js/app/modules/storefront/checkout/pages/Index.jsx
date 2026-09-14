@@ -1,6 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { AlertCircle, ArrowRight, Info, MapPin, Minus, Plus, Truck, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { AlertCircle, ArrowRight, ChevronDown, Info, MapPin, Minus, Plus, Search, Truck, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import CheckoutLayout from '@/app/layouts/CheckoutLayout';
 import { bangladeshDistricts, detectDeliveryZone, thanasByDistrict } from '@/app/utils/deliveryZone';
 
@@ -8,6 +8,22 @@ const money = value => `৳${Number(value || 0).toLocaleString('en-BD', { maximu
 
 function FloatingField({ name, label, value, error, onChange, type = 'text', required = false, children }) {
     return <label className="block min-w-0" data-field={name}><span className={`relative block rounded-xl border bg-white transition focus-within:ring-2 ${error ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-100' : 'border-slate-300 focus-within:border-violet-500 focus-within:ring-violet-100'}`}><span className={`pointer-events-none absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 text-[11px] font-medium ${error ? 'text-rose-600' : 'text-slate-500'}`}>{label}{required && <span className="ml-0.5 text-rose-500">*</span>}</span>{children || <input name={name} value={value} type={type} onChange={event => onChange(event.target.value)} aria-invalid={Boolean(error)} aria-describedby={error ? `${name}-error` : undefined} className="h-12 w-full rounded-xl border-0 bg-transparent px-4 text-sm text-slate-900 focus:ring-0" />}{error && <AlertCircle className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-rose-500" />}</span>{error && <small id={`${name}-error`} className="mt-1.5 block text-xs font-medium text-rose-600">{error}</small>}</label>;
+}
+
+function SearchableSelect({ name, value, options, placeholder, onChange, error }) {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState(value || '');
+    const root = useRef(null);
+    useEffect(() => { if (!open) setQuery(value || ''); }, [value, open]);
+    useEffect(() => {
+        if (!open) return;
+        const close = event => { if (!root.current?.contains(event.target)) setOpen(false); };
+        document.addEventListener('pointerdown', close);
+        return () => document.removeEventListener('pointerdown', close);
+    }, [open]);
+    const filtered = options.filter(option => option.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 80);
+    const choose = option => { onChange(option); setQuery(option); setOpen(false); };
+    return <div ref={root} className="relative"><Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400"/><input name={name} value={query} autoComplete="off" role="combobox" aria-expanded={open} aria-controls={`${name}-options`} aria-autocomplete="list" aria-invalid={Boolean(error)} aria-describedby={error ? `${name}-error` : undefined} placeholder={placeholder} onFocus={() => setOpen(true)} onChange={event => { setQuery(event.target.value); if (value) onChange(''); setOpen(true); }} onKeyDown={event => { if (event.key === 'Escape') setOpen(false); if (event.key === 'Enter' && open && filtered.length) { event.preventDefault(); choose(filtered[0]); } }} className="h-12 w-full rounded-xl border-0 bg-transparent pl-11 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-0"/><ChevronDown className={`pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400 transition ${open ? 'rotate-180' : ''}`}/>{open && <div id={`${name}-options`} role="listbox" className="absolute z-40 mt-2 max-h-64 w-full overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-2 shadow-xl">{filtered.map(option => <button key={option} type="button" role="option" aria-selected={option === value} onClick={() => choose(option)} className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm ${option === value ? 'bg-violet-50 font-semibold text-violet-700' : 'text-slate-700 hover:bg-slate-50'}`}>{option}</button>)}{!filtered.length && <p className="px-3 py-6 text-center text-sm text-slate-500">No matching option found.</p>}</div>}</div>;
 }
 
 export default function CheckoutPage({ items: initialItems = [], subtotal: initialSubtotal = 0, deliverySettings = {}, addresses = [], customer = null }) {
@@ -87,17 +103,10 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
     <FloatingField name="phone" label="Phone number" value={data.phone} error={errors.phone} onChange={value => updateField('phone', value)} type="tel" required />
     <FloatingField name="email" label="Email (optional)" value={data.email} error={errors.email} onChange={value => updateField('email', value)} type="email" />
     <FloatingField name="district" label="District" value={data.district} error={errors.district} required={!data.address_id}>
-        <select name="district" value={data.district} onChange={event => { setData(current => ({ ...current, district: event.target.value, city: '', area: '', address_id: null })); if (errors.district) setErrors(current => { const next = { ...current }; delete next.district; return next; }); }} aria-invalid={Boolean(errors.district)} aria-describedby={errors.district ? 'district-error' : undefined} className="h-12 w-full rounded-xl border-0 bg-transparent px-4 pr-10 text-sm text-slate-900 focus:ring-0">
-            <option value="">Select district</option>
-            {bangladeshDistricts.map(district => <option key={district} value={district}>{district}</option>)}
-        </select>
+        <SearchableSelect name="district" value={data.district} options={bangladeshDistricts} placeholder="Search district..." error={errors.district} onChange={value => { setData(current => ({ ...current, district: value, city: '', area: '', address_id: null })); if (errors.district) setErrors(current => { const next = { ...current }; delete next.district; return next; }); }} />
     </FloatingField>
     <div className="sm:col-span-2">{thanaOptions ? <FloatingField name="city" label="Thana / area" value={data.city} error={errors.city} required>
-        <select name="city" value={data.city} onChange={event => { const value = event.target.value; setData(current => ({ ...current, city: value, area: value, address_id: null })); if (errors.city) setErrors(current => { const next = { ...current }; delete next.city; return next; }); }} aria-invalid={Boolean(errors.city)} aria-describedby={errors.city ? 'city-error' : undefined} className="h-12 w-full rounded-xl border-0 bg-transparent px-4 pr-10 text-sm text-slate-900 focus:ring-0">
-            <option value="">Select thana / area</option>
-            {!thanaOptions.includes(data.city) && data.city && <option value={data.city}>{data.city}</option>}
-            {thanaOptions.map(thana => <option key={thana} value={thana}>{thana}</option>)}
-        </select>
+        <SearchableSelect name="city" value={data.city} options={!thanaOptions.includes(data.city) && data.city ? [data.city, ...thanaOptions] : thanaOptions} placeholder="Search thana / upazila..." error={errors.city} onChange={value => { setData(current => ({ ...current, city: value, area: value, address_id: null })); if (errors.city) setErrors(current => { const next = { ...current }; delete next.city; return next; }); }} />
     </FloatingField> : <FloatingField name="city" label="City / thana / area" value={data.city} error={errors.city} onChange={value => { updateField('city', value); setData('area', value); }} required />}</div>
     <div className="sm:col-span-2"><FloatingField name="address" label="Full delivery address" value={data.address} error={errors.address} required>
         <textarea name="address" value={data.address} onChange={event => updateField('address', event.target.value)} aria-invalid={Boolean(errors.address)} aria-describedby={errors.address ? 'address-error' : undefined} rows="3" className="min-h-24 w-full resize-y rounded-xl border-0 bg-transparent px-4 py-3 text-sm text-slate-900 focus:ring-0" />
