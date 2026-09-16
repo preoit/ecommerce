@@ -530,10 +530,10 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     .rich-text-content blockquote { @apply border-l-4 border-slate-300 pl-4 italic text-slate-600; }
     .rich-text-content a { @apply text-brand-700 underline; }
     .product-description-content :is(h1, h2, h3, h4, h5, h6) {
-        @apply border-l-4 border-violet-500 pl-3 text-slate-950 dark:text-white;
+        @apply text-slate-950 dark:text-white;
     }
     .product-description-content p:has(> strong:only-child) {
-        @apply mt-7 border-l-4 border-violet-500 pl-3 text-lg font-extrabold leading-7 text-slate-950 dark:text-white;
+        @apply mt-7 text-lg font-extrabold leading-7 text-slate-950 dark:text-white;
     }
     .product-description-content p:has(> strong:only-child) + p {
         @apply mt-3;
