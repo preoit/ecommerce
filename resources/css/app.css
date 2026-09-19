@@ -633,6 +633,24 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         content: attr(data-placeholder);
     }
 
+    @media (min-width: 1024px) {
+        .product-details-layout {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) 320px !important;
+            align-items: start !important;
+        }
+        .product-details-layout > [data-product-tabs] {
+            grid-column: 1 / -1 !important;
+        }
+        .product-details-layout > div:not([data-product-tabs]) {
+            grid-column: 1 !important;
+        }
+        .product-details-layout > .product-details-sidebar {
+            grid-column: 2 !important;
+            grid-row: 2 !important;
+        }
+    }
+
 
     footer form button {
         width: auto !important;
