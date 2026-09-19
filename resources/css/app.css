@@ -586,7 +586,7 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     @media (min-width: 1024px) {
         .product-details-layout {
             display: grid !important;
-            grid-template-columns: minmax(0, 1fr) 320px !important;
+            grid-template-columns: minmax(0, 1fr) 240px !important;
             align-items: start;
         }
 
@@ -636,7 +636,7 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     @media (min-width: 1024px) {
         .product-details-layout {
             display: grid !important;
-            grid-template-columns: minmax(0, 1fr) 320px !important;
+            grid-template-columns: minmax(0, 1fr) 240px !important;
             align-items: start !important;
         }
         .product-details-layout > [data-product-tabs] {
