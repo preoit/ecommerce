@@ -19,7 +19,7 @@ function Navigation({ url, onNavigate, orderCount = 0 }) {
     }, [url]);
 
     return (
-        <nav className="space-y-1 px-3" aria-label="Admin navigation">
+        <nav className="space-y-0.5 px-2.5" aria-label="Admin navigation">
             {adminNavigation.map((item) => {
                 const Icon = item.icon;
                 const activeChildHref = item.children
@@ -30,19 +30,19 @@ function Navigation({ url, onNavigate, orderCount = 0 }) {
                 if (item.children) {
                     const isExpanded = expanded === item.label;
                     return (
-                        <div key={item.label} className="py-1">
-                            <button type="button" onClick={() => setExpanded(isExpanded ? null : item.label)} className={cn('flex h-10 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-semibold transition-colors hover:bg-violet-50 hover:text-[#6c5ce7]', childActive ? 'text-[#6c5ce7]' : 'text-slate-600')}>
-                                <Icon className="size-5" aria-hidden="true" />
+                        <div key={item.label} className="py-0.5">
+                            <button type="button" onClick={() => setExpanded(isExpanded ? null : item.label)} className={cn('flex min-h-9 w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-semibold leading-5 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:hover:bg-slate-800 dark:hover:text-white', childActive ? 'bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300' : 'text-slate-600 dark:text-slate-300')}>
+                                <Icon className="size-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                                 <span className="flex-1">{item.label}</span>
-                                <ChevronDown className={cn('size-4 transition-transform', isExpanded && 'rotate-180')} aria-hidden="true" />
+                                <ChevronDown className={cn('size-3.5 shrink-0 transition-transform', isExpanded && 'rotate-180')} aria-hidden="true" />
                             </button>
-                            {isExpanded && <div className="ml-5 mt-1 space-y-1 border-l border-slate-200 pl-3">
+                            {isExpanded && <div className="ml-[18px] mt-1 space-y-0.5 border-l border-slate-200 pl-2.5 dark:border-slate-700">
                                 {item.children.map((child) => {
                                     const ChildIcon = child.icon;
                                     const active = child.href === activeChildHref;
                                     return (
-                                        <Link key={child.href} href={child.href} onClick={() => { setExpanded(item.label); onNavigate?.(); }} className={cn('flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors', active ? 'bg-violet-100 text-[#6c5ce7]' : 'text-slate-600 hover:bg-violet-50 hover:text-[#6c5ce7]')}>
-                                            <ChildIcon className="size-4" aria-hidden="true" />
+                                        <Link key={child.href} href={child.href} onClick={() => { setExpanded(item.label); onNavigate?.(); }} className={cn('flex min-h-8 items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] font-medium leading-5 transition-colors', active ? 'bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white')}>
+                                            <ChildIcon className="size-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                                             {child.label}{child.href === '/admin/orders' && orderCount > 0 && <span className="ml-auto rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold leading-4 text-white">{orderCount > 99 ? '99+' : orderCount}</span>}
                                         </Link>
                                     );
@@ -54,8 +54,8 @@ function Navigation({ url, onNavigate, orderCount = 0 }) {
 
                 const active = isCurrent(url, item.href);
                 return (
-                    <Link key={item.href} href={item.href} onClick={onNavigate} className={cn('flex h-10 items-center gap-3 rounded-md px-3 text-sm font-semibold transition-colors', active ? 'bg-violet-100 text-[#6c5ce7]' : 'text-slate-600 hover:bg-violet-50 hover:text-[#6c5ce7]')}>
-                        <Icon className="size-5" aria-hidden="true" />
+                    <Link key={item.href} href={item.href} onClick={onNavigate} className={cn('flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-5 transition-colors', active ? 'bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white')}>
+                        <Icon className="size-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                         {item.label}{item.href === '/admin/orders' && orderCount > 0 && <span className="ml-auto rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold leading-4 text-white">{orderCount > 99 ? '99+' : orderCount}</span>}
                     </Link>
                 );
@@ -70,10 +70,10 @@ function Sidebar({ url, onNavigate, website, orderCount = 0 }) {
             <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-violet-100 px-5 dark:border-slate-700" onClick={onNavigate}>
                 {website?.logo ? <img src={website.logo} alt={website.name || 'Website logo'} className="h-10 max-w-[190px] object-contain object-left" /> : <span className="text-base font-bold tracking-tight text-[#4a495a] dark:text-white">{website?.name || 'Commerce'} Admin</span>}
             </Link>
-            <div className="flex-1 overflow-y-auto py-4"><Navigation url={url} onNavigate={onNavigate} orderCount={orderCount} /></div>
+            <div className="flex-1 overflow-y-auto py-3"><Navigation url={url} onNavigate={onNavigate} orderCount={orderCount} /></div>
             <div className="border-t border-violet-100 p-3 dark:border-slate-700">
-                <Link href="/" className="flex h-10 items-center gap-3 rounded-md px-3 text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-[#6c5ce7] dark:text-slate-300 dark:hover:bg-slate-800">
-                    <Store className="size-5" /> View storefront
+                <Link href="/" className="flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+                    <Store className="size-[18px]" strokeWidth={1.8} /> View storefront
                 </Link>
             </div>
         </div>
