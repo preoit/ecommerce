@@ -13,12 +13,14 @@ export default function AuthLayout({ children, portal = 'customer' }) {
             : <span>{websiteName}</span>}
     </Link>;
 
-    if (admin) return <main className="relative grid min-h-screen place-items-center overflow-hidden bg-slate-950 px-4 py-10 text-slate-700">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,.22),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,.14),transparent_30%)]" />
-        <section className="relative z-10 w-full max-w-[430px] overflow-hidden rounded-3xl border border-white/10 bg-white shadow-2xl shadow-black/30">
-            <div className="flex items-center justify-between border-b border-slate-100 px-8 py-5">{brand}<span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white"><ShieldCheck className="size-3.5"/>Admin portal</span></div>
+    if (admin) return <main className="relative grid min-h-screen place-items-center overflow-hidden bg-gradient-to-br from-slate-100 via-white to-violet-100 px-4 py-10 text-slate-700">
+        <div className="absolute -left-24 top-16 size-72 rounded-full bg-blue-200/35 blur-3xl" />
+        <div className="absolute -right-24 bottom-10 size-80 rounded-full bg-violet-300/35 blur-3xl" />
+        <div className="absolute inset-0 opacity-40 [background-image:radial-gradient(#c4b5fd_1px,transparent_1px)] [background-size:24px_24px]" />
+        <section className="relative z-10 w-full max-w-[440px] overflow-hidden rounded-3xl border border-violet-100 bg-white/95 shadow-[0_28px_80px_rgba(76,29,149,.16)] backdrop-blur">
+            <div className="flex items-center justify-between border-b border-violet-100 bg-gradient-to-r from-white to-violet-50/80 px-8 py-5">{brand}<span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider text-white shadow-sm shadow-violet-200"><span className="grid size-5 place-items-center rounded-full bg-white/15"><ShieldCheck className="size-3.5"/></span>Admin portal</span></div>
             <div className="px-8 py-9 sm:px-10">{children}</div>
-            <p className="border-t border-slate-100 bg-slate-50 px-8 py-4 text-center text-xs text-slate-400">Authorised staff access only</p>
+            <p className="border-t border-violet-100 bg-violet-50/50 px-8 py-4 text-center text-xs font-medium text-slate-500">Authorised staff access only</p>
         </section>
     </main>;
 
