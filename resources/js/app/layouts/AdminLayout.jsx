@@ -10,15 +10,12 @@ function isCurrent(url, href) {
     return url === href || (href !== '/dashboard' && url.startsWith(`${href}/`));
 }
 
-const searchableDestinations = adminNavigation.flatMap((item) => item.children
-    ? item.children.map((child) => ({ ...child, context: item.label }))
-    : [{ ...item, context: 'Admin' }]);
-
-function AdminSearch({ inputRef }) {
+function AdminSearch({ inputRef, items }) {
     const [query, setQuery] = useState('');
     const [open, setOpen] = useState(false);
     const root = useRef(null);
-    const results = query.trim() === '' ? searchableDestinations.slice(0, 6) : searchableDestinations.filter((item) => `${item.label} ${item.context}`.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 8);
+    const destinations = items.flatMap((item) => item.children ? item.children.map((child) => ({ ...child, context: item.label })) : [{ ...item, context: 'Admin' }]);
+    const results = query.trim() === '' ? destinations.slice(0, 6) : destinations.filter((item) => `${item.label} ${item.context}`.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 8);
     const visit = (item) => {
         setOpen(false);
         setQuery('');
@@ -41,17 +38,17 @@ function AdminSearch({ inputRef }) {
     </div>;
 }
 
-function Navigation({ url, onNavigate, orderCount = 0 }) {
-    const [expanded, setExpanded] = useState(() => adminNavigation.find((item) => item.children?.some((child) => isCurrent(url, child.href)))?.label || null);
+function Navigation({ url, onNavigate, orderCount = 0, items }) {
+    const [expanded, setExpanded] = useState(() => items.find((item) => item.children?.some((child) => isCurrent(url, child.href)))?.label || null);
 
     useEffect(() => {
-        const activeSection = adminNavigation.find((item) => item.children?.some((child) => isCurrent(url, child.href)));
+        const activeSection = items.find((item) => item.children?.some((child) => isCurrent(url, child.href)));
         if (activeSection) setExpanded(activeSection.label);
     }, [url]);
 
     return (
         <nav className="space-y-0.5 px-2.5" aria-label="Admin navigation">
-            {adminNavigation.map((item) => {
+            {items.map((item) => {
                 const Icon = item.icon;
                 const activeChildHref = item.children
                     ?.filter((child) => isCurrent(url, child.href))
@@ -95,13 +92,13 @@ function Navigation({ url, onNavigate, orderCount = 0 }) {
     );
 }
 
-function Sidebar({ url, onNavigate, website, orderCount = 0 }) {
+function Sidebar({ url, onNavigate, website, orderCount = 0, items }) {
     return (
         <div className="flex h-full flex-col bg-white dark:bg-slate-900">
             <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-violet-100 px-5 dark:border-slate-700" onClick={onNavigate}>
                 {website?.logo ? <img src={website.logo} alt={website.name || 'Website logo'} className="h-10 max-w-[190px] object-contain object-left" /> : <span className="text-base font-bold tracking-tight text-[#4a495a] dark:text-white">{website?.name || 'Commerce'} Admin</span>}
             </Link>
-            <div className="flex-1 overflow-y-auto py-3"><Navigation url={url} onNavigate={onNavigate} orderCount={orderCount} /></div>
+            <div className="flex-1 overflow-y-auto py-3"><Navigation url={url} onNavigate={onNavigate} orderCount={orderCount} items={items} /></div>
             <div className="border-t border-violet-100 p-3 dark:border-slate-700">
                 <Link href="/" className="flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
                     <Store className="size-[18px]" strokeWidth={1.8} /> View storefront
@@ -180,6 +177,10 @@ export default function AdminLayout({ children, showFlash = true }) {
     const [flashMessage, setFlashMessage] = useState(flash?.success || null);
     const [flashVisible, setFlashVisible] = useState(Boolean(flash?.success));
     const searchRef = useRef(null);
+    const permissions = auth.permissions || [];
+    const allowed = permission => !permission || permissions.includes('*') || permissions.includes(permission);
+    const visibleNavigation = adminNavigation.map(item => item.children ? { ...item, children: item.children.filter(child => allowed(child.permission)) } : item).filter(item => item.children ? item.children.length : allowed(item.permission));
+    const canViewOrders = allowed('orders.view');
 
     useEffect(() => setMobileOpen(false), [currentUrl]);
     useEffect(() => {
@@ -212,14 +213,14 @@ export default function AdminLayout({ children, showFlash = true }) {
     return (
         <div data-admin-panel className={cn('min-h-screen transition-colors', darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-[#f8f7fa] text-slate-900')}>
             <Head>{website?.favicon && <link rel="icon" href={website.favicon} />}</Head>
-            <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-[#f8f7fa] dark:bg-slate-950 lg:block"><Sidebar url={currentUrl} website={website} orderCount={unreadOrderCount} /></aside>
+            <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-[#f8f7fa] dark:bg-slate-950 lg:block"><Sidebar url={currentUrl} website={website} orderCount={unreadOrderCount} items={visibleNavigation} /></aside>
 
             {mobileOpen && (
                 <div className="fixed inset-0 z-40 lg:hidden">
                     <button className="absolute inset-0 bg-slate-950/40" aria-label="Close navigation" onClick={() => setMobileOpen(false)} />
                     <aside className="relative h-full w-[min(20rem,86vw)] bg-[#f8f7fa] shadow-xl dark:bg-slate-950">
                         <IconButton icon={X} label="Close navigation" onClick={() => setMobileOpen(false)} className="absolute right-2 top-3 z-10" />
-                        <Sidebar url={currentUrl} website={website} orderCount={unreadOrderCount} onNavigate={() => setMobileOpen(false)} />
+                        <Sidebar url={currentUrl} website={website} orderCount={unreadOrderCount} items={visibleNavigation} onNavigate={() => setMobileOpen(false)} />
                     </aside>
                 </div>
             )}
@@ -228,14 +229,14 @@ export default function AdminLayout({ children, showFlash = true }) {
                 <header className={cn('sticky top-0 z-20 p-0', darkMode ? 'bg-slate-950' : 'bg-[#f8f7fa]')}>
                     <div className={cn('flex h-16 w-full items-center gap-3 border-b px-5', darkMode ? 'border-slate-700 bg-slate-900' : 'border-violet-100 bg-white')}>
                         <IconButton icon={Menu} label="Open navigation" className="lg:hidden" onClick={() => setMobileOpen(true)} />
-                        <AdminSearch inputRef={searchRef} />
-                        <div className="ml-auto flex items-center gap-2 text-slate-600 dark:text-slate-300"><button type="button" aria-label="Toggle colour mode" onClick={() => setDarkMode((value) => !value)} className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800">{darkMode ? <Sun className="size-5" /> : <Moon className="size-5" />}</button><OrderNotifications darkMode={darkMode} onCountChange={setUnreadOrderCount} toastEnabled /></div>
+                        <AdminSearch inputRef={searchRef} items={visibleNavigation} />
+                        <div className="ml-auto flex items-center gap-2 text-slate-600 dark:text-slate-300"><button type="button" aria-label="Toggle colour mode" onClick={() => setDarkMode((value) => !value)} className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800">{darkMode ? <Sun className="size-5" /> : <Moon className="size-5" />}</button>{canViewOrders && <OrderNotifications darkMode={darkMode} onCountChange={setUnreadOrderCount} toastEnabled />}</div>
                         <div className="relative">
                             <button type="button" aria-expanded={profileOpen} onClick={() => setProfileOpen((open) => !open)} className="flex items-center gap-2 rounded-full p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"><span className="flex size-9 items-center justify-center rounded-full bg-violet-200 text-sm font-bold text-violet-700 ring-4 ring-violet-100">{auth.user.name.charAt(0).toUpperCase()}</span><ChevronDown className="hidden size-4 sm:block" /></button>
                         {profileOpen && (
                             <div className="absolute -right-5 mt-3 w-56 overflow-hidden rounded-lg border border-slate-100 bg-white py-2 shadow-[0_8px_26px_rgba(44,32,66,.18)] dark:border-slate-700 dark:bg-slate-900">
                                 <div className="flex items-center gap-3 px-5 pb-3 pt-1"><span className="relative flex size-10 items-center justify-center rounded-full bg-violet-200 font-bold text-violet-700"><span>{auth.user.name.charAt(0).toUpperCase()}</span><i className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" /></span><span className="min-w-0"><b className="block truncate text-sm text-slate-700 dark:text-slate-100">{auth.user.name}</b><small className="block truncate text-slate-400">Admin</small></span></div>
-                                <div className="border-y border-slate-100 py-1 dark:border-slate-700"><Link href="/admin/profile" className="flex h-10 items-center gap-3 px-6 text-sm text-slate-600 hover:bg-violet-50 hover:text-[#6c5ce7] dark:text-slate-300 dark:hover:bg-slate-800"><UserRound className="size-5" /> My Profile</Link><Link href="/admin/settings/website" className="flex h-10 items-center gap-3 px-6 text-sm text-slate-600 hover:bg-violet-50 hover:text-[#6c5ce7] dark:text-slate-300 dark:hover:bg-slate-800"><Settings className="size-5" /> Settings</Link></div>
+                                <div className="border-y border-slate-100 py-1 dark:border-slate-700"><Link href="/admin/profile" className="flex h-10 items-center gap-3 px-6 text-sm text-slate-600 hover:bg-violet-50 hover:text-[#6c5ce7] dark:text-slate-300 dark:hover:bg-slate-800"><UserRound className="size-5" /> My Profile</Link>{allowed('settings.view') && <Link href="/admin/settings/website" className="flex h-10 items-center gap-3 px-6 text-sm text-slate-600 hover:bg-violet-50 hover:text-[#6c5ce7] dark:text-slate-300 dark:hover:bg-slate-800"><Settings className="size-5" /> Settings</Link>}</div>
                                 <div className="px-4 pt-2"><Link href="/logout" method="post" as="button" className="flex h-9 w-full items-center justify-center gap-2 rounded bg-[#ff4c59] text-sm font-semibold text-white shadow-sm hover:bg-[#ef3d4b]"><span>Logout</span><LogOut className="size-4" /></Link></div>
                             </div>
                         )}

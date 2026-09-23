@@ -1,0 +1,21 @@
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Plus, Search, ShieldCheck, UserCheck, Users } from 'lucide-react';
+import AdminLayout from '@/app/layouts/AdminLayout';
+import Pagination from '@/app/design-system/components/Pagination';
+import { panel, StatusBadge, TableActions } from '@/app/modules/access/components';
+
+const allowed = (permissions, name) => permissions.includes('*') || permissions.includes(name);
+
+export default function UserIndex({ users, filters, stats }) {
+    const permissions = usePage().props.auth.permissions || [];
+    const remove = (user) => window.confirm(`Delete admin user “${user.name}”?`) && router.delete(route('admin-users.destroy', user.id), { preserveScroll: true });
+    const search = (event) => { event.preventDefault(); router.get(route('admin-users.index'), { search: event.currentTarget.search.value }, { preserveState: true, replace: true }); };
+    return <AdminLayout><Head title="Admin Users" /><div className="space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-bold text-violet-600">Access control</p><h1 className="mt-1 text-3xl font-black text-slate-950">Users</h1><p className="mt-2 text-sm text-slate-500">Create admin accounts and assign only the roles they need.</p></div>{allowed(permissions,'users.create')&&<Link href={route('admin-users.create')} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white hover:bg-violet-700"><Plus className="size-4"/>Add user</Link>}</div>
+        <div className="grid gap-4 sm:grid-cols-3">{[[Users,'Total users',stats.total],[UserCheck,'Active users',stats.active],[ShieldCheck,'Available roles',stats.roles]].map(([Icon,label,value])=><div key={label} className={`${panel} flex items-center gap-4 p-5`}><span className="grid size-11 place-items-center rounded-xl bg-violet-100 text-violet-700"><Icon className="size-5"/></span><div><p className="text-sm text-slate-500">{label}</p><b className="text-2xl text-slate-950">{value}</b></div></div>)}</div>
+        <section className={`${panel} overflow-hidden`}><div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm text-slate-500">{users.total} administrator{users.total===1?'':'s'}</p><form onSubmit={search} className="relative w-full sm:max-w-sm"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"/><input name="search" defaultValue={filters.search} placeholder="Search users" className="h-11 w-full rounded-lg border-slate-300 pl-10 text-sm"/></form></div>
+            <div className="overflow-x-auto"><table className="w-full min-w-[900px]"><thead><tr>{['User','Roles','Status','Last login','Created','Actions'].map(item=><th key={item} className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500">{item}</th>)}</tr></thead><tbody className="divide-y divide-slate-200">{users.data.map(user=><tr key={user.id} className="hover:bg-violet-50/40"><td className="px-5 py-4"><Link href={route('admin-users.show',user.id)} className="font-bold text-slate-900 hover:text-violet-700">{user.name}</Link><p className="mt-1 text-xs text-slate-500">{user.email}{user.phone?` · ${user.phone}`:''}</p></td><td className="px-5 py-4"><div className="flex flex-wrap gap-1.5">{user.roles.map(role=><span key={role} className="rounded-md bg-violet-100 px-2 py-1 text-xs font-bold text-violet-700">{role}</span>)}</div></td><td className="px-5 py-4"><StatusBadge active={user.active}/></td><td className="px-5 py-4 text-sm text-slate-500">{user.lastLogin||'Never'}</td><td className="px-5 py-4 text-sm text-slate-500">{user.createdAt}</td><td className="px-5 py-4"><TableActions view={route('admin-users.show',user.id)} edit={route('admin-users.edit',user.id)} canEdit={allowed(permissions,'users.update')} canDelete={allowed(permissions,'users.delete')&&!user.superAdmin} onDelete={()=>remove(user)}/></td></tr>)}</tbody></table></div>
+            {!users.data.length&&<p className="py-16 text-center text-sm text-slate-500">No admin users found.</p>}<div className="border-t border-slate-200 p-4"><Pagination links={users.links}/></div>
+        </section>
+    </div></AdminLayout>;
+}

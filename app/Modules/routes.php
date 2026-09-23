@@ -1,6 +1,7 @@
 <?php
 
 $moduleRoutes = [
+    __DIR__.'/Access/Routes/web.php',
     __DIR__.'/Courier/routes.php',
     __DIR__.'/Blog/routes.php',
     __DIR__.'/Dashboard/Routes/web.php',

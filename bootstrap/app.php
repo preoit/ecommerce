@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureCustomer;
+use App\Http\Middleware\EnsurePermission;
 use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureAdmin::class,
             'customer' => EnsureCustomer::class,
+            'permission' => EnsurePermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -34,12 +36,12 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $exceptions->respond(function (Response $response, \Throwable $exception, Request $request) {
-            if ($response->getStatusCode() !== 404 || $request->expectsJson()) {
+            if (! in_array($response->getStatusCode(), [403, 404], true) || $request->expectsJson()) {
                 return $response;
             }
 
-            return Inertia::render('Error', ['status' => 404])
+            return Inertia::render('Error', ['status' => $response->getStatusCode()])
                 ->toResponse($request)
-                ->setStatusCode(404);
+                ->setStatusCode($response->getStatusCode());
         });
     })->create();

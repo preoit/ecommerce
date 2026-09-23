@@ -38,6 +38,9 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                'permissions' => fn (): array => $request->user()?->permissionNames() ?? [],
+                'roles' => fn (): array => $request->user() && Schema::hasTable('roles') ? $request->user()->roles()->pluck('name')->all() : [],
+                'isSuperAdmin' => fn (): bool => $request->user()?->isSuperAdmin() ?? false,
             ],
             'flash' => [
                 'success' => fn (): ?string => $request->session()->get('success'),

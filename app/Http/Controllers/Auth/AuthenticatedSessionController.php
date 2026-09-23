@@ -18,6 +18,8 @@ class AuthenticatedSessionController
     {
         $request->authenticate();
         if((bool)$request->user()->is_admin!==$admin){ Auth::guard('web')->logout();$request->session()->invalidate();$request->session()->regenerateToken();throw ValidationException::withMessages(['email'=>$admin?'This account does not have admin access.':'Please use the admin login page for this account.']); }
+        if(!($request->user()->is_active??true)){ Auth::guard('web')->logout();$request->session()->invalidate();$request->session()->regenerateToken();throw ValidationException::withMessages(['email'=>'This account is inactive. Contact a Super Admin.']); }
+        $request->user()->forceFill(['last_login_at'=>now()])->save();
         $request->session()->regenerate();
         return redirect()->intended($admin?route('dashboard',absolute:false):route('account.dashboard',absolute:false));
     }

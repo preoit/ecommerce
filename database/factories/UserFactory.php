@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 /**
@@ -16,6 +17,16 @@ class UserFactory extends Factory
      * The current password being used by the factory.
      */
     protected static ?string $password;
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (User $user): void {
+            if ($user->is_admin && Schema::hasTable('roles')) {
+                $roleId = \App\Models\Role::query()->where('slug', 'super-admin')->value('id');
+                if ($roleId) $user->roles()->syncWithoutDetaching([$roleId]);
+            }
+        });
+    }
 
     /**
      * Define the model's default state.
