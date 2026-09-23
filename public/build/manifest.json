@@ -1,20 +1,20 @@
 {
-  "_AdminLayout-BCOSoTik.js": {
-    "file": "assets/AdminLayout-BCOSoTik.js",
+  "_AdminLayout-cSsaAYEA.js": {
+    "file": "assets/AdminLayout-cSsaAYEA.js",
     "name": "AdminLayout",
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_sun-DtR6_JEa.js",
-      "_circle-check-B1AZxoS2.js",
-      "_log-out-Rm_WZf1-.js",
-      "_package-C9mWbv0u.js",
-      "_search-DeLeGbIx.js",
-      "_shield-check-Ba3y7SVk.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_star-Dm62PtaN.js",
-      "_user-round-Bj3TtM_5.js",
-      "_x-CHgqCaoC.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_sun-IzmqlKrT.js",
+      "_circle-check-BAxusYPC.js",
+      "_log-out-CDzvhBqf.js",
+      "_package-BPmW_jmF.js",
+      "_search-DYwEcW1q.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_star-C_qcwyja.js",
+      "_user-round-fxv9bAd3.js",
+      "_x-6LhKh9oj.js"
     ],
     "css": [
       "assets/AdminLayout-xuq15vnS.css"
@@ -24,264 +24,284 @@
     "file": "assets/AdminLayout-xuq15vnS.css",
     "src": "_AdminLayout-xuq15vnS.css"
   },
-  "_AuthLayout-BpioI8WI.js": {
-    "file": "assets/AuthLayout-BpioI8WI.js",
+  "_AuthLayout-x0eU_5hM.js": {
+    "file": "assets/AuthLayout-x0eU_5hM.js",
     "name": "AuthLayout",
     "imports": [
       "resources/js/app.jsx",
-      "_heart-CSUFmogc.js",
-      "_package-check-Bel8aPpj.js",
-      "_shield-check-Ba3y7SVk.js",
-      "_shopping-bag-DL_P9O4G.js"
+      "_heart-CGp52cV-.js",
+      "_package-check-Dk6qAoF6.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_shopping-bag-IJOb_cCz.js"
     ]
   },
-  "_Button-D3SeTRdI.js": {
-    "file": "assets/Button-D3SeTRdI.js",
+  "_Button-D13Bw0mQ.js": {
+    "file": "assets/Button-D13Bw0mQ.js",
     "name": "Button",
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_loader-circle-DB0Xx_UP.js"
+      "_AdminLayout-cSsaAYEA.js",
+      "_loader-circle-BB1WQvU1.js"
     ]
   },
-  "_CategoryFormModal-BSf-HL4o.js": {
-    "file": "assets/CategoryFormModal-BSf-HL4o.js",
+  "_CategoryFormModal-CJwgNbaB.js": {
+    "file": "assets/CategoryFormModal-CJwgNbaB.js",
     "name": "CategoryFormModal",
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_RichTextEditor-DtvSZVq4.js",
-      "_MediaLibraryPicker-4verCC1o.js",
-      "_save-C6HCv9oF.js",
-      "_Dialog-BoADVdLM.js",
-      "_Button-D3SeTRdI.js",
-      "_FormField-CwPugvon.js"
+      "_AdminLayout-cSsaAYEA.js",
+      "_RichTextEditor-pK_zOeX8.js",
+      "_MediaLibraryPicker-CGv6VzT4.js",
+      "_save-BgblnYqp.js",
+      "_Dialog-Cd6ZjlJe.js",
+      "_Button-D13Bw0mQ.js",
+      "_FormField-DEAQqpBJ.js"
     ]
   },
-  "_CheckoutLayout-vPlmgpRE.js": {
-    "file": "assets/CheckoutLayout-vPlmgpRE.js",
+  "_CheckoutLayout-BghKcgyO.js": {
+    "file": "assets/CheckoutLayout-BghKcgyO.js",
     "name": "CheckoutLayout",
     "imports": [
       "resources/js/app.jsx",
-      "_StorefrontLayout-CUi1CFqP.js"
+      "_StorefrontLayout-kEeA000P.js"
     ]
   },
-  "_CustomerShell-B-gLvlog.js": {
-    "file": "assets/CustomerShell-B-gLvlog.js",
+  "_CustomerShell-Ns-BGwrI.js": {
+    "file": "assets/CustomerShell-Ns-BGwrI.js",
     "name": "CustomerShell",
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_StorefrontLayout-CUi1CFqP.js",
-      "_heart-CSUFmogc.js",
-      "_lock-keyhole-BjGvUtG2.js",
-      "_log-out-Rm_WZf1-.js",
-      "_map-pin-DGBqHvaE.js",
-      "_pencil-ISRe0eDr.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_star-Dm62PtaN.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_StorefrontLayout-kEeA000P.js",
+      "_heart-CGp52cV-.js",
+      "_lock-keyhole-tzwzoiuy.js",
+      "_log-out-CDzvhBqf.js",
+      "_map-pin-BW2xZ15x.js",
+      "_pencil-CGhOTNaj.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_star-C_qcwyja.js"
     ]
   },
-  "_Dialog-BoADVdLM.js": {
-    "file": "assets/Dialog-BoADVdLM.js",
+  "_Dialog-Cd6ZjlJe.js": {
+    "file": "assets/Dialog-Cd6ZjlJe.js",
     "name": "Dialog",
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_x-CHgqCaoC.js",
-      "_Modal-DOp-g9f9.js"
+      "_AdminLayout-cSsaAYEA.js",
+      "_x-6LhKh9oj.js",
+      "_Modal-LqzUxTA6.js"
     ]
   },
-  "_FormField-CwPugvon.js": {
-    "file": "assets/FormField-CwPugvon.js",
+  "_FormField-DEAQqpBJ.js": {
+    "file": "assets/FormField-DEAQqpBJ.js",
     "name": "FormField",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_InputError-CkUKqmxB.js": {
-    "file": "assets/InputError-CkUKqmxB.js",
+  "_InputError-BbkRlVQ5.js": {
+    "file": "assets/InputError-BbkRlVQ5.js",
     "name": "InputError",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_InputLabel-Dt8Qj3EJ.js": {
-    "file": "assets/InputLabel-Dt8Qj3EJ.js",
+  "_InputLabel-BO1G4xGb.js": {
+    "file": "assets/InputLabel-BO1G4xGb.js",
     "name": "InputLabel",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_MediaLibraryPicker-4verCC1o.js": {
-    "file": "assets/MediaLibraryPicker-4verCC1o.js",
+  "_MediaLibraryPicker-CGv6VzT4.js": {
+    "file": "assets/MediaLibraryPicker-CGv6VzT4.js",
     "name": "MediaLibraryPicker",
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_upload-Ue322zvk.js",
-      "_eye-BAEf5FHx.js",
-      "_message-square-text-DZ5qqg4K.js",
-      "_pencil-ISRe0eDr.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_x-CHgqCaoC.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_upload-BflmREDm.js",
+      "_eye-xRP7TJRR.js",
+      "_message-square-text-C1v06g6c.js",
+      "_pencil-CGhOTNaj.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_x-6LhKh9oj.js"
     ]
   },
-  "_Modal-DOp-g9f9.js": {
-    "file": "assets/Modal-DOp-g9f9.js",
+  "_Modal-LqzUxTA6.js": {
+    "file": "assets/Modal-LqzUxTA6.js",
     "name": "Modal",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_PrimaryButton-C74qujte.js": {
-    "file": "assets/PrimaryButton-C74qujte.js",
+  "_Pagination-CG1_aSEP.js": {
+    "file": "assets/Pagination-CG1_aSEP.js",
+    "name": "Pagination",
+    "imports": [
+      "resources/js/app.jsx",
+      "_AdminLayout-cSsaAYEA.js",
+      "_chevron-left-D_Us9WXf.js",
+      "_chevron-right-DOm_66X2.js"
+    ]
+  },
+  "_PrimaryButton-CXgxP4Wz.js": {
+    "file": "assets/PrimaryButton-CXgxP4Wz.js",
     "name": "PrimaryButton",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_ProductCardActions-C9NlnEHP.js": {
-    "file": "assets/ProductCardActions-C9NlnEHP.js",
+  "_ProductCardActions-CbP06PKI.js": {
+    "file": "assets/ProductCardActions-CbP06PKI.js",
     "name": "ProductCardActions",
     "imports": [
       "resources/js/app.jsx",
-      "_eye-BAEf5FHx.js",
-      "_shopping-bag-DL_P9O4G.js"
+      "_eye-xRP7TJRR.js",
+      "_shopping-bag-IJOb_cCz.js"
     ]
   },
-  "_ProductListingFilters-C_Qyn6ls.js": {
-    "file": "assets/ProductListingFilters-C_Qyn6ls.js",
+  "_ProductListingFilters-uemyPlhg.js": {
+    "file": "assets/ProductListingFilters-uemyPlhg.js",
     "name": "ProductListingFilters",
     "imports": [
       "resources/js/app.jsx",
-      "_sun-DtR6_JEa.js",
-      "_chevron-right-DxVf0cyU.js",
-      "_house-CAYmu7WB.js",
-      "_tag-BTLgReXl.js"
+      "_sun-IzmqlKrT.js",
+      "_chevron-right-DOm_66X2.js",
+      "_house-B7aizCXv.js",
+      "_tag-CY0kwO4H.js"
     ]
   },
-  "_RichTextEditor-DtvSZVq4.js": {
-    "file": "assets/RichTextEditor-DtvSZVq4.js",
+  "_RichTextEditor-pK_zOeX8.js": {
+    "file": "assets/RichTextEditor-pK_zOeX8.js",
     "name": "RichTextEditor",
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_list-BPrj51sE.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_list-CVszNe9W.js"
     ]
   },
-  "_Seo-CkTT7M8_.js": {
-    "file": "assets/Seo-CkTT7M8_.js",
+  "_Seo-Ckt5PdRx.js": {
+    "file": "assets/Seo-Ckt5PdRx.js",
     "name": "Seo",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_StorefrontLayout-CUi1CFqP.js": {
-    "file": "assets/StorefrontLayout-CUi1CFqP.js",
+  "_StorefrontLayout-kEeA000P.js": {
+    "file": "assets/StorefrontLayout-kEeA000P.js",
     "name": "StorefrontLayout",
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_arrow-right-vLVg5Dp_.js",
-      "_sun-DtR6_JEa.js",
-      "_minus-BDbL27Xq.js",
-      "_phone-fndIXkJQ.js",
-      "_plus-V5shfrvg.js",
-      "_search-DeLeGbIx.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_truck-PzbJ3CNH.js",
-      "_user-round-Bj3TtM_5.js",
-      "_x-CHgqCaoC.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_arrow-right-DrJQJDFP.js",
+      "_sun-IzmqlKrT.js",
+      "_minus-Xsh7CmPX.js",
+      "_phone-DNnaPGMZ.js",
+      "_plus-hEnlOQEz.js",
+      "_search-DYwEcW1q.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_truck-CWWzE3xY.js",
+      "_user-round-fxv9bAd3.js",
+      "_x-6LhKh9oj.js"
     ]
   },
-  "_TextInput-CDTbnwNh.js": {
-    "file": "assets/TextInput-CDTbnwNh.js",
+  "_TextInput-CUzJc-Ku.js": {
+    "file": "assets/TextInput-CUzJc-Ku.js",
     "name": "TextInput",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_arrow-left-DgCeZtdy.js": {
-    "file": "assets/arrow-left-DgCeZtdy.js",
+  "_arrow-left-B4YDcohx.js": {
+    "file": "assets/arrow-left-B4YDcohx.js",
     "name": "arrow-left",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_arrow-right-vLVg5Dp_.js": {
-    "file": "assets/arrow-right-vLVg5Dp_.js",
+  "_arrow-right-DrJQJDFP.js": {
+    "file": "assets/arrow-right-DrJQJDFP.js",
     "name": "arrow-right",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_badge-check-D5GM5ifi.js": {
-    "file": "assets/badge-check-D5GM5ifi.js",
+  "_badge-check-BUeEmeQi.js": {
+    "file": "assets/badge-check-BUeEmeQi.js",
     "name": "badge-check",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_badge-dollar-sign-Ww76TG8D.js": {
-    "file": "assets/badge-dollar-sign-Ww76TG8D.js",
+  "_badge-dollar-sign-B0f43S9V.js": {
+    "file": "assets/badge-dollar-sign-B0f43S9V.js",
     "name": "badge-dollar-sign",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_calendar-days-4yo5jxF-.js": {
-    "file": "assets/calendar-days-4yo5jxF-.js",
+  "_calendar-days-BXBUi0yX.js": {
+    "file": "assets/calendar-days-BXBUi0yX.js",
     "name": "calendar-days",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_check-DXn6j7K1.js": {
-    "file": "assets/check-DXn6j7K1.js",
+  "_check-KDLcQRI9.js": {
+    "file": "assets/check-KDLcQRI9.js",
     "name": "check",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_chevron-left-D5uEXAlr.js": {
-    "file": "assets/chevron-left-D5uEXAlr.js",
+  "_chevron-left-D_Us9WXf.js": {
+    "file": "assets/chevron-left-D_Us9WXf.js",
     "name": "chevron-left",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_chevron-right-DxVf0cyU.js": {
-    "file": "assets/chevron-right-DxVf0cyU.js",
+  "_chevron-right-DOm_66X2.js": {
+    "file": "assets/chevron-right-DOm_66X2.js",
     "name": "chevron-right",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_circle-check-B1AZxoS2.js": {
-    "file": "assets/circle-check-B1AZxoS2.js",
+  "_circle-check-BAxusYPC.js": {
+    "file": "assets/circle-check-BAxusYPC.js",
     "name": "circle-check",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_clock-3-DO6qzKy8.js": {
-    "file": "assets/clock-3-DO6qzKy8.js",
+  "_clock-3-B4oye5Nr.js": {
+    "file": "assets/clock-3-B4oye5Nr.js",
     "name": "clock-3",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_clock-qmHBsg31.js": {
-    "file": "assets/clock-qmHBsg31.js",
+  "_clock-DX4qBkfg.js": {
+    "file": "assets/clock-DX4qBkfg.js",
     "name": "clock",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_createLucideIcon-LPL_W4vU.js": {
-    "file": "assets/createLucideIcon-LPL_W4vU.js",
+  "_components-DPvcyG7P.js": {
+    "file": "assets/components-DPvcyG7P.js",
+    "name": "components",
+    "imports": [
+      "resources/js/app.jsx",
+      "_eye-xRP7TJRR.js",
+      "_pencil-CGhOTNaj.js",
+      "_trash-2-Bjc8dzsa.js"
+    ]
+  },
+  "_createLucideIcon-BDdb5PeL.js": {
+    "file": "assets/createLucideIcon-BDdb5PeL.js",
     "name": "createLucideIcon",
     "imports": [
       "resources/js/app.jsx"
@@ -291,449 +311,456 @@
     "file": "assets/deliveryZone-D4jQj-Sl.js",
     "name": "deliveryZone"
   },
-  "_eye-BAEf5FHx.js": {
-    "file": "assets/eye-BAEf5FHx.js",
-    "name": "eye",
-    "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
-    ]
-  },
-  "_eye-off-DacmVEdH.js": {
-    "file": "assets/eye-off-DacmVEdH.js",
+  "_eye-off-3ZpRV4pQ.js": {
+    "file": "assets/eye-off-3ZpRV4pQ.js",
     "name": "eye-off",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_file-text-BWslIjlJ.js": {
-    "file": "assets/file-text-BWslIjlJ.js",
+  "_eye-xRP7TJRR.js": {
+    "file": "assets/eye-xRP7TJRR.js",
+    "name": "eye",
+    "imports": [
+      "_createLucideIcon-BDdb5PeL.js"
+    ]
+  },
+  "_file-text-a3cig9Zn.js": {
+    "file": "assets/file-text-a3cig9Zn.js",
     "name": "file-text",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_grid-2x2-BbwKw1LS.js": {
-    "file": "assets/grid-2x2-BbwKw1LS.js",
+  "_grid-2x2-DLudRgwO.js": {
+    "file": "assets/grid-2x2-DLudRgwO.js",
     "name": "grid-2x2",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_heart-CSUFmogc.js": {
-    "file": "assets/heart-CSUFmogc.js",
+  "_heart-CGp52cV-.js": {
+    "file": "assets/heart-CGp52cV-.js",
     "name": "heart",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_house-CAYmu7WB.js": {
-    "file": "assets/house-CAYmu7WB.js",
+  "_house-B7aizCXv.js": {
+    "file": "assets/house-B7aizCXv.js",
     "name": "house",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_image-DoOv1Oqc.js": {
-    "file": "assets/image-DoOv1Oqc.js",
+  "_image-DqWvwbfq.js": {
+    "file": "assets/image-DqWvwbfq.js",
     "name": "image",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_list-BPrj51sE.js": {
-    "file": "assets/list-BPrj51sE.js",
+  "_key-round-BQOG_CSH.js": {
+    "file": "assets/key-round-BQOG_CSH.js",
+    "name": "key-round",
+    "imports": [
+      "_createLucideIcon-BDdb5PeL.js"
+    ]
+  },
+  "_list-CVszNe9W.js": {
+    "file": "assets/list-CVszNe9W.js",
     "name": "list",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_loader-circle-DB0Xx_UP.js": {
-    "file": "assets/loader-circle-DB0Xx_UP.js",
+  "_loader-circle-BB1WQvU1.js": {
+    "file": "assets/loader-circle-BB1WQvU1.js",
     "name": "loader-circle",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_lock-keyhole-BjGvUtG2.js": {
-    "file": "assets/lock-keyhole-BjGvUtG2.js",
+  "_lock-keyhole-tzwzoiuy.js": {
+    "file": "assets/lock-keyhole-tzwzoiuy.js",
     "name": "lock-keyhole",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_log-out-Rm_WZf1-.js": {
-    "file": "assets/log-out-Rm_WZf1-.js",
+  "_log-out-CDzvhBqf.js": {
+    "file": "assets/log-out-CDzvhBqf.js",
     "name": "log-out",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_mail-BTri0yy_.js": {
-    "file": "assets/mail-BTri0yy_.js",
+  "_mail-CHOF0q5e.js": {
+    "file": "assets/mail-CHOF0q5e.js",
     "name": "mail",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_map-pin-DGBqHvaE.js": {
-    "file": "assets/map-pin-DGBqHvaE.js",
+  "_map-pin-BW2xZ15x.js": {
+    "file": "assets/map-pin-BW2xZ15x.js",
     "name": "map-pin",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_message-square-text-DZ5qqg4K.js": {
-    "file": "assets/message-square-text-DZ5qqg4K.js",
+  "_message-square-text-C1v06g6c.js": {
+    "file": "assets/message-square-text-C1v06g6c.js",
     "name": "message-square-text",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_minus-BDbL27Xq.js": {
-    "file": "assets/minus-BDbL27Xq.js",
+  "_minus-Xsh7CmPX.js": {
+    "file": "assets/minus-Xsh7CmPX.js",
     "name": "minus",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_package-C9mWbv0u.js": {
-    "file": "assets/package-C9mWbv0u.js",
+  "_package-BPmW_jmF.js": {
+    "file": "assets/package-BPmW_jmF.js",
     "name": "package",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_package-check-Bel8aPpj.js": {
-    "file": "assets/package-check-Bel8aPpj.js",
+  "_package-check-Dk6qAoF6.js": {
+    "file": "assets/package-check-Dk6qAoF6.js",
     "name": "package-check",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_pencil-ISRe0eDr.js": {
-    "file": "assets/pencil-ISRe0eDr.js",
+  "_pencil-CGhOTNaj.js": {
+    "file": "assets/pencil-CGhOTNaj.js",
     "name": "pencil",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_phone-fndIXkJQ.js": {
-    "file": "assets/phone-fndIXkJQ.js",
+  "_phone-DNnaPGMZ.js": {
+    "file": "assets/phone-DNnaPGMZ.js",
     "name": "phone",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_plus-V5shfrvg.js": {
-    "file": "assets/plus-V5shfrvg.js",
+  "_plus-hEnlOQEz.js": {
+    "file": "assets/plus-hEnlOQEz.js",
     "name": "plus",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_printer-DwiC0Yb2.js": {
-    "file": "assets/printer-DwiC0Yb2.js",
+  "_printer-CH_HDQEg.js": {
+    "file": "assets/printer-CH_HDQEg.js",
     "name": "printer",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_save-C6HCv9oF.js": {
-    "file": "assets/save-C6HCv9oF.js",
+  "_save-BgblnYqp.js": {
+    "file": "assets/save-BgblnYqp.js",
     "name": "save",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_search-DeLeGbIx.js": {
-    "file": "assets/search-DeLeGbIx.js",
+  "_search-DYwEcW1q.js": {
+    "file": "assets/search-DYwEcW1q.js",
     "name": "search",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_send-x7fM4Xfz.js": {
-    "file": "assets/send-x7fM4Xfz.js",
+  "_send-BhoLfu1J.js": {
+    "file": "assets/send-BhoLfu1J.js",
     "name": "send",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_share-2-CtvFCz6_.js": {
-    "file": "assets/share-2-CtvFCz6_.js",
+  "_share-2-8xTNvCpA.js": {
+    "file": "assets/share-2-8xTNvCpA.js",
     "name": "share-2",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_shield-check-Ba3y7SVk.js": {
-    "file": "assets/shield-check-Ba3y7SVk.js",
+  "_shield-check-D6p_Oz1K.js": {
+    "file": "assets/shield-check-D6p_Oz1K.js",
     "name": "shield-check",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_shield-question-mark-CrkFo5Ub.js": {
-    "file": "assets/shield-question-mark-CrkFo5Ub.js",
+  "_shield-question-mark-CMUo5ld3.js": {
+    "file": "assets/shield-question-mark-CMUo5ld3.js",
     "name": "shield-question-mark",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_shopping-bag-DL_P9O4G.js": {
-    "file": "assets/shopping-bag-DL_P9O4G.js",
+  "_shopping-bag-IJOb_cCz.js": {
+    "file": "assets/shopping-bag-IJOb_cCz.js",
     "name": "shopping-bag",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_star-Dm62PtaN.js": {
-    "file": "assets/star-Dm62PtaN.js",
+  "_star-C_qcwyja.js": {
+    "file": "assets/star-C_qcwyja.js",
     "name": "star",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_sun-DtR6_JEa.js": {
-    "file": "assets/sun-DtR6_JEa.js",
+  "_sun-IzmqlKrT.js": {
+    "file": "assets/sun-IzmqlKrT.js",
     "name": "sun",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_tag-BTLgReXl.js": {
-    "file": "assets/tag-BTLgReXl.js",
+  "_tag-CY0kwO4H.js": {
+    "file": "assets/tag-CY0kwO4H.js",
     "name": "tag",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_trash-2-Dl1YTuX4.js": {
-    "file": "assets/trash-2-Dl1YTuX4.js",
+  "_trash-2-Bjc8dzsa.js": {
+    "file": "assets/trash-2-Bjc8dzsa.js",
     "name": "trash-2",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_triangle-alert-D8NsrCA8.js": {
-    "file": "assets/triangle-alert-D8NsrCA8.js",
+  "_triangle-alert-xM3xLKDH.js": {
+    "file": "assets/triangle-alert-xM3xLKDH.js",
     "name": "triangle-alert",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_truck-PzbJ3CNH.js": {
-    "file": "assets/truck-PzbJ3CNH.js",
+  "_truck-CWWzE3xY.js": {
+    "file": "assets/truck-CWWzE3xY.js",
     "name": "truck",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_ui-CCVOoWpQ.js": {
-    "file": "assets/ui-CCVOoWpQ.js",
+  "_ui-DOQOBlka.js": {
+    "file": "assets/ui-DOQOBlka.js",
     "name": "ui",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_upload-Ue322zvk.js": {
-    "file": "assets/upload-Ue322zvk.js",
+  "_upload-BflmREDm.js": {
+    "file": "assets/upload-BflmREDm.js",
     "name": "upload",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_user-round-Bj3TtM_5.js": {
-    "file": "assets/user-round-Bj3TtM_5.js",
+  "_user-round-fxv9bAd3.js": {
+    "file": "assets/user-round-fxv9bAd3.js",
     "name": "user-round",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_users-round-DjZzJc8V.js": {
-    "file": "assets/users-round-DjZzJc8V.js",
+  "_users-round-BXptjz6V.js": {
+    "file": "assets/users-round-BXptjz6V.js",
     "name": "users-round",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_wallet-BmwLxYPK.js": {
-    "file": "assets/wallet-BmwLxYPK.js",
-    "name": "wallet",
-    "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
-    ]
-  },
-  "_wallet-cards-C6OP8g7u.js": {
-    "file": "assets/wallet-cards-C6OP8g7u.js",
+  "_wallet-cards-DriTvi81.js": {
+    "file": "assets/wallet-cards-DriTvi81.js",
     "name": "wallet-cards",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
-  "_x-CHgqCaoC.js": {
-    "file": "assets/x-CHgqCaoC.js",
+  "_wallet-f9Oc6OkR.js": {
+    "file": "assets/wallet-f9Oc6OkR.js",
+    "name": "wallet",
+    "imports": [
+      "_createLucideIcon-BDdb5PeL.js"
+    ]
+  },
+  "_x-6LhKh9oj.js": {
+    "file": "assets/x-6LhKh9oj.js",
     "name": "x",
     "imports": [
-      "_createLucideIcon-LPL_W4vU.js"
+      "_createLucideIcon-BDdb5PeL.js"
     ]
   },
   "resources/js/Pages/Auth/ConfirmPassword.jsx": {
-    "file": "assets/ConfirmPassword-5m4sRrsp.js",
+    "file": "assets/ConfirmPassword-CQwcha6q.js",
     "name": "ConfirmPassword",
     "src": "resources/js/Pages/Auth/ConfirmPassword.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-CkUKqmxB.js",
-      "_InputLabel-Dt8Qj3EJ.js",
-      "_PrimaryButton-C74qujte.js",
-      "_TextInput-CDTbnwNh.js",
-      "_AuthLayout-BpioI8WI.js"
+      "_InputError-BbkRlVQ5.js",
+      "_InputLabel-BO1G4xGb.js",
+      "_PrimaryButton-CXgxP4Wz.js",
+      "_TextInput-CUzJc-Ku.js",
+      "_AuthLayout-x0eU_5hM.js"
     ]
   },
   "resources/js/Pages/Auth/ForgotPassword.jsx": {
-    "file": "assets/ForgotPassword-BNNh83Bs.js",
+    "file": "assets/ForgotPassword-CnjILbav.js",
     "name": "ForgotPassword",
     "src": "resources/js/Pages/Auth/ForgotPassword.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-CkUKqmxB.js",
-      "_PrimaryButton-C74qujte.js",
-      "_TextInput-CDTbnwNh.js",
-      "_AuthLayout-BpioI8WI.js"
+      "_InputError-BbkRlVQ5.js",
+      "_PrimaryButton-CXgxP4Wz.js",
+      "_TextInput-CUzJc-Ku.js",
+      "_AuthLayout-x0eU_5hM.js"
     ]
   },
   "resources/js/Pages/Auth/Login.jsx": {
-    "file": "assets/Login-BT3E2KTj.js",
+    "file": "assets/Login-BiL2KA3w.js",
     "name": "Login",
     "src": "resources/js/Pages/Auth/Login.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-CkUKqmxB.js",
-      "_eye-BAEf5FHx.js",
-      "_eye-off-DacmVEdH.js",
-      "_AuthLayout-BpioI8WI.js"
+      "_InputError-BbkRlVQ5.js",
+      "_eye-xRP7TJRR.js",
+      "_eye-off-3ZpRV4pQ.js",
+      "_AuthLayout-x0eU_5hM.js"
     ]
   },
   "resources/js/Pages/Auth/Register.jsx": {
-    "file": "assets/Register-L8z2FHXl.js",
+    "file": "assets/Register-BGx9JvnH.js",
     "name": "Register",
     "src": "resources/js/Pages/Auth/Register.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-CkUKqmxB.js",
-      "_eye-BAEf5FHx.js",
-      "_eye-off-DacmVEdH.js",
-      "_AuthLayout-BpioI8WI.js"
+      "_InputError-BbkRlVQ5.js",
+      "_eye-xRP7TJRR.js",
+      "_eye-off-3ZpRV4pQ.js",
+      "_AuthLayout-x0eU_5hM.js"
     ]
   },
   "resources/js/Pages/Auth/ResetPassword.jsx": {
-    "file": "assets/ResetPassword-w4GWiLct.js",
+    "file": "assets/ResetPassword-KdHAmJiH.js",
     "name": "ResetPassword",
     "src": "resources/js/Pages/Auth/ResetPassword.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-CkUKqmxB.js",
-      "_InputLabel-Dt8Qj3EJ.js",
-      "_PrimaryButton-C74qujte.js",
-      "_TextInput-CDTbnwNh.js",
-      "_AuthLayout-BpioI8WI.js"
+      "_InputError-BbkRlVQ5.js",
+      "_InputLabel-BO1G4xGb.js",
+      "_PrimaryButton-CXgxP4Wz.js",
+      "_TextInput-CUzJc-Ku.js",
+      "_AuthLayout-x0eU_5hM.js"
     ]
   },
   "resources/js/Pages/Auth/VerifyEmail.jsx": {
-    "file": "assets/VerifyEmail-CTIprSwD.js",
+    "file": "assets/VerifyEmail-BQD0874L.js",
     "name": "VerifyEmail",
     "src": "resources/js/Pages/Auth/VerifyEmail.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_PrimaryButton-C74qujte.js",
-      "_AuthLayout-BpioI8WI.js"
+      "_PrimaryButton-CXgxP4Wz.js",
+      "_AuthLayout-x0eU_5hM.js"
     ]
   },
   "resources/js/Pages/Error.jsx": {
-    "file": "assets/Error-Df0Jbh7V.js",
+    "file": "assets/Error-Cu29evxw.js",
     "name": "Error",
     "src": "resources/js/Pages/Error.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_arrow-left-DgCeZtdy.js",
-      "_house-CAYmu7WB.js",
-      "_search-DeLeGbIx.js",
-      "_shield-check-Ba3y7SVk.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_arrow-left-B4YDcohx.js",
+      "_house-B7aizCXv.js",
+      "_search-DYwEcW1q.js",
+      "_shield-check-D6p_Oz1K.js"
     ]
   },
   "resources/js/Pages/Profile/Edit.jsx": {
-    "file": "assets/Edit-CdgtKfM9.js",
+    "file": "assets/Edit-DRfvLa80.js",
     "name": "Edit",
     "src": "resources/js/Pages/Profile/Edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_badge-check-D5GM5ifi.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_CustomerShell-B-gLvlog.js",
-      "_mail-BTri0yy_.js",
-      "_phone-fndIXkJQ.js",
-      "_shield-check-Ba3y7SVk.js",
-      "_shield-question-mark-CrkFo5Ub.js",
+      "_badge-check-BUeEmeQi.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_CustomerShell-Ns-BGwrI.js",
+      "_mail-CHOF0q5e.js",
+      "_phone-DNnaPGMZ.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_shield-question-mark-CMUo5ld3.js",
       "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx"
     ]
   },
   "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx": {
-    "file": "assets/DeleteUserForm-koPqNAai.js",
+    "file": "assets/DeleteUserForm-BE0CVV5q.js",
     "name": "DeleteUserForm",
     "src": "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_InputError-CkUKqmxB.js",
-      "_InputLabel-Dt8Qj3EJ.js",
-      "_TextInput-CDTbnwNh.js",
-      "_Modal-DOp-g9f9.js"
+      "_InputError-BbkRlVQ5.js",
+      "_InputLabel-BO1G4xGb.js",
+      "_TextInput-CUzJc-Ku.js",
+      "_Modal-LqzUxTA6.js"
     ]
   },
   "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx": {
-    "file": "assets/UpdatePasswordForm-HUi3t9Zk.js",
+    "file": "assets/UpdatePasswordForm-T_IY4p5J.js",
     "name": "UpdatePasswordForm",
     "src": "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_circle-check-B1AZxoS2.js",
-      "_eye-BAEf5FHx.js",
-      "_eye-off-DacmVEdH.js",
-      "_lock-keyhole-BjGvUtG2.js",
-      "_save-C6HCv9oF.js",
-      "_shield-check-Ba3y7SVk.js"
+      "_circle-check-BAxusYPC.js",
+      "_eye-xRP7TJRR.js",
+      "_eye-off-3ZpRV4pQ.js",
+      "_key-round-BQOG_CSH.js",
+      "_lock-keyhole-tzwzoiuy.js",
+      "_save-BgblnYqp.js",
+      "_shield-check-D6p_Oz1K.js"
     ]
   },
   "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx": {
-    "file": "assets/UpdateProfileInformationForm-C82QeIEm.js",
+    "file": "assets/UpdateProfileInformationForm-DfXNhA_V.js",
     "name": "UpdateProfileInformationForm",
     "src": "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_circle-check-B1AZxoS2.js",
-      "_mail-BTri0yy_.js",
-      "_phone-fndIXkJQ.js",
-      "_save-C6HCv9oF.js",
-      "_user-round-Bj3TtM_5.js"
+      "_circle-check-BAxusYPC.js",
+      "_mail-CHOF0q5e.js",
+      "_phone-DNnaPGMZ.js",
+      "_save-BgblnYqp.js",
+      "_user-round-fxv9bAd3.js"
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-CnuTam27.js",
+    "file": "assets/app-BGWvaKDp.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -749,6 +776,12 @@
       "resources/js/Pages/Profile/Partials/DeleteUserForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdatePasswordForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx",
+      "resources/js/app/modules/access/roles/Form.jsx",
+      "resources/js/app/modules/access/roles/Index.jsx",
+      "resources/js/app/modules/access/roles/Show.jsx",
+      "resources/js/app/modules/access/users/Form.jsx",
+      "resources/js/app/modules/access/users/Index.jsx",
+      "resources/js/app/modules/access/users/Show.jsx",
       "resources/js/app/modules/blog/pages/Categories.jsx",
       "resources/js/app/modules/blog/pages/Form.jsx",
       "resources/js/app/modules/blog/pages/Index.jsx",
@@ -795,113 +828,201 @@
       "assets/app-CsblVv2T.css"
     ]
   },
+  "resources/js/app/modules/access/roles/Form.jsx": {
+    "file": "assets/Form-D4pwlGjT.js",
+    "name": "Form",
+    "src": "resources/js/app/modules/access/roles/Form.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx",
+      "_AdminLayout-cSsaAYEA.js",
+      "_check-KDLcQRI9.js",
+      "_chevron-left-D_Us9WXf.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_components-DPvcyG7P.js"
+    ]
+  },
+  "resources/js/app/modules/access/roles/Index.jsx": {
+    "file": "assets/Index-DI6zBl_I.js",
+    "name": "Index",
+    "src": "resources/js/app/modules/access/roles/Index.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx",
+      "_AdminLayout-cSsaAYEA.js",
+      "_key-round-BQOG_CSH.js",
+      "_plus-hEnlOQEz.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_components-DPvcyG7P.js"
+    ]
+  },
+  "resources/js/app/modules/access/roles/Show.jsx": {
+    "file": "assets/Show-DH5rSVJE.js",
+    "name": "Show",
+    "src": "resources/js/app/modules/access/roles/Show.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx",
+      "_AdminLayout-cSsaAYEA.js",
+      "_chevron-left-D_Us9WXf.js",
+      "_pencil-CGhOTNaj.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_user-round-fxv9bAd3.js",
+      "_components-DPvcyG7P.js"
+    ]
+  },
+  "resources/js/app/modules/access/users/Form.jsx": {
+    "file": "assets/Form-WMmF4BVT.js",
+    "name": "Form",
+    "src": "resources/js/app/modules/access/users/Form.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx",
+      "_AdminLayout-cSsaAYEA.js",
+      "_save-BgblnYqp.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_user-round-fxv9bAd3.js",
+      "_components-DPvcyG7P.js"
+    ]
+  },
+  "resources/js/app/modules/access/users/Index.jsx": {
+    "file": "assets/Index-CSgbb4si.js",
+    "name": "Index",
+    "src": "resources/js/app/modules/access/users/Index.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx",
+      "_createLucideIcon-BDdb5PeL.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_plus-hEnlOQEz.js",
+      "_search-DYwEcW1q.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_components-DPvcyG7P.js",
+      "_Pagination-CG1_aSEP.js"
+    ]
+  },
+  "resources/js/app/modules/access/users/Show.jsx": {
+    "file": "assets/Show-B4iyNFb7.js",
+    "name": "Show",
+    "src": "resources/js/app/modules/access/users/Show.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.jsx",
+      "_arrow-left-B4YDcohx.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_pencil-CGhOTNaj.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_components-DPvcyG7P.js"
+    ]
+  },
   "resources/js/app/modules/blog/pages/Categories.jsx": {
-    "file": "assets/Categories-CfBknELt.js",
+    "file": "assets/Categories-D5hCuBjT.js",
     "name": "Categories",
     "src": "resources/js/app/modules/blog/pages/Categories.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_RichTextEditor-DtvSZVq4.js",
-      "_pencil-ISRe0eDr.js",
-      "_plus-V5shfrvg.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_Dialog-BoADVdLM.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_RichTextEditor-pK_zOeX8.js",
+      "_pencil-CGhOTNaj.js",
+      "_plus-hEnlOQEz.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_Dialog-Cd6ZjlJe.js",
       "resources/js/app/modules/blog/pages/shared.jsx"
     ]
   },
   "resources/js/app/modules/blog/pages/Form.jsx": {
-    "file": "assets/Form-CyvecRx9.js",
+    "file": "assets/Form-_5n-WrL2.js",
     "name": "Form",
     "src": "resources/js/app/modules/blog/pages/Form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_arrow-left-DgCeZtdy.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_RichTextEditor-DtvSZVq4.js",
-      "_pencil-ISRe0eDr.js",
-      "_plus-V5shfrvg.js",
-      "_save-C6HCv9oF.js",
-      "_Dialog-BoADVdLM.js",
+      "_arrow-left-B4YDcohx.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_RichTextEditor-pK_zOeX8.js",
+      "_pencil-CGhOTNaj.js",
+      "_plus-hEnlOQEz.js",
+      "_save-BgblnYqp.js",
+      "_Dialog-Cd6ZjlJe.js",
       "resources/js/app/modules/blog/pages/shared.jsx",
       "resources/js/app/modules/blog/pages/Categories.jsx"
     ]
   },
   "resources/js/app/modules/blog/pages/Index.jsx": {
-    "file": "assets/Index-CLk6jPGc.js",
+    "file": "assets/Index-DyhSbRek.js",
     "name": "Index",
     "src": "resources/js/app/modules/blog/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_eye-BAEf5FHx.js",
-      "_pencil-ISRe0eDr.js",
-      "_plus-V5shfrvg.js",
-      "_trash-2-Dl1YTuX4.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_eye-xRP7TJRR.js",
+      "_pencil-CGhOTNaj.js",
+      "_plus-hEnlOQEz.js",
+      "_trash-2-Bjc8dzsa.js",
       "resources/js/app/modules/blog/pages/shared.jsx"
     ]
   },
   "resources/js/app/modules/blog/pages/PublicIndex.jsx": {
-    "file": "assets/PublicIndex-DAvW0S3t.js",
+    "file": "assets/PublicIndex-BLMGoRkC.js",
     "name": "PublicIndex",
     "src": "resources/js/app/modules/blog/pages/PublicIndex.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_StorefrontLayout-CUi1CFqP.js",
-      "_calendar-days-4yo5jxF-.js",
-      "_chevron-left-D5uEXAlr.js",
-      "_chevron-right-DxVf0cyU.js",
-      "_tag-BTLgReXl.js",
+      "_createLucideIcon-BDdb5PeL.js",
+      "_StorefrontLayout-kEeA000P.js",
+      "_calendar-days-BXBUi0yX.js",
+      "_chevron-left-D_Us9WXf.js",
+      "_chevron-right-DOm_66X2.js",
+      "_tag-CY0kwO4H.js",
       "resources/js/app/modules/blog/pages/shared.jsx",
-      "_Seo-CkTT7M8_.js"
+      "_Seo-Ckt5PdRx.js"
     ]
   },
   "resources/js/app/modules/blog/pages/PublicShow.jsx": {
-    "file": "assets/PublicShow-CXaLhI0k.js",
+    "file": "assets/PublicShow-Mejm5Gs7.js",
     "name": "PublicShow",
     "src": "resources/js/app/modules/blog/pages/PublicShow.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_StorefrontLayout-CUi1CFqP.js",
-      "_calendar-days-4yo5jxF-.js",
-      "_check-DXn6j7K1.js",
-      "_chevron-right-DxVf0cyU.js",
-      "_clock-3-DO6qzKy8.js",
-      "_share-2-CtvFCz6_.js",
-      "_house-CAYmu7WB.js",
-      "_user-round-Bj3TtM_5.js",
+      "_StorefrontLayout-kEeA000P.js",
+      "_calendar-days-BXBUi0yX.js",
+      "_check-KDLcQRI9.js",
+      "_chevron-right-DOm_66X2.js",
+      "_clock-3-B4oye5Nr.js",
+      "_share-2-8xTNvCpA.js",
+      "_house-B7aizCXv.js",
+      "_user-round-fxv9bAd3.js",
       "resources/js/app/modules/blog/pages/shared.jsx"
     ]
   },
   "resources/js/app/modules/blog/pages/shared.jsx": {
-    "file": "assets/shared-DDKe2Sah.js",
+    "file": "assets/shared-Buujo4XZ.js",
     "name": "shared",
     "src": "resources/js/app/modules/blog/pages/shared.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_MediaLibraryPicker-4verCC1o.js"
+      "_MediaLibraryPicker-CGv6VzT4.js"
     ]
   },
   "resources/js/app/modules/courier/pages/Dashboard.jsx": {
-    "file": "assets/Dashboard-C32fK1fo.js",
+    "file": "assets/Dashboard-C7zaS6if.js",
     "name": "Dashboard",
     "src": "resources/js/app/modules/courier/pages/Dashboard.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_ui-CCVOoWpQ.js"
+      "_AdminLayout-cSsaAYEA.js",
+      "_ui-DOQOBlka.js"
     ]
   },
   "resources/js/app/modules/courier/pages/Label.jsx": {
-    "file": "assets/Label-CxY7GQU_.js",
+    "file": "assets/Label-D-PGdqw9.js",
     "name": "Label",
     "src": "resources/js/app/modules/courier/pages/Label.jsx",
     "isDynamicEntry": true,
@@ -910,562 +1031,561 @@
     ]
   },
   "resources/js/app/modules/courier/pages/Settings.jsx": {
-    "file": "assets/Settings-D_GE1nqw.js",
+    "file": "assets/Settings-am8x-wMm.js",
     "name": "Settings",
     "src": "resources/js/app/modules/courier/pages/Settings.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_circle-check-B1AZxoS2.js",
-      "_loader-circle-DB0Xx_UP.js",
-      "_truck-PzbJ3CNH.js",
-      "_ui-CCVOoWpQ.js"
+      "_AdminLayout-cSsaAYEA.js",
+      "_circle-check-BAxusYPC.js",
+      "_loader-circle-BB1WQvU1.js",
+      "_truck-CWWzE3xY.js",
+      "_ui-DOQOBlka.js"
     ]
   },
   "resources/js/app/modules/customers/pages/Addresses.jsx": {
-    "file": "assets/Addresses-Bea8kniV.js",
+    "file": "assets/Addresses-D2-SdP3M.js",
     "name": "Addresses",
     "src": "resources/js/app/modules/customers/pages/Addresses.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_check-DXn6j7K1.js",
-      "_CustomerShell-B-gLvlog.js",
-      "_map-pin-DGBqHvaE.js",
-      "_pencil-ISRe0eDr.js",
-      "_plus-V5shfrvg.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_x-CHgqCaoC.js"
+      "_check-KDLcQRI9.js",
+      "_CustomerShell-Ns-BGwrI.js",
+      "_map-pin-BW2xZ15x.js",
+      "_pencil-CGhOTNaj.js",
+      "_plus-hEnlOQEz.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_x-6LhKh9oj.js"
     ]
   },
   "resources/js/app/modules/customers/pages/Dashboard.jsx": {
-    "file": "assets/Dashboard-1aI3YdbJ.js",
+    "file": "assets/Dashboard-R1gyN86I.js",
     "name": "Dashboard",
     "src": "resources/js/app/modules/customers/pages/Dashboard.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_check-DXn6j7K1.js",
-      "_clock-3-DO6qzKy8.js",
-      "_CustomerShell-B-gLvlog.js",
-      "_package-C9mWbv0u.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_wallet-BmwLxYPK.js"
+      "_check-KDLcQRI9.js",
+      "_clock-3-B4oye5Nr.js",
+      "_CustomerShell-Ns-BGwrI.js",
+      "_package-BPmW_jmF.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_wallet-f9Oc6OkR.js"
     ]
   },
   "resources/js/app/modules/customers/pages/Index.jsx": {
-    "file": "assets/Index-B6XX2hTw.js",
+    "file": "assets/Index-XI4R0T77.js",
     "name": "Index",
     "src": "resources/js/app/modules/customers/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_badge-check-D5GM5ifi.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_calendar-days-4yo5jxF-.js",
-      "_circle-check-B1AZxoS2.js",
-      "_eye-BAEf5FHx.js",
-      "_mail-BTri0yy_.js",
-      "_map-pin-DGBqHvaE.js",
-      "_package-check-Bel8aPpj.js",
-      "_pencil-ISRe0eDr.js",
-      "_search-DeLeGbIx.js",
-      "_shield-question-mark-CrkFo5Ub.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_user-round-Bj3TtM_5.js",
-      "_users-round-DjZzJc8V.js",
-      "_wallet-cards-C6OP8g7u.js",
-      "_x-CHgqCaoC.js",
-      "_Seo-CkTT7M8_.js"
+      "_badge-check-BUeEmeQi.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_calendar-days-BXBUi0yX.js",
+      "_circle-check-BAxusYPC.js",
+      "_eye-xRP7TJRR.js",
+      "_mail-CHOF0q5e.js",
+      "_map-pin-BW2xZ15x.js",
+      "_package-check-Dk6qAoF6.js",
+      "_pencil-CGhOTNaj.js",
+      "_search-DYwEcW1q.js",
+      "_shield-question-mark-CMUo5ld3.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_user-round-fxv9bAd3.js",
+      "_users-round-BXptjz6V.js",
+      "_wallet-cards-DriTvi81.js",
+      "_x-6LhKh9oj.js",
+      "_Seo-Ckt5PdRx.js"
     ]
   },
   "resources/js/app/modules/customers/pages/OrderShow.jsx": {
-    "file": "assets/OrderShow-BUUTdVhX.js",
+    "file": "assets/OrderShow-BFTXgsv1.js",
     "name": "OrderShow",
     "src": "resources/js/app/modules/customers/pages/OrderShow.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_check-DXn6j7K1.js",
-      "_CustomerShell-B-gLvlog.js"
+      "_check-KDLcQRI9.js",
+      "_CustomerShell-Ns-BGwrI.js"
     ]
   },
   "resources/js/app/modules/customers/pages/Orders.jsx": {
-    "file": "assets/Orders-CHNBQwvM.js",
+    "file": "assets/Orders-BT3OBMI8.js",
     "name": "Orders",
     "src": "resources/js/app/modules/customers/pages/Orders.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_CustomerShell-B-gLvlog.js"
+      "_CustomerShell-Ns-BGwrI.js"
     ]
   },
   "resources/js/app/modules/customers/pages/Reviews.jsx": {
-    "file": "assets/Reviews-BFl7BYAZ.js",
+    "file": "assets/Reviews-Bt1RixmV.js",
     "name": "Reviews",
     "src": "resources/js/app/modules/customers/pages/Reviews.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_CustomerShell-B-gLvlog.js",
-      "_star-Dm62PtaN.js"
+      "_CustomerShell-Ns-BGwrI.js",
+      "_star-C_qcwyja.js"
     ]
   },
   "resources/js/app/modules/customers/pages/Show.jsx": {
-    "file": "assets/Show-D7o2hUHl.js",
+    "file": "assets/Show-9WlBpEnL.js",
     "name": "Show",
     "src": "resources/js/app/modules/customers/pages/Show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_arrow-left-DgCeZtdy.js",
-      "_badge-check-D5GM5ifi.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_eye-BAEf5FHx.js",
-      "_heart-CSUFmogc.js",
-      "_mail-BTri0yy_.js",
-      "_map-pin-DGBqHvaE.js",
-      "_package-check-Bel8aPpj.js",
-      "_shield-question-mark-CrkFo5Ub.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_star-Dm62PtaN.js",
-      "_user-round-Bj3TtM_5.js",
-      "_wallet-cards-C6OP8g7u.js",
-      "_Seo-CkTT7M8_.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_arrow-left-B4YDcohx.js",
+      "_badge-check-BUeEmeQi.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_eye-xRP7TJRR.js",
+      "_heart-CGp52cV-.js",
+      "_mail-CHOF0q5e.js",
+      "_map-pin-BW2xZ15x.js",
+      "_package-check-Dk6qAoF6.js",
+      "_shield-question-mark-CMUo5ld3.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_star-C_qcwyja.js",
+      "_user-round-fxv9bAd3.js",
+      "_wallet-cards-DriTvi81.js",
+      "_Seo-Ckt5PdRx.js"
     ]
   },
   "resources/js/app/modules/customers/pages/Wishlist.jsx": {
-    "file": "assets/Wishlist-DLOmXCyP.js",
+    "file": "assets/Wishlist-BZhyTgD_.js",
     "name": "Wishlist",
     "src": "resources/js/app/modules/customers/pages/Wishlist.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_heart-CSUFmogc.js",
-      "_CustomerShell-B-gLvlog.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_ProductCardActions-C9NlnEHP.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_heart-CGp52cV-.js",
+      "_CustomerShell-Ns-BGwrI.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_ProductCardActions-CbP06PKI.js"
     ]
   },
   "resources/js/app/modules/dashboard/pages/Index.jsx": {
-    "file": "assets/Index-CRoJHpqK.js",
+    "file": "assets/Index-O_AJNRWc.js",
     "name": "Index",
     "src": "resources/js/app/modules/dashboard/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_arrow-right-vLVg5Dp_.js",
-      "_badge-check-D5GM5ifi.js",
-      "_badge-dollar-sign-Ww76TG8D.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_chevron-right-DxVf0cyU.js",
-      "_clock-qmHBsg31.js",
-      "_package-check-Bel8aPpj.js",
-      "_package-C9mWbv0u.js",
-      "_plus-V5shfrvg.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_triangle-alert-D8NsrCA8.js",
-      "_truck-PzbJ3CNH.js",
-      "_users-round-DjZzJc8V.js",
-      "_wallet-BmwLxYPK.js",
-      "_ui-CCVOoWpQ.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_arrow-right-DrJQJDFP.js",
+      "_badge-check-BUeEmeQi.js",
+      "_badge-dollar-sign-B0f43S9V.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_chevron-right-DOm_66X2.js",
+      "_clock-DX4qBkfg.js",
+      "_package-check-Dk6qAoF6.js",
+      "_package-BPmW_jmF.js",
+      "_plus-hEnlOQEz.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_triangle-alert-xM3xLKDH.js",
+      "_truck-CWWzE3xY.js",
+      "_users-round-BXptjz6V.js",
+      "_wallet-f9Oc6OkR.js",
+      "_ui-DOQOBlka.js"
     ]
   },
   "resources/js/app/modules/file-manager/pages/Index.jsx": {
-    "file": "assets/Index-Ba6RYip0.js",
+    "file": "assets/Index-GAiJP6Z9.js",
     "name": "Index",
     "src": "resources/js/app/modules/file-manager/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_upload-Ue322zvk.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_eye-BAEf5FHx.js",
-      "_grid-2x2-BbwKw1LS.js",
-      "_image-DoOv1Oqc.js",
-      "_message-square-text-DZ5qqg4K.js",
-      "_pencil-ISRe0eDr.js",
-      "_search-DeLeGbIx.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_x-CHgqCaoC.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_upload-BflmREDm.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_eye-xRP7TJRR.js",
+      "_grid-2x2-DLudRgwO.js",
+      "_image-DqWvwbfq.js",
+      "_message-square-text-C1v06g6c.js",
+      "_pencil-CGhOTNaj.js",
+      "_search-DYwEcW1q.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_x-6LhKh9oj.js"
     ]
   },
   "resources/js/app/modules/inventories/categories/pages/Form.jsx": {
-    "file": "assets/Form-So9c-cCB.js",
+    "file": "assets/Form-lurNd0nh.js",
     "name": "Form",
     "src": "resources/js/app/modules/inventories/categories/pages/Form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_CategoryFormModal-BSf-HL4o.js"
+      "_CategoryFormModal-CJwgNbaB.js"
     ]
   },
   "resources/js/app/modules/inventories/categories/pages/Index.jsx": {
-    "file": "assets/Index-9uNymwt1.js",
+    "file": "assets/Index-Dw-aBS58.js",
     "name": "Index",
     "src": "resources/js/app/modules/inventories/categories/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_chevron-left-D5uEXAlr.js",
-      "_chevron-right-DxVf0cyU.js",
-      "_eye-BAEf5FHx.js",
-      "_image-DoOv1Oqc.js",
-      "_pencil-ISRe0eDr.js",
-      "_plus-V5shfrvg.js",
-      "_search-DeLeGbIx.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_Dialog-BoADVdLM.js",
-      "_Seo-CkTT7M8_.js",
-      "_Button-D3SeTRdI.js"
+      "_AdminLayout-cSsaAYEA.js",
+      "_eye-xRP7TJRR.js",
+      "_image-DqWvwbfq.js",
+      "_pencil-CGhOTNaj.js",
+      "_plus-hEnlOQEz.js",
+      "_search-DYwEcW1q.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_Pagination-CG1_aSEP.js",
+      "_Dialog-Cd6ZjlJe.js",
+      "_Seo-Ckt5PdRx.js",
+      "_Button-D13Bw0mQ.js"
     ]
   },
   "resources/js/app/modules/inventories/categories/pages/Show.jsx": {
-    "file": "assets/Show-B_DataxD.js",
+    "file": "assets/Show-D1CHNhJu.js",
     "name": "Show",
     "src": "resources/js/app/modules/inventories/categories/pages/Show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_StorefrontLayout-CUi1CFqP.js",
-      "_grid-2x2-BbwKw1LS.js",
-      "_image-DoOv1Oqc.js",
-      "_list-BPrj51sE.js",
-      "_Seo-CkTT7M8_.js",
-      "_ProductCardActions-C9NlnEHP.js",
-      "_ProductListingFilters-C_Qyn6ls.js"
+      "_StorefrontLayout-kEeA000P.js",
+      "_grid-2x2-DLudRgwO.js",
+      "_image-DqWvwbfq.js",
+      "_list-CVszNe9W.js",
+      "_Seo-Ckt5PdRx.js",
+      "_ProductCardActions-CbP06PKI.js",
+      "_ProductListingFilters-uemyPlhg.js"
     ]
   },
   "resources/js/app/modules/inventories/products/pages/Create.jsx": {
-    "file": "assets/Create-4O3uimJt.js",
+    "file": "assets/Create-B65Q_Z6v.js",
     "name": "Create",
     "src": "resources/js/app/modules/inventories/products/pages/Create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_arrow-left-DgCeZtdy.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_RichTextEditor-DtvSZVq4.js",
-      "_file-text-BWslIjlJ.js",
-      "_eye-BAEf5FHx.js",
-      "_MediaLibraryPicker-4verCC1o.js",
-      "_image-DoOv1Oqc.js",
-      "_package-C9mWbv0u.js",
-      "_plus-V5shfrvg.js",
-      "_save-C6HCv9oF.js",
-      "_x-CHgqCaoC.js",
-      "_CategoryFormModal-BSf-HL4o.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_arrow-left-B4YDcohx.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_RichTextEditor-pK_zOeX8.js",
+      "_file-text-a3cig9Zn.js",
+      "_eye-xRP7TJRR.js",
+      "_MediaLibraryPicker-CGv6VzT4.js",
+      "_image-DqWvwbfq.js",
+      "_package-BPmW_jmF.js",
+      "_plus-hEnlOQEz.js",
+      "_save-BgblnYqp.js",
+      "_x-6LhKh9oj.js",
+      "_CategoryFormModal-CJwgNbaB.js"
     ]
   },
   "resources/js/app/modules/inventories/products/pages/Index.jsx": {
-    "file": "assets/Index-DFIO-Uhg.js",
+    "file": "assets/Index-jt7K7uzJ.js",
     "name": "Index",
     "src": "resources/js/app/modules/inventories/products/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_badge-dollar-sign-Ww76TG8D.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_eye-BAEf5FHx.js",
-      "_image-DoOv1Oqc.js",
-      "_pencil-ISRe0eDr.js",
-      "_plus-V5shfrvg.js",
-      "_search-DeLeGbIx.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_x-CHgqCaoC.js"
+      "_badge-dollar-sign-B0f43S9V.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_eye-xRP7TJRR.js",
+      "_image-DqWvwbfq.js",
+      "_pencil-CGhOTNaj.js",
+      "_plus-hEnlOQEz.js",
+      "_search-DYwEcW1q.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_x-6LhKh9oj.js"
     ]
   },
   "resources/js/app/modules/orders/pages/Create.jsx": {
-    "file": "assets/Create-DuN2ue2a.js",
+    "file": "assets/Create-Dse3VGHR.js",
     "name": "Create",
     "src": "resources/js/app/modules/orders/pages/Create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_arrow-left-DgCeZtdy.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_mail-BTri0yy_.js",
-      "_map-pin-DGBqHvaE.js",
-      "_minus-BDbL27Xq.js",
-      "_package-C9mWbv0u.js",
-      "_pencil-ISRe0eDr.js",
-      "_phone-fndIXkJQ.js",
-      "_plus-V5shfrvg.js",
-      "_save-C6HCv9oF.js",
-      "_search-DeLeGbIx.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_user-round-Bj3TtM_5.js",
-      "_x-CHgqCaoC.js",
+      "_arrow-left-B4YDcohx.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_mail-CHOF0q5e.js",
+      "_map-pin-BW2xZ15x.js",
+      "_minus-Xsh7CmPX.js",
+      "_package-BPmW_jmF.js",
+      "_pencil-CGhOTNaj.js",
+      "_phone-DNnaPGMZ.js",
+      "_plus-hEnlOQEz.js",
+      "_save-BgblnYqp.js",
+      "_search-DYwEcW1q.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_user-round-fxv9bAd3.js",
+      "_x-6LhKh9oj.js",
       "_deliveryZone-D4jQj-Sl.js"
     ]
   },
   "resources/js/app/modules/orders/pages/Index.jsx": {
-    "file": "assets/Index-CNdUOzEQ.js",
+    "file": "assets/Index-Bvaxb4eP.js",
     "name": "Index",
     "src": "resources/js/app/modules/orders/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_calendar-days-4yo5jxF-.js",
-      "_clock-qmHBsg31.js",
-      "_eye-BAEf5FHx.js",
-      "_mail-BTri0yy_.js",
-      "_package-C9mWbv0u.js",
-      "_pencil-ISRe0eDr.js",
-      "_phone-fndIXkJQ.js",
-      "_plus-V5shfrvg.js",
-      "_search-DeLeGbIx.js",
-      "_send-x7fM4Xfz.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_ui-CCVOoWpQ.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_calendar-days-BXBUi0yX.js",
+      "_clock-DX4qBkfg.js",
+      "_eye-xRP7TJRR.js",
+      "_mail-CHOF0q5e.js",
+      "_package-BPmW_jmF.js",
+      "_pencil-CGhOTNaj.js",
+      "_phone-DNnaPGMZ.js",
+      "_plus-hEnlOQEz.js",
+      "_search-DYwEcW1q.js",
+      "_send-BhoLfu1J.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_ui-DOQOBlka.js"
     ]
   },
   "resources/js/app/modules/orders/pages/ShippingLabel.jsx": {
-    "file": "assets/ShippingLabel-DsXtvYqB.js",
+    "file": "assets/ShippingLabel-CrSFPFV9.js",
     "name": "ShippingLabel",
     "src": "resources/js/app/modules/orders/pages/ShippingLabel.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_arrow-left-DgCeZtdy.js",
-      "_printer-DwiC0Yb2.js"
+      "_arrow-left-B4YDcohx.js",
+      "_printer-CH_HDQEg.js"
     ]
   },
   "resources/js/app/modules/orders/pages/Show.jsx": {
-    "file": "assets/Show-fEEv1I4N.js",
+    "file": "assets/Show-BuwTG1O4.js",
     "name": "Show",
     "src": "resources/js/app/modules/orders/pages/Show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_arrow-left-DgCeZtdy.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_check-DXn6j7K1.js",
-      "_file-text-BWslIjlJ.js",
-      "_clock-3-DO6qzKy8.js",
-      "_map-pin-DGBqHvaE.js",
-      "_message-square-text-DZ5qqg4K.js",
-      "_package-C9mWbv0u.js",
-      "_phone-fndIXkJQ.js",
-      "_printer-DwiC0Yb2.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_triangle-alert-D8NsrCA8.js",
-      "_user-round-Bj3TtM_5.js",
-      "_x-CHgqCaoC.js",
-      "_ui-CCVOoWpQ.js"
+      "_arrow-left-B4YDcohx.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_check-KDLcQRI9.js",
+      "_file-text-a3cig9Zn.js",
+      "_clock-3-B4oye5Nr.js",
+      "_map-pin-BW2xZ15x.js",
+      "_message-square-text-C1v06g6c.js",
+      "_package-BPmW_jmF.js",
+      "_phone-DNnaPGMZ.js",
+      "_printer-CH_HDQEg.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_triangle-alert-xM3xLKDH.js",
+      "_user-round-fxv9bAd3.js",
+      "_x-6LhKh9oj.js",
+      "_ui-DOQOBlka.js"
     ]
   },
   "resources/js/app/modules/reviews/pages/Index.jsx": {
-    "file": "assets/Index-eDaom1U-.js",
+    "file": "assets/Index-Bctpx2jr.js",
     "name": "Index",
     "src": "resources/js/app/modules/reviews/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_star-Dm62PtaN.js",
-      "_trash-2-Dl1YTuX4.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_star-C_qcwyja.js",
+      "_trash-2-Bjc8dzsa.js"
     ]
   },
   "resources/js/app/modules/settings/pages/Communication.jsx": {
-    "file": "assets/Communication-CBgZChew.js",
+    "file": "assets/Communication-BI7YRjXw.js",
     "name": "Communication",
     "src": "resources/js/app/modules/settings/pages/Communication.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_eye-BAEf5FHx.js",
-      "_eye-off-DacmVEdH.js",
-      "_mail-BTri0yy_.js",
-      "_message-square-text-DZ5qqg4K.js",
-      "_send-x7fM4Xfz.js",
-      "_shield-check-Ba3y7SVk.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_eye-xRP7TJRR.js",
+      "_eye-off-3ZpRV4pQ.js",
+      "_mail-CHOF0q5e.js",
+      "_message-square-text-C1v06g6c.js",
+      "_send-BhoLfu1J.js",
+      "_shield-check-D6p_Oz1K.js"
     ]
   },
   "resources/js/app/modules/settings/pages/Index.jsx": {
-    "file": "assets/Index-DNShSM7C.js",
+    "file": "assets/Index-MhetBg8d.js",
     "name": "Index",
     "src": "resources/js/app/modules/settings/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_MediaLibraryPicker-4verCC1o.js",
-      "_search-DeLeGbIx.js",
-      "_truck-PzbJ3CNH.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_MediaLibraryPicker-CGv6VzT4.js",
+      "_search-DYwEcW1q.js",
+      "_truck-CWWzE3xY.js"
     ]
   },
   "resources/js/app/modules/shared/pages/ModuleOverview.jsx": {
-    "file": "assets/ModuleOverview--rurLYCK.js",
+    "file": "assets/ModuleOverview-JwPEAn6v.js",
     "name": "ModuleOverview",
     "src": "resources/js/app/modules/shared/pages/ModuleOverview.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_AdminLayout-BCOSoTik.js",
-      "_circle-check-B1AZxoS2.js",
-      "_clock-3-DO6qzKy8.js",
-      "_plus-V5shfrvg.js",
-      "_Seo-CkTT7M8_.js",
-      "_Button-D3SeTRdI.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_AdminLayout-cSsaAYEA.js",
+      "_circle-check-BAxusYPC.js",
+      "_clock-3-B4oye5Nr.js",
+      "_plus-hEnlOQEz.js",
+      "_Seo-Ckt5PdRx.js",
+      "_Button-D13Bw0mQ.js"
     ]
   },
   "resources/js/app/modules/storefront/cart/pages/Index.jsx": {
-    "file": "assets/Index-CN4mnMny.js",
+    "file": "assets/Index-DvRuwx_k.js",
     "name": "Index",
     "src": "resources/js/app/modules/storefront/cart/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_StorefrontLayout-CUi1CFqP.js",
-      "_minus-BDbL27Xq.js",
-      "_plus-V5shfrvg.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_trash-2-Dl1YTuX4.js"
+      "_StorefrontLayout-kEeA000P.js",
+      "_minus-Xsh7CmPX.js",
+      "_plus-hEnlOQEz.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_trash-2-Bjc8dzsa.js"
     ]
   },
   "resources/js/app/modules/storefront/checkout/pages/Index.jsx": {
-    "file": "assets/Index-SojfgRrk.js",
+    "file": "assets/Index-mo3Sbv_k.js",
     "name": "Index",
     "src": "resources/js/app/modules/storefront/checkout/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_arrow-right-vLVg5Dp_.js",
-      "_sun-DtR6_JEa.js",
-      "_circle-check-B1AZxoS2.js",
-      "_loader-circle-DB0Xx_UP.js",
-      "_map-pin-DGBqHvaE.js",
-      "_minus-BDbL27Xq.js",
-      "_plus-V5shfrvg.js",
-      "_search-DeLeGbIx.js",
-      "_shield-check-Ba3y7SVk.js",
-      "_x-CHgqCaoC.js",
+      "_createLucideIcon-BDdb5PeL.js",
+      "_arrow-right-DrJQJDFP.js",
+      "_sun-IzmqlKrT.js",
+      "_circle-check-BAxusYPC.js",
+      "_loader-circle-BB1WQvU1.js",
+      "_map-pin-BW2xZ15x.js",
+      "_minus-Xsh7CmPX.js",
+      "_plus-hEnlOQEz.js",
+      "_search-DYwEcW1q.js",
+      "_shield-check-D6p_Oz1K.js",
+      "_x-6LhKh9oj.js",
       "_deliveryZone-D4jQj-Sl.js",
-      "_CheckoutLayout-vPlmgpRE.js"
+      "_CheckoutLayout-BghKcgyO.js"
     ]
   },
   "resources/js/app/modules/storefront/checkout/pages/Success.jsx": {
-    "file": "assets/Success-BzkiNMlu.js",
+    "file": "assets/Success-BsthptF5.js",
     "name": "Success",
     "src": "resources/js/app/modules/storefront/checkout/pages/Success.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_circle-check-B1AZxoS2.js",
-      "_CheckoutLayout-vPlmgpRE.js"
+      "_circle-check-BAxusYPC.js",
+      "_CheckoutLayout-BghKcgyO.js"
     ]
   },
   "resources/js/app/modules/storefront/pages/Home.jsx": {
-    "file": "assets/Home-BfQUMa7K.js",
+    "file": "assets/Home-B8HoiOPK.js",
     "name": "Home",
     "src": "resources/js/app/modules/storefront/pages/Home.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_StorefrontLayout-CUi1CFqP.js",
-      "_image-DoOv1Oqc.js",
-      "_shopping-bag-DL_P9O4G.js",
-      "_Seo-CkTT7M8_.js",
-      "_ProductCardActions-C9NlnEHP.js"
+      "_StorefrontLayout-kEeA000P.js",
+      "_image-DqWvwbfq.js",
+      "_shopping-bag-IJOb_cCz.js",
+      "_Seo-Ckt5PdRx.js",
+      "_ProductCardActions-CbP06PKI.js"
     ]
   },
   "resources/js/app/modules/storefront/products/pages/Index.jsx": {
-    "file": "assets/Index-DiEImyOp.js",
+    "file": "assets/Index-BKwXswed.js",
     "name": "Index",
     "src": "resources/js/app/modules/storefront/products/pages/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_StorefrontLayout-CUi1CFqP.js",
-      "_grid-2x2-BbwKw1LS.js",
-      "_image-DoOv1Oqc.js",
-      "_list-BPrj51sE.js",
-      "_Seo-CkTT7M8_.js",
-      "_ProductCardActions-C9NlnEHP.js",
-      "_ProductListingFilters-C_Qyn6ls.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_StorefrontLayout-kEeA000P.js",
+      "_grid-2x2-DLudRgwO.js",
+      "_image-DqWvwbfq.js",
+      "_list-CVszNe9W.js",
+      "_Seo-Ckt5PdRx.js",
+      "_ProductCardActions-CbP06PKI.js",
+      "_ProductListingFilters-uemyPlhg.js"
     ]
   },
   "resources/js/app/modules/storefront/products/pages/ProductList.jsx": {
-    "file": "assets/ProductList-DxWo5SwD.js",
+    "file": "assets/ProductList-hQ2mcjKb.js",
     "name": "ProductList",
     "src": "resources/js/app/modules/storefront/products/pages/ProductList.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_StorefrontLayout-CUi1CFqP.js",
-      "_ProductCardActions-C9NlnEHP.js"
+      "_StorefrontLayout-kEeA000P.js",
+      "_ProductCardActions-CbP06PKI.js"
     ]
   },
   "resources/js/app/modules/storefront/products/pages/Show.jsx": {
-    "file": "assets/Show--uPlmnKs.js",
+    "file": "assets/Show-BijkVkJO.js",
     "name": "Show",
     "src": "resources/js/app/modules/storefront/products/pages/Show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_createLucideIcon-LPL_W4vU.js",
-      "_StorefrontLayout-CUi1CFqP.js",
-      "_share-2-CtvFCz6_.js",
-      "_heart-CSUFmogc.js",
-      "_house-CAYmu7WB.js",
-      "_image-DoOv1Oqc.js",
-      "_minus-BDbL27Xq.js",
-      "_phone-fndIXkJQ.js",
-      "_plus-V5shfrvg.js",
-      "_star-Dm62PtaN.js",
-      "_x-CHgqCaoC.js",
-      "_Seo-CkTT7M8_.js",
-      "_ProductCardActions-C9NlnEHP.js"
+      "_createLucideIcon-BDdb5PeL.js",
+      "_StorefrontLayout-kEeA000P.js",
+      "_share-2-8xTNvCpA.js",
+      "_heart-CGp52cV-.js",
+      "_house-B7aizCXv.js",
+      "_image-DqWvwbfq.js",
+      "_minus-Xsh7CmPX.js",
+      "_phone-DNnaPGMZ.js",
+      "_plus-hEnlOQEz.js",
+      "_star-C_qcwyja.js",
+      "_x-6LhKh9oj.js",
+      "_Seo-Ckt5PdRx.js",
+      "_ProductCardActions-CbP06PKI.js"
     ]
   },
   "resources/js/app/modules/website-design/footer/pages/Edit.jsx": {
-    "file": "assets/Edit-D7nSDoND.js",
+    "file": "assets/Edit-N-z6-OCP.js",
     "name": "Edit",
     "src": "resources/js/app/modules/website-design/footer/pages/Edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_RichTextEditor-DtvSZVq4.js",
-      "_MediaLibraryPicker-4verCC1o.js",
-      "_plus-V5shfrvg.js",
-      "_save-C6HCv9oF.js",
-      "_trash-2-Dl1YTuX4.js",
-      "_Button-D3SeTRdI.js"
+      "_AdminLayout-cSsaAYEA.js",
+      "_RichTextEditor-pK_zOeX8.js",
+      "_MediaLibraryPicker-CGv6VzT4.js",
+      "_plus-hEnlOQEz.js",
+      "_save-BgblnYqp.js",
+      "_trash-2-Bjc8dzsa.js",
+      "_Button-D13Bw0mQ.js"
     ]
   },
   "resources/js/app/modules/website-design/hero/pages/Edit.jsx": {
-    "file": "assets/Edit-eNRbeG3p.js",
+    "file": "assets/Edit-B5IPRbrH.js",
     "name": "Edit",
     "src": "resources/js/app/modules/website-design/hero/pages/Edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AdminLayout-BCOSoTik.js",
-      "_MediaLibraryPicker-4verCC1o.js",
-      "_save-C6HCv9oF.js",
-      "_Button-D3SeTRdI.js",
-      "_FormField-CwPugvon.js"
+      "_AdminLayout-cSsaAYEA.js",
+      "_MediaLibraryPicker-CGv6VzT4.js",
+      "_save-BgblnYqp.js",
+      "_Button-D13Bw0mQ.js",
+      "_FormField-DEAQqpBJ.js"
     ]
   }
 }

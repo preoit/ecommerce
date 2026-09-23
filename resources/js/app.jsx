@@ -8,6 +8,7 @@ const appName = document.querySelector('meta[name="website-name"]')?.content || 
 const pages = import.meta.glob([
     './Pages/**/*.jsx',
     './app/modules/**/pages/*.jsx',
+    './app/modules/access/{users,roles}/*.jsx',
 ]);
 
 createInertiaApp({
