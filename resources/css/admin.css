@@ -49,7 +49,9 @@ html.dark body.admin-ui {
 .admin-ui :is([class~="text-slate-600"], [class~="text-slate-500"], [class~="text-slate-400"]) { color: var(--admin-muted) !important; }
 .admin-ui :is([class~="bg-white"], [class~="bg-slate-900"]) { background-color: var(--admin-surface); }
 .admin-ui :is([class~="bg-slate-50"], [class~="bg-slate-100"]) { background-color: var(--admin-subtle); }
+.admin-ui [class*="bg-slate-50/"] { background-color: color-mix(in srgb, var(--admin-subtle) 70%, transparent); }
 .admin-ui :is([class~="border-slate-100"], [class~="border-slate-200"], [class~="border-slate-300"], [class~="border-violet-100"]) { border-color: var(--admin-border); }
+.admin-ui :is([class~="divide-slate-100"], [class~="divide-slate-200"], [class~="divide-slate-300"]) > :not([hidden]) ~ :not([hidden]) { border-color: var(--admin-border); }
 .admin-ui :is(section, article, div)[class~="bg-white"][class~="border"] {
     background: var(--admin-surface); border-color: var(--admin-border);
     border-radius: 12px; box-shadow: var(--admin-shadow);
