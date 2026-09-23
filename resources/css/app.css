@@ -765,11 +765,14 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     #product-reviews > .mt-5.grid {
         display: none !important;
     }
-    #product-questions {
-        display: block !important;
+    #product-reviews[data-form-open="true"] > .mt-5.grid {
+        display: grid !important;
     }
     #product-questions > form {
         display: none !important;
+    }
+    #product-questions[data-form-open="true"] > form {
+        display: grid !important;
     }
     #product-questions + #product-reviews {
         margin-top: 1.5rem !important;

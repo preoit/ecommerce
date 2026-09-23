@@ -58,7 +58,7 @@ Route::post('/checkout/phone-verification/check', [CheckoutPhoneVerificationCont
 Route::post('/checkout/phone-verification/send', [CheckoutPhoneVerificationController::class, 'send'])->middleware('throttle:3,1')->name('storefront.checkout.phone-verification.send');
 Route::post('/checkout/phone-verification/verify', [CheckoutPhoneVerificationController::class, 'verify'])->middleware('throttle:10,1')->name('storefront.checkout.phone-verification.verify');
 Route::post('/checkout', [StorefrontProductController::class, 'placeOrder'])->middleware('throttle:10,1')->name('storefront.checkout.place-order');
-Route::get('/order/{orderNumber}/success', [StorefrontProductController::class, 'orderSuccess'])->name('storefront.order.success');
+Route::get('/order/{orderToken}/success', [StorefrontProductController::class, 'orderSuccess'])->name('storefront.order.success');
 Route::get('/product/{slug}', [StorefrontProductController::class, 'legacyShow'])->name('storefront.products.legacy');
 Route::post('/product/{product}/cart', [StorefrontProductController::class, 'cart'])->middleware('throttle:30,1')->name('storefront.products.cart');
 Route::post('/product/{product}/compare', [StorefrontProductController::class, 'compare'])->middleware('throttle:30,1')->name('storefront.products.compare');
@@ -76,7 +76,7 @@ Route::get('/sitemap-products.xml', function () {
 })->name('sitemap.products');
 
 Route::get('/blog', [\App\Modules\Blog\BlogController::class, 'listing'])->name('blog.public.index');
-Route::get('/blog/category/{category}', [\App\Modules\Blog\BlogController::class, 'listing'])->name('blog.public.category');
+Route::get('/blog/category/{category}', [\App\Modules\Blog\BlogController::class, 'legacyCategory'])->name('blog.public.category.legacy');
 Route::get('/blog/author/{author}', fn (\Illuminate\Http\Request $request, string $author) => app(\App\Modules\Blog\BlogController::class)->listing($request, null, $author))->name('blog.public.author');
 Route::get('/blog/{slug}', [\App\Modules\Blog\BlogController::class, 'show'])->name('blog.public.show');
 Route::get('/sitemap-blog.xml', [\App\Modules\Blog\BlogController::class, 'sitemap'])->name('sitemap.blog');

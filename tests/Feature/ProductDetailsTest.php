@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Inventories\Products\Models\Product;
 use App\Modules\Inventories\Products\Models\ProductVariant;
-use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Settings\Models\WebsiteSetting;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ProductDetailsTest extends TestCase
@@ -28,9 +29,9 @@ class ProductDetailsTest extends TestCase
 
     public function test_product_store_only_lists_published_public_products(): void
     {
-        Product::create(['title'=>'Public Product','slug'=>'public-product','regular_price'=>100,'stock_quantity'=>5,'status'=>'Published','visibility'=>'Public']);
-        Product::create(['title'=>'Draft Product','slug'=>'draft-product','regular_price'=>100,'stock_quantity'=>5,'status'=>'Draft','visibility'=>'Public']);
-        Product::create(['title'=>'Private Product','slug'=>'private-product','regular_price'=>100,'stock_quantity'=>5,'status'=>'Published','visibility'=>'Private']);
+        Product::create(['title' => 'Public Product', 'slug' => 'public-product', 'regular_price' => 100, 'stock_quantity' => 5, 'status' => 'Published', 'visibility' => 'Public']);
+        Product::create(['title' => 'Draft Product', 'slug' => 'draft-product', 'regular_price' => 100, 'stock_quantity' => 5, 'status' => 'Draft', 'visibility' => 'Public']);
+        Product::create(['title' => 'Private Product', 'slug' => 'private-product', 'regular_price' => 100, 'stock_quantity' => 5, 'status' => 'Published', 'visibility' => 'Private']);
 
         $this->get(route('storefront.products.index'))
             ->assertOk()
@@ -42,8 +43,8 @@ class ProductDetailsTest extends TestCase
 
     public function test_published_public_product_page_is_available(): void
     {
-        $product = Product::create(['title'=>'Aqua Pro Filter','slug'=>'aqua-pro-filter','regular_price'=>100,'sale_price'=>90,'stock_quantity'=>10,'low_stock_threshold'=>3,'min_order_quantity'=>1,'quantity_step'=>1,'status'=>'Published','visibility'=>'Public','meta_robots'=>'index,follow','gallery'=>['website/media/gallery-one.webp','website/media/gallery-two.webp']]);
-        $this->get(route('storefront.products.show',$product->slug))->assertOk()->assertInertia(fn($page)=>$page->component('app/modules/storefront/products/pages/Show', false)->where('product.discount_percentage',10)->where('product.gallery_urls.0','/image/gallery-one.webp?v=1')->where('product.gallery_urls.1','/image/gallery-two.webp?v=1'));
+        $product = Product::create(['title' => 'Aqua Pro Filter', 'slug' => 'aqua-pro-filter', 'regular_price' => 100, 'sale_price' => 90, 'stock_quantity' => 10, 'low_stock_threshold' => 3, 'min_order_quantity' => 1, 'quantity_step' => 1, 'status' => 'Published', 'visibility' => 'Public', 'meta_robots' => 'index,follow', 'gallery' => ['website/media/gallery-one.webp', 'website/media/gallery-two.webp']]);
+        $this->get(route('storefront.products.show', $product->slug))->assertOk()->assertInertia(fn ($page) => $page->component('app/modules/storefront/products/pages/Show', false)->where('product.discount_percentage', 10)->where('product.gallery_urls.0', '/image/gallery-one.webp?v=1')->where('product.gallery_urls.1', '/image/gallery-two.webp?v=1'));
     }
 
     public function test_product_breadcrumb_contains_the_complete_category_hierarchy(): void
@@ -64,7 +65,7 @@ class ProductDetailsTest extends TestCase
 
     public function test_legacy_product_url_redirects_to_the_direct_url(): void
     {
-        $product = Product::create(['title'=>'Direct URL','slug'=>'direct-url','regular_price'=>100,'stock_quantity'=>1,'status'=>'Published','visibility'=>'Public']);
+        $product = Product::create(['title' => 'Direct URL', 'slug' => 'direct-url', 'regular_price' => 100, 'stock_quantity' => 1, 'status' => 'Published', 'visibility' => 'Public']);
 
         $this->get('/product/'.$product->slug)
             ->assertRedirect(route('storefront.products.show', $product->slug))
@@ -73,8 +74,8 @@ class ProductDetailsTest extends TestCase
 
     public function test_draft_product_is_not_public(): void
     {
-        $product = Product::create(['title'=>'Draft','slug'=>'draft','regular_price'=>100,'stock_quantity'=>1,'status'=>'Draft','visibility'=>'Public']);
-        $this->get(route('storefront.products.show',$product->slug))->assertNotFound();
+        $product = Product::create(['title' => 'Draft', 'slug' => 'draft', 'regular_price' => 100, 'stock_quantity' => 1, 'status' => 'Draft', 'visibility' => 'Public']);
+        $this->get(route('storefront.products.show', $product->slug))->assertNotFound();
     }
 
     public function test_variant_price_and_stock_are_revalidated_when_order_is_placed(): void
@@ -85,7 +86,7 @@ class ProductDetailsTest extends TestCase
 
         $this->postJson(route('storefront.products.cart', $product), ['quantity' => 2, 'variant_id' => $variant->id])->assertOk();
         $variant->update(['sale_price' => 400]);
-        $this->post(route('storefront.checkout.place-order'), ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod'])->assertRedirect();
+        $this->post(route('storefront.checkout.place-order'), $this->checkoutData(['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod']))->assertRedirect();
 
         $this->assertDatabaseHas('order_items', ['product_id' => $product->id, 'product_variant_id' => $variant->id, 'variant_name' => 'Red / XL', 'sku' => 'VAR-RED-XL', 'unit_price' => 400, 'quantity' => 2]);
         $this->assertSame(1, $variant->fresh()->stock_quantity);
@@ -105,7 +106,7 @@ class ProductDetailsTest extends TestCase
         WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'show_stock_to_customers' => true, 'delivery_enabled' => true, 'delivery_inside_dhaka' => 80, 'delivery_outside_dhaka' => 150, 'cod_surcharge_enabled' => true, 'cod_surcharge' => 20, 'heavy_delivery_enabled' => true, 'heavy_weight_threshold' => 2, 'heavy_charge_per_kg' => 25, 'product_delivery_override_enabled' => true]);
         $product = Product::create(['title' => 'Heavy Product', 'slug' => 'heavy-product', 'regular_price' => 500, 'stock_quantity' => 5, 'weight' => 3, 'delivery_outside_dhaka' => 200, 'status' => 'Published', 'visibility' => 'Public']);
         $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
-        $this->post(route('storefront.checkout.place-order'), ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Address', 'city' => 'Gazipur', 'delivery_zone' => 'outside_dhaka', 'payment_method' => 'cod'])->assertRedirect();
+        $this->post(route('storefront.checkout.place-order'), $this->checkoutData(['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Address', 'city' => 'Gazipur', 'delivery_zone' => 'outside_dhaka', 'payment_method' => 'cod']))->assertRedirect();
 
         $this->assertDatabaseHas('orders', ['subtotal' => 500, 'shipping_total' => 225, 'cod_surcharge' => 20, 'total' => 745, 'delivery_zone' => 'outside_dhaka']);
     }
@@ -115,10 +116,11 @@ class ProductDetailsTest extends TestCase
         WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'delivery_enabled' => true, 'delivery_inside_dhaka' => 80, 'free_delivery_enabled' => true, 'free_delivery_threshold' => 400, 'cod_surcharge_enabled' => true, 'cod_surcharge' => 15]);
         $product = Product::create(['title' => 'Free Delivery Product', 'slug' => 'free-delivery-product', 'regular_price' => 500, 'stock_quantity' => 2, 'status' => 'Published', 'visibility' => 'Public']);
         $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
-        $this->post(route('storefront.checkout.place-order'), ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Address', 'city' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod'])->assertRedirect();
+        $this->post(route('storefront.checkout.place-order'), $this->checkoutData(['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Address', 'city' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod']))->assertRedirect();
 
         $this->assertDatabaseHas('orders', ['subtotal' => 500, 'shipping_total' => 0, 'cod_surcharge' => 15, 'total' => 515]);
     }
+
     public function test_cart_drawer_summary_can_be_loaded_updated_and_cleared_without_a_page_reload(): void
     {
         WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false]);
@@ -146,37 +148,104 @@ class ProductDetailsTest extends TestCase
             ->assertJsonPath('cartCount', 0)
             ->assertJsonCount(0, 'items');
     }
+
+    public function test_bulk_price_is_consistent_when_cart_quantity_changes(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false]);
+        $product = Product::create(['title' => 'Bulk Product', 'slug' => 'bulk-product', 'regular_price' => 100, 'stock_quantity' => 10, 'min_order_quantity' => 1, 'quantity_step' => 1, 'status' => 'Published', 'visibility' => 'Public']);
+        $product->bulkPrices()->create(['min_quantity' => 3, 'max_quantity' => null, 'unit_price' => 80]);
+
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
+        $summary = $this->getJson(route('storefront.cart.summary'))->assertJsonPath('items.0.unit_price', 100);
+
+        $this->patchJson(route('storefront.cart.update', $summary->json('items.0.cart_key')), ['quantity' => 3])
+            ->assertOk()
+            ->assertJsonPath('items.0.unit_price', 80)
+            ->assertJsonPath('subtotal', 240);
+    }
+
+    public function test_unavailable_items_are_removed_from_the_persisted_cart(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false]);
+        $product = Product::create(['title' => 'Temporary Product', 'slug' => 'temporary-product', 'regular_price' => 100, 'stock_quantity' => 2, 'status' => 'Published', 'visibility' => 'Public']);
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
+        $product->update(['status' => 'Draft']);
+
+        $this->getJson(route('storefront.cart.summary'))
+            ->assertOk()
+            ->assertJsonCount(0, 'items')
+            ->assertJsonPath('cartCount', 0)
+            ->assertJsonPath('cartNotice', 'Your cart was updated to match current availability and pricing.')
+            ->assertSessionHas('cart', []);
+    }
+
+    public function test_checkout_is_idempotent_and_success_page_requires_a_public_token(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false]);
+        $product = Product::create(['title' => 'Secure Checkout', 'slug' => 'secure-checkout', 'regular_price' => 200, 'stock_quantity' => 3, 'status' => 'Published', 'visibility' => 'Public']);
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
+        $data = $this->checkoutData(['customer_name' => 'Customer', 'phone' => '+880 1700-000000', 'address' => 'Dhaka', 'city' => 'Dhanmondi', 'district' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod']);
+
+        $this->post(route('storefront.checkout.place-order'), $data)->assertRedirect();
+        $order = \DB::table('orders')->first();
+        $this->assertNotNull($order->public_token);
+        $this->assertSame('01700000000', $order->phone);
+        $this->assertSame('#ORD'.str_pad((string) $order->id, 6, '0', STR_PAD_LEFT), $order->order_number);
+
+        $this->post(route('storefront.checkout.place-order'), $data)
+            ->assertRedirect(route('storefront.order.success', $order->public_token));
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertSame(2, $product->fresh()->stock_quantity);
+        $this->get(route('storefront.order.success', $order->id))->assertNotFound();
+        $this->get(route('storefront.order.success', $order->public_token))->assertOk()->assertInertia(fn ($page) => $page
+            ->component('app/modules/storefront/checkout/pages/Success', false)
+            ->where('order.order_number', $order->order_number)
+            ->where('order.phone', '01700000000'));
+    }
+
+    public function test_checkout_rejects_an_invalid_bangladesh_phone_number(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false]);
+        $product = Product::create(['title' => 'Phone Validation', 'slug' => 'phone-validation', 'regular_price' => 100, 'stock_quantity' => 2, 'status' => 'Published', 'visibility' => 'Public']);
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
+
+        $this->post(route('storefront.checkout.place-order'), $this->checkoutData(['customer_name' => 'Customer', 'phone' => '12345', 'address' => 'Dhaka', 'city' => 'Dhanmondi', 'district' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod']))
+            ->assertSessionHasErrors('phone');
+        $this->assertDatabaseCount('orders', 0);
+    }
+
     public function test_cart_rejects_quantity_above_stock(): void
     {
         WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'show_stock_to_customers' => true]);
-        $product = Product::create(['title'=>'Stocked','slug'=>'stocked','regular_price'=>100,'stock_quantity'=>2,'low_stock_threshold'=>1,'min_order_quantity'=>1,'quantity_step'=>1,'status'=>'Published','visibility'=>'Public']);
-        $this->postJson(route('storefront.products.cart',$product),['quantity'=>3])->assertUnprocessable();
+        $product = Product::create(['title' => 'Stocked', 'slug' => 'stocked', 'regular_price' => 100, 'stock_quantity' => 2, 'low_stock_threshold' => 1, 'min_order_quantity' => 1, 'quantity_step' => 1, 'status' => 'Published', 'visibility' => 'Public']);
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 3])->assertUnprocessable();
     }
 
     public function test_out_of_stock_order_can_be_placed_and_alerts_admin_when_enabled(): void
     {
         WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => true, 'show_stock_to_customers' => false]);
-        $product = Product::create(['title'=>'Back order','slug'=>'back-order','regular_price'=>250,'stock_quantity'=>0,'min_order_quantity'=>1,'quantity_step'=>1,'status'=>'Published','visibility'=>'Public']);
+        $product = Product::create(['title' => 'Back order', 'slug' => 'back-order', 'regular_price' => 250, 'stock_quantity' => 0, 'min_order_quantity' => 1, 'quantity_step' => 1, 'status' => 'Published', 'visibility' => 'Public']);
 
         $this->postJson(route('storefront.products.cart', $product), ['quantity' => 2])->assertOk();
-        $this->post(route('storefront.checkout.place-order'), [
+        $this->post(route('storefront.checkout.place-order'), $this->checkoutData([
             'customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod',
-        ])->assertRedirect();
+        ]))->assertRedirect();
 
         $this->assertDatabaseHas('orders', ['has_stock_shortage' => true]);
         $this->assertDatabaseHas('order_items', ['product_id' => $product->id, 'quantity' => 2, 'stock_shortage_quantity' => 2]);
         $this->actingAs(User::factory()->create())->getJson(route('orders.notifications'))->assertOk()->assertJsonPath('orders.0.hasStockShortage', true);
         $this->assertSame(0, $product->fresh()->stock_quantity);
     }
+
     public function test_indexable_product_appears_in_sitemap(): void
     {
-        Product::create(['title'=>'Indexed','slug'=>'indexed','regular_price'=>100,'stock_quantity'=>1,'status'=>'Published','visibility'=>'Public','meta_robots'=>'index,follow']);
+        Product::create(['title' => 'Indexed', 'slug' => 'indexed', 'regular_price' => 100, 'stock_quantity' => 1, 'status' => 'Published', 'visibility' => 'Public', 'meta_robots' => 'index,follow']);
         $this->get(route('sitemap.products'))->assertOk()->assertSee('/indexed');
     }
 
     public function test_product_edit_saves_featured_and_gallery_images(): void
     {
-        $product = Product::create(['title'=>'Old title','slug'=>'old-title','regular_price'=>100,'stock_quantity'=>1,'status'=>'Draft','visibility'=>'Public']);
+        $product = Product::create(['title' => 'Old title', 'slug' => 'old-title', 'regular_price' => 100, 'stock_quantity' => 1, 'status' => 'Draft', 'visibility' => 'Public']);
 
         $this->actingAs(User::factory()->create())->patch(route('inventories.products.update', $product), [
             'title' => 'Updated title',
@@ -239,5 +308,13 @@ class ProductDetailsTest extends TestCase
 
         $this->assertGreaterThan(255, strlen($tags));
         $this->assertSame($tags, $product->fresh()->tags);
+    }
+
+    private function checkoutData(array $data): array
+    {
+        $token = (string) Str::uuid();
+        $this->withSession(['checkout_token' => $token]);
+
+        return [...$data, 'checkout_token' => $token];
     }
 }

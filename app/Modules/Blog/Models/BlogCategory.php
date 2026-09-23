@@ -6,5 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 class BlogCategory extends Model
 {
     protected $guarded = ['id'];
+    public function parent() { return $this->belongsTo(self::class, 'parent_id'); }
     public function posts() { return $this->belongsToMany(BlogPost::class, 'blog_category_post'); }
 }

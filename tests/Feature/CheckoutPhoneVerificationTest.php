@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class CheckoutPhoneVerificationTest extends TestCase
@@ -22,6 +23,7 @@ class CheckoutPhoneVerificationTest extends TestCase
         Http::fake(function (Request $request) use (&$otp) {
             preg_match('/\b(\d{4})\b/', (string) $request['msg'], $matches);
             $otp = $matches[1] ?? null;
+
             return Http::response('SMS SUBMITTED', 200);
         });
 
@@ -65,6 +67,9 @@ class CheckoutPhoneVerificationTest extends TestCase
 
     private function orderData(): array
     {
-        return ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhanmondi', 'district' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod'];
+        $token = (string) Str::uuid();
+        $this->withSession(['checkout_token' => $token]);
+
+        return ['customer_name' => 'Customer', 'phone' => '01700000000', 'address' => 'Dhaka', 'city' => 'Dhanmondi', 'district' => 'Dhaka', 'delivery_zone' => 'inside_dhaka', 'payment_method' => 'cod', 'checkout_token' => $token];
     }
 }

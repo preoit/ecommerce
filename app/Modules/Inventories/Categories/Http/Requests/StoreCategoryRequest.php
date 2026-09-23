@@ -22,7 +22,7 @@ class StoreCategoryRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:150'],
             'parent_id' => ['nullable', 'integer', Rule::exists(Category::class, 'id')->whereNull('deleted_at'), Rule::notIn(array_filter([$category?->id]))],
-            'slug' => ['required', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::notIn(config('seo.reserved_slugs')), Rule::unique(Category::class, 'slug')->ignore($category), Rule::unique(Product::class, 'slug')],
+            'slug' => ['required', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::notIn(config('seo.reserved_slugs')), Rule::unique(Category::class, 'slug')->ignore($category), Rule::unique(Product::class, 'slug'), Rule::unique('blog_categories', 'slug')],
             'short_description' => ['nullable', 'string', 'max:5000'],
             'description' => ['nullable', 'string'],
             'seo_title' => ['nullable', 'string', 'max:160'],

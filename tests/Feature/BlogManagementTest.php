@@ -3,6 +3,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Modules\Blog\Models\{BlogPost, BlogCategory, BlogAuthor};
+use App\Modules\Inventories\Categories\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -84,5 +85,35 @@ class BlogManagementTest extends TestCase
         $this->post(route('blog.store'), $payload)->assertSessionHasNoErrors();
         $this->post(route('blog.store'), $payload)->assertSessionHasErrors('slug');
         $this->post(route('blog.authors.store'), ['name' => 'Unsafe', 'slug' => 'unsafe', 'social_links' => ['website' => 'javascript:alert(1)']])->assertSessionHasErrors('social_links.website');
+    }
+
+    public function test_blog_category_uses_a_root_permalink_and_legacy_url_redirects(): void
+    {
+        $author = BlogAuthor::create(['name' => 'Writer', 'slug' => 'writer']);
+        $category = BlogCategory::create(['name' => 'Buying Guides', 'slug' => 'buying-guides']);
+        $post = BlogPost::create([
+            'author_id' => $author->id,
+            'title' => 'A Buying Guide',
+            'slug' => 'a-buying-guide',
+            'status' => 'Published',
+            'published_at' => now()->subMinute(),
+            'seo' => ['robots' => 'index,follow'],
+        ]);
+        $post->categories()->attach($category);
+
+        $this->get('/buying-guides')->assertOk()->assertInertia(fn ($page) => $page
+            ->component('app/modules/blog/pages/PublicIndex', false)
+            ->where('category.slug', 'buying-guides')
+            ->has('posts.data', 1));
+        $this->get('/blog/category/buying-guides')->assertRedirect('/buying-guides')->assertStatus(301);
+    }
+
+    public function test_blog_category_permalink_cannot_conflict_with_a_store_category(): void
+    {
+        $this->actingAs(User::factory()->create());
+        Category::create(['name' => 'Buying Guides', 'slug' => 'buying-guides']);
+
+        $this->post(route('blog.categories.store'), ['name' => 'Blog Buying Guides', 'slug' => 'buying-guides'])
+            ->assertSessionHasErrors('slug');
     }
 }

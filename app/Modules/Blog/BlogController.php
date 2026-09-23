@@ -4,6 +4,7 @@ namespace App\Modules\Blog;
 use App\Http\Controllers\Controller;
 use App\Modules\Blog\Models\{BlogPost, BlogCategory, BlogAuthor};
 use App\Support\Content\RichTextSanitizer;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -85,7 +86,7 @@ class BlogController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'slug' => ['required', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('blog_categories')->ignore($category?->id)],
+            'slug' => ['required', 'string', 'max:180', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::notIn(config('seo.reserved_slugs')), Rule::unique('blog_categories')->ignore($category?->id), Rule::unique('products', 'slug'), Rule::unique('categories', 'slug')],
             'parent_id' => ['nullable', 'integer', 'exists:blog_categories,id'],
             'description' => ['nullable', 'string', 'max:10000'], 'image_path' => ['nullable', 'string', 'max:2048'],
         ]);
@@ -128,7 +129,7 @@ class BlogController extends Controller
         $categoryModel = $category ? BlogCategory::where('slug', $category)->firstOrFail() : null;
         $authorModel = $author ? BlogAuthor::where('slug', $author)->firstOrFail() : null;
         return Inertia::render('app/modules/blog/pages/PublicIndex', [
-            'posts' => BlogPost::published()->with(['author:id,name,slug', 'categories:id,name,slug'])
+            'posts' => BlogPost::published()->with(['author:id,name,slug,designation,image_path', 'categories:id,name,slug'])
                 ->select(['id', 'title', 'slug', 'excerpt', 'image_path', 'author_id', 'published_at'])
                 ->when($categoryModel, fn ($q) => $q->whereHas('categories', fn ($c) => $c->whereKey($categoryModel->id)))
                 ->when($authorModel, fn ($q) => $q->where('author_id', $authorModel->id))
@@ -139,9 +140,16 @@ class BlogController extends Controller
         ]);
     }
 
+    public function legacyCategory(string $category): RedirectResponse
+    {
+        abort_unless(BlogCategory::where('slug', $category)->exists(), 404);
+
+        return redirect()->to('/'.$category, 301);
+    }
+
     public function show(string $slug)
     {
-        $post = BlogPost::published()->where('slug', $slug)->with(['author', 'categories'])->first();
+        $post = BlogPost::published()->where('slug', $slug)->with(['author', 'categories.parent'])->first();
         if (!$post) {
             $id = DB::table('blog_redirects')->where('slug', $slug)->value('blog_post_id');
             $redirect = $id ? BlogPost::published()->find($id) : null;
@@ -152,7 +160,8 @@ class BlogController extends Controller
             'post' => $post,
             'related' => BlogPost::published()->whereKeyNot($post->id)
                 ->whereHas('categories', fn ($q) => $q->whereIn('blog_categories.id', $post->categories->modelKeys()))
-                ->latest('published_at')->limit(4)->get(['id', 'title', 'slug', 'image_path']),
+                ->with('categories:id,name,slug')
+                ->latest('published_at')->limit(4)->get(['id', 'title', 'slug', 'image_path', 'published_at']),
         ]);
     }
 
