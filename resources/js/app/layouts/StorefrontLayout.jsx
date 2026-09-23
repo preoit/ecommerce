@@ -1,15 +1,18 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import { Apple, ArrowUp, ChevronDown, Mail, Menu, MessageCircle, Moon, Music2, Phone, Play, Search, ShoppingCart, Sun, UserRound, X } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Apple, ArrowUp, ChevronDown, Menu, MessageCircle, Moon, Music2, Phone, Play, Search, ShoppingCart, Sun, UserRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import CartDrawer from '@/app/components/CartDrawer';
 
 const footerGroups = [
-    { title: 'Let Us Help You', links: ['Account Info', 'Your Orders', 'Returns Policies', 'Shipping Rates'] },
-    { title: 'Make Money with Us', links: ['Sell on our store', 'Sell Your Services', 'Become an Affiliate'] },
-    { title: 'Get to Know Us', links: ['Careers', 'About Us', 'Customer Reviews'] },
-    { title: 'Our Stores', links: ['New York', 'London', 'Los Angeles'] },
+    { title: 'Customer Care', links: ['My account|/account', 'My orders|/account/orders', 'Shopping cart|/cart'] },
+    { title: 'Shop', links: ['All products|/products', 'Wishlist|/wishlist', 'Stories & Guides|/blog'] },
+    { title: 'Company', links: ['Home|/', 'Contact us|/contact'] },
 ];
 const socialNetworks = ['Facebook', 'X', 'Instagram', 'YouTube', 'TikTok', 'WhatsApp'];
+const isUsableUrl = (value) => {
+    const url = String(value || '').trim();
+    return url !== '' && url !== '#' && !url.endsWith('/#') && !url.toLowerCase().startsWith('javascript:');
+};
 
 function Brand({ website }) {
     const { auth } = usePage().props;
@@ -25,8 +28,15 @@ function ThemeAction({ darkMode, onToggle, mobile = false }) {
 }
 
 function SearchBar() {
-    return <form className="flex h-12 min-w-0 flex-1 items-stretch rounded-full border-2 border-transparent bg-[#f1f3f6] p-0.5 transition-colors hover:border-violet-500 focus-within:border-violet-500 lg:max-w-[760px]" role="search" onSubmit={event => event.preventDefault()}>
-        <input type="search" placeholder="Search phones, beauty, home & more..." className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-slate-800 placeholder:text-slate-500 focus:ring-0" />
+    const [query, setQuery] = useState(() => new URLSearchParams(window.location.search).get('search') || '');
+    const submit = (event) => {
+        event.preventDefault();
+        const search = query.trim();
+        router.get(route('storefront.products.index'), search ? { search } : {}, { preserveState: false });
+    };
+
+    return <form className="flex h-12 min-w-0 flex-1 items-stretch rounded-full border-2 border-transparent bg-[#f1f3f6] p-0.5 transition-colors hover:border-violet-500 focus-within:border-violet-500 lg:max-w-[760px]" role="search" onSubmit={submit}>
+        <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search products or SKU..." className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-slate-800 placeholder:text-slate-500 focus:ring-0" />
         <button type="submit" className="inline-flex aspect-square h-full shrink-0 items-center justify-center rounded-full bg-transparent text-[#172231] transition-colors hover:bg-slate-200" aria-label="Search"><Search className="size-5" /></button>
     </form>;
 }
