@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Apple, ArrowUp, ChevronDown, Menu, MessageCircle, Moon, Music2, Phone, Play, Search, ShoppingCart, Sun, UserRound, X } from 'lucide-react';
+import { Apple, ArrowUp, ChevronDown, Mail, Menu, MessageCircle, Moon, Music2, Phone, Play, Search, ShoppingCart, Sun, UserRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import CartDrawer from '@/app/components/CartDrawer';
 
