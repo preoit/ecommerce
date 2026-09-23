@@ -24,6 +24,7 @@ export default function CategoryTable({ categories, search, onSearchChange, onSe
     const [bulkAction, setBulkAction] = useState('');
     const ids = categories.data.map((category) => category.id);
     const allSelected = ids.length > 0 && ids.every((id) => selected.includes(id));
+    const hierarchical = entityLabel === 'category';
     const toggleAll = () => setSelected(allSelected ? [] : ids);
     const toggle = (id) => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
     const applyBulkAction = () => {
@@ -41,7 +42,7 @@ export default function CategoryTable({ categories, search, onSearchChange, onSe
                 <p className="mt-1 text-sm text-slate-500">Manage and organize product {entityLabel}s.</p>
             </div>
 
-            <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/60 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/60 px-4 py-4 dark:border-slate-800 dark:bg-slate-800/50 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                     <select value={bulkAction} onChange={(event) => setBulkAction(event.target.value)} className="h-10 rounded-md border-slate-300 bg-white py-0 pl-3 pr-9 text-sm focus:border-violet-500 focus:ring-violet-500">
                         <option value="">Bulk actions</option>
@@ -67,7 +68,7 @@ export default function CategoryTable({ categories, search, onSearchChange, onSe
                             <thead className="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold text-slate-600">
                                 <tr>
                                     <th className="w-10 px-3 py-3"><input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-slate-300 text-violet-600 focus:ring-violet-500" aria-label="Select all categories" /></th>
-                                    <th className="w-14 px-2 py-3">Image</th><th className="px-3 py-3">Name</th><th className="px-3 py-3">Description</th><th className="px-3 py-3">Slug</th><th className="px-3 py-3 text-center">Count</th><th className="px-3 py-3 text-center">Products</th><th className="w-32 px-3 py-3"><span className="sr-only">Actions</span></th>
+                                    <th className="w-14 px-2 py-3">Image</th><th className="px-3 py-3">Name</th><th className="px-3 py-3">Description</th><th className="px-3 py-3">Slug</th>{hierarchical && <th className="px-3 py-3 text-center">Subcategories</th>}<th className="px-3 py-3 text-center">Products</th><th className="w-32 px-3 py-3"><span className="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200">
@@ -80,7 +81,7 @@ export default function CategoryTable({ categories, search, onSearchChange, onSe
                                             <td className="px-3 py-3"><button type="button" onClick={() => onView(category)} className="category-table__name font-normal text-violet-600 hover:text-violet-800 hover:underline">{category.depth > 0 && <span className="mr-2 text-slate-400" aria-hidden="true">—</span>}{category.name}</button>{category.parent?.name && <p className="mt-0.5 pl-4 text-xs text-slate-400">in {category.parent.name}</p>}</td>
                                             <td className="max-w-xs px-3 py-3 text-slate-500"><p className="truncate">{description || '—'}</p></td>
                                             <td className="px-3 py-3 text-slate-600">/{category.slug}</td>
-                                            <td className="px-3 py-3 text-center font-medium text-violet-600">{category.children_count || 0}</td>
+                                            {hierarchical && <td className="px-3 py-3 text-center font-medium text-violet-600">{category.children_count || 0}</td>}
                                             <td className="px-3 py-3 text-center font-medium text-slate-700">{category.products_count || 0}</td>
                                             <td className="px-3 py-3"><CategoryActions category={category} onView={onView} onEdit={onEdit} onDelete={onDelete} /></td>
                                         </tr>
@@ -90,8 +91,8 @@ export default function CategoryTable({ categories, search, onSearchChange, onSe
                         </table>
                     </div>
 
-                    <div className="divide-y divide-slate-200 md:hidden">
-                        {categories.data.map((category) => <article key={category.id} className="flex gap-3 p-4 hover:bg-violet-50/30"><input type="checkbox" checked={selected.includes(category.id)} onChange={() => toggle(category.id)} className="mt-3 rounded border-slate-300 text-violet-600 focus:ring-violet-500" aria-label={`Select ${category.name}`} />{category.image_url ? <img src={category.image_url} alt="" className="size-10 rounded-md border border-slate-200 object-cover" /> : <span className="grid size-10 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-400"><Image className="size-4" /></span>}<div className="min-w-0 flex-1"><button type="button" onClick={() => onView(category)} className="text-sm font-normal text-violet-600">{category.depth > 0 && <span className="mr-2 text-slate-400" aria-hidden="true">—</span>}{category.name}</button><p className="truncate text-xs text-slate-500">{textFromHtml(category.description) || 'No description'}</p><p className="mt-1 text-xs text-slate-400">/{category.slug} · {category.children_count || 0} subcategories · {category.products_count || 0} products</p><div className="mt-2"><CategoryActions category={category} onView={onView} onEdit={onEdit} onDelete={onDelete} /></div></div></article>)}
+                    <div className="divide-y divide-slate-200 dark:divide-slate-800 md:hidden">
+                        {categories.data.map((category) => <article key={category.id} className="flex gap-3 p-4 hover:bg-violet-50/30"><input type="checkbox" checked={selected.includes(category.id)} onChange={() => toggle(category.id)} className="mt-3 rounded border-slate-300 text-violet-600 focus:ring-violet-500" aria-label={`Select ${category.name}`} />{category.image_url ? <img src={category.image_url} alt="" className="size-10 rounded-md border border-slate-200 object-cover" /> : <span className="grid size-10 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-400"><Image className="size-4" /></span>}<div className="min-w-0 flex-1"><button type="button" onClick={() => onView(category)} className="text-sm font-normal text-violet-600">{category.depth > 0 && <span className="mr-2 text-slate-400" aria-hidden="true">—</span>}{category.name}</button><p className="truncate text-xs text-slate-500">{textFromHtml(category.description) || 'No description'}</p><p className="mt-1 text-xs text-slate-400">/{category.slug} · {hierarchical && <>{category.children_count || 0} subcategories · </>}{category.products_count || 0} products</p><div className="mt-2"><CategoryActions category={category} onView={onView} onEdit={onEdit} onDelete={onDelete} /></div></div></article>)}
                     </div>
                 </>
             )}

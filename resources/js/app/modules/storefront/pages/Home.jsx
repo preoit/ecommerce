@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import ProductCardActions from '@/app/components/ProductCardActions';
-import { Eye, Heart, Image as ImageIcon, ShoppingBag } from 'lucide-react';
+import { Image as ImageIcon, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Seo from '@/app/components/Seo';
 import StorefrontLayout from '@/app/layouts/StorefrontLayout';
@@ -13,7 +13,7 @@ function PrimaryHeroSlider({ images, href }) {
         return () => window.clearInterval(timer);
     }, [images.length]);
     useEffect(() => { if (active >= images.length) setActive(0); }, [active, images.length]);
-    return <div className="group relative overflow-hidden rounded-lg bg-slate-100"><a href={href} className="block h-full"><img key={images[active]} src={images[active]} alt={`Featured promotion ${active + 1}`} className="aspect-[16/9] h-full w-full animate-[heroFade_.35s_ease-out] object-cover sm:aspect-[2.5/1] transition-transform duration-500 group-hover:scale-[1.015]" fetchPriority={active === 0 ? 'high' : 'auto'} /></a>{images.length > 1 && <div className="absolute bottom-4 left-5 flex gap-2">{images.map((image, index) => <button type="button" key={image} onClick={() => setActive(index)} className={`size-2.5 rounded-full border border-white ${active === index ? 'bg-violet-600' : 'bg-white/90'}`} aria-label={`Show slide ${index + 1}`} />)}</div>}</div>;
+    return <div className="group relative overflow-hidden rounded-lg bg-slate-100"><a href={href} className="block h-full"><img key={images[active]} src={images[active]} alt={`Featured promotion ${active + 1}`} className="aspect-[16/9] h-full w-full animate-[heroFade_.35s_ease-out] object-contain sm:aspect-[2.5/1] transition-transform duration-500 group-hover:scale-[1.015]" fetchPriority={active === 0 ? 'high' : 'auto'} /></a>{images.length > 1 && <div className="absolute bottom-4 left-5 flex gap-2">{images.map((image, index) => <button type="button" key={image} onClick={() => setActive(index)} className={`size-2.5 rounded-full border border-white ${active === index ? 'bg-violet-600' : 'bg-white/90'}`} aria-label={`Show slide ${index + 1}`} />)}</div>}</div>;
 }
 
 function ProductCard({ product }) {
@@ -22,7 +22,6 @@ function ProductCard({ product }) {
         <Link href={href} className="relative block aspect-square overflow-hidden bg-slate-50">
             {product.image ? <img src={product.image} alt={product.name} width="520" height="520" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <span className="grid h-full place-items-center text-slate-300"><ImageIcon className="size-12" strokeWidth={1.4} /></span>}
             <div className="absolute left-3 top-3 flex flex-col items-start gap-2">{product.isNewArrival && <span className="rounded-full bg-slate-950 px-2.5 py-1 text-[11px] font-bold text-white">New</span>}</div>
-            <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-sm transition hover:bg-violet-600 hover:text-white sm:translate-y-1 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"><Heart className="size-4" /></span>
         </Link>
         <div className="flex flex-1 flex-col p-3 sm:p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{product.brand || product.category}</p><h3 className="mt-1.5 line-clamp-2 min-h-11 text-[15px] font-medium leading-[1.45] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.name}</Link></h3><div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700">৳{Number(product.price).toLocaleString('en-BD')}</span>{product.discount > 0 && <><span className="text-xs font-semibold text-slate-400 line-through">৳{Number(product.regularPrice).toLocaleString('en-BD')}</span><span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">-{product.discount}%</span></>}</div><ProductCardActions product={product}/></div>
     </article>;

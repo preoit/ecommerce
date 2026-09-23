@@ -42,7 +42,13 @@ function RelatedProductItem({ product }) {
         <span className="block min-w-0 px-1 pb-1 pt-2"><strong className="line-clamp-2 text-xs font-semibold leading-4 text-slate-900 group-hover:text-violet-700">{product.title}</strong><span className="mt-1 flex flex-wrap items-baseline gap-2"><b className="text-sm text-violet-700">{money(product.price)}</b>{product.discount > 0 && <small className="text-[11px] text-slate-400 line-through">{money(product.regularPrice)}</small>}</span></span>
     </Link>;
 }
-function HtmlSection({ title, content, hideTitle = false }) { if (!content) return null; return <section className="border-b border-slate-200 py-7 dark:border-slate-800"><h2 className={hideTitle ? 'sr-only' : 'text-xl font-bold text-slate-950 dark:text-white'}>{title}</h2><div className={`product-description-content rich-text-content max-w-none text-base leading-8 text-slate-700 dark:text-slate-200 ${hideTitle ? '' : 'mt-5'}`} dangerouslySetInnerHTML={{ __html: content }} /></section>; }
+function HtmlSection({ title, content, hideTitle = false }) {
+    if (!content) return null;
+    const cleanedContent = title === 'Product Description'
+        ? content.replace(/^\s*<(h[1-6]|p)[^>]*>\s*(?:<strong[^>]*>)?\s*Product Description\s*:?\s*(?:<\/strong>)?\s*<\/\1>\s*/i, '').replace(/^\s*Product Description\s*:?\s*/i, '')
+        : content;
+    return <section className="border-b border-slate-200 py-7 dark:border-slate-800"><h2 className={hideTitle ? 'sr-only' : 'text-xl font-bold text-slate-950 dark:text-white'}>{title}</h2><div className={`product-description-content rich-text-content max-w-3xl text-base leading-8 text-slate-700 dark:text-slate-200 ${hideTitle ? '' : 'mt-5'}`} dangerouslySetInnerHTML={{ __html: cleanedContent }} /></section>;
+}
 function SpecificationGroups({ groups = [] }) { if (!groups.length) return null; return <section className="border-b border-slate-200 pb-7"><h2 className="sr-only">Specifications</h2><div className="space-y-5">{groups.map((group) => <div key={group.title} className="overflow-hidden rounded-xl border border-slate-200"><h3 className="border-b border-slate-200 bg-violet-50 px-4 py-3 text-base font-bold text-violet-800">{group.title}</h3><table className="w-full text-sm"><tbody>{group.items.map((spec) => <tr key={spec.id} className="border-b border-slate-200 last:border-0"><th className="w-2/5 bg-slate-50 px-4 py-3 text-left font-semibold text-slate-700">{spec.name}</th><td className="px-4 py-3 text-slate-700">{spec.value}</td></tr>)}</tbody></table></div>)}</div></section>; }
 
 function ProductMedia({ product, media, activeImage, setActiveImage, setFullscreen }) {
@@ -107,7 +113,13 @@ export default function ProductShow({ product, reviews = [], rating, questions =
             const meta = document.createElement('div');
             meta.dataset.productQuickMeta = 'true';
             meta.className = 'flex flex-wrap items-center gap-x-8 gap-y-2 text-sm';
-            meta.innerHTML = `<span class="font-semibold text-slate-950">${product.sku || 'N/A'}</span><span class="${product.stock_quantity > 0 ? 'text-emerald-700' : 'text-rose-700'}">${product.stock_status}</span>`;
+            const sku = document.createElement('span');
+            sku.className = 'font-semibold text-slate-950';
+            sku.textContent = `SKU: ${product.sku || 'N/A'}`;
+            const stock = document.createElement('span');
+            stock.className = product.stock_quantity > 0 ? 'text-emerald-700' : 'text-rose-700';
+            stock.textContent = product.stock_status;
+            meta.append(sku, stock);
             ratingRow.append(meta);
         }
         if (details.querySelector('[data-product-tabs]')) return;
@@ -184,7 +196,7 @@ export default function ProductShow({ product, reviews = [], rating, questions =
     const canonical = product.canonical_url || route('storefront.products.show', product.slug);
     const siteUrl = typeof window === 'undefined' ? '' : window.location.origin;
     const productUrl = typeof window === 'undefined' ? canonical : window.location.href;
-    const whatsappUrl = `https://wa.me/${website.orderWhatsapp || ''}?text=${encodeURIComponent(`আমি ${product.title} অর্ডার করতে চাই। পরিমাণ: ${quantity}, মূল্য: ${money(unitPrice)}, লিংক: ${productUrl}`)}`;
+    const whatsappUrl = `https://wa.me/${website.orderWhatsapp || ''}?text=${encodeURIComponent(`I would like to order ${product.title}. Quantity: ${quantity}, price: ${money(unitPrice)}, link: ${productUrl}`)}`;
     const schema = {'@context':'https://schema.org','@graph':[{'@type':'Product','@id':`${canonical}#product`,name:product.title,description:strip(product.short_description || product.description),sku:product.sku || undefined,gtin:product.barcode || undefined,image:media,brand:product.brand?{'@type':'Brand',name:product.brand.name}:undefined,offers:{'@type':'Offer',url:canonical,priceCurrency:'BDT',price:unitPrice,availability:product.stock_quantity>0?'https://schema.org/InStock':'https://schema.org/OutOfStock',itemCondition:'https://schema.org/NewCondition'},...(rating.total>0?{aggregateRating:{'@type':'AggregateRating',ratingValue:rating.average,reviewCount:rating.total}}:{})},{'@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:siteUrl},...categoryBreadcrumb.map((category,index)=>({'@type':'ListItem',position:index+2,name:category.name,item:`${siteUrl}/${category.slug}`})),{'@type':'ListItem',position:categoryBreadcrumb.length+2,name:product.title,item:canonical}]}]};
 
     return <StorefrontLayout><Seo title={product.seo_title || product.title} description={product.meta_description || strip(product.short_description || product.description).slice(0,160)} image={product.og_image_url || product.featured_image_url} schema={schema} /><Head><link rel="canonical" href={canonical} /><meta name="robots" content={product.meta_robots || 'index,follow'} /><meta property="og:title" content={product.og_title || product.seo_title || product.title} /><meta property="og:description" content={product.og_description || product.meta_description || strip(product.short_description).slice(0,160)} /></Head>

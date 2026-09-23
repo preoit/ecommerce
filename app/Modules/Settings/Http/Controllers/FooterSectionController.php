@@ -86,14 +86,13 @@ class FooterSectionController extends Controller
     {
         return [
             'description' => 'Discover quality products, great value and dependable service—selected for everyday life.',
-            'phone' => '+880 0000 000 000', 'email' => '', 'address' => '', 'app_store_url' => '#', 'google_play_url' => '#', 'copyright_name' => 'iTTiBA International',
+            'phone' => '', 'email' => '', 'address' => '', 'app_store_url' => '', 'google_play_url' => '', 'copyright_name' => 'iTTiBA International',
             'link_groups' => [
-                ['title' => 'Let Us Help You', 'links' => ['Account Info', 'Your Orders', 'Returns Policies', 'Shipping Rates']],
-                ['title' => 'Make Money with Us', 'links' => ['Sell on our store', 'Sell Your Services', 'Become an Affiliate']],
-                ['title' => 'Get to Know Us', 'links' => ['Careers', 'About Us', 'Customer Reviews']],
-                ['title' => 'Our Stores', 'links' => ['New York', 'London', 'Los Angeles']],
+                ['title' => 'Customer Care', 'links' => ['My account|/account', 'My orders|/account/orders', 'Shopping cart|/cart']],
+                ['title' => 'Shop', 'links' => ['All products|/products', 'Wishlist|/wishlist', 'Stories & Guides|/blog']],
+                ['title' => 'Company', 'links' => ['Home|/', 'Stories & Guides|/blog']],
             ],
-            'social_links' => ['Facebook' => '#', 'X' => '#', 'Instagram' => '#', 'YouTube' => '#', 'TikTok' => '#', 'WhatsApp' => '#'],
+            'social_links' => ['Facebook' => '', 'X' => '', 'Instagram' => '', 'YouTube' => '', 'TikTok' => '', 'WhatsApp' => ''],
             'payment_methods' => ['Visa', 'Mastercard', 'bKash', 'Nagad', 'NexusPay'],
             'payment_images' => [],
         ];

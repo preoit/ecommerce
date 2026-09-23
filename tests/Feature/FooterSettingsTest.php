@@ -18,8 +18,8 @@ class FooterSettingsTest extends TestCase
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('app/modules/website-design/footer/pages/Edit', false)
-                ->where('footer.link_groups.0.title', 'Let Us Help You')
-                ->where('footer.link_groups.0.content', fn ($content) => str_contains($content, 'Account Info')));
+                ->where('footer.link_groups.0.title', 'Customer Care')
+                ->where('footer.link_groups.0.content', fn ($content) => str_contains($content, 'My account')));
     }
 
     public function test_footer_settings_are_saved_and_unsafe_rich_text_is_removed(): void

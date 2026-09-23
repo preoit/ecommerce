@@ -402,6 +402,12 @@ html.dark body.storefront-theme header[data-storefront-header] button {
 }
 
 @layer components {
+    @media (max-width: 399px) {
+        body.storefront-theme main .grid.grid-cols-2.gap-x-4.gap-y-7 {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
     .product-rich-text-editor > div {
         border-radius: 0;
     }

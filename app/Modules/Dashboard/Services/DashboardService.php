@@ -34,14 +34,15 @@ class DashboardService
         $newOrders = $this->hasTable('orders') && Schema::hasColumn('orders', 'viewed_at') ? DB::table('orders')->whereNull('viewed_at')->count() : 0;
         $products = $this->hasTable('products') ? Product::query()->count() : 0;
         $published = $this->hasTable('products') ? Product::query()->whereIn('status', ['Active', 'Published', 'active', 'published'])->count() : 0;
-        $customers = User::query()->count();
-        $stockRisk = $this->stockRiskCount();
+        $customerQuery = User::query()->where('is_admin', false);
+        $customers = (clone $customerQuery)->count();
+        $verifiedCustomers = (clone $customerQuery)->where(fn ($query) => $query->whereNotNull('email_verified_at')->orWhereNotNull('phone_verified_at'))->count();
 
         return [
             ['label' => 'Total revenue', 'value' => $this->money($totalRevenue), 'hint' => $this->money($todayRevenue).' today', 'icon' => 'revenue', 'href' => '/admin/orders'],
             ['label' => 'Orders', 'value' => number_format($orders), 'hint' => $newOrders.' unviewed', 'icon' => 'orders', 'href' => '/admin/orders'],
             ['label' => 'Products', 'value' => number_format($products), 'hint' => $published.' active', 'icon' => 'products', 'href' => '/admin/inventories/products'],
-            ['label' => 'Customers', 'value' => number_format($customers), 'hint' => $stockRisk.' stock alerts', 'icon' => 'customers', 'href' => '/admin/customers'],
+            ['label' => 'Customers', 'value' => number_format($customers), 'hint' => $verifiedCustomers.' verified', 'icon' => 'customers', 'href' => '/admin/customers'],
         ];
     }
 
@@ -133,17 +134,6 @@ class DashboardService
             'label' => str($status)->replace('_', ' ')->title()->toString(),
             'count' => $count,
         ];
-    }
-
-    private function stockRiskCount(): int
-    {
-        if (! $this->hasTable('products')) {
-            return 0;
-        }
-
-        return Schema::hasColumn('products', 'low_stock_threshold')
-            ? Product::query()->whereColumn('stock_quantity', '<=', 'low_stock_threshold')->count()
-            : Product::query()->where('stock_quantity', '<=', 0)->count();
     }
 
     private function money(float $amount): string

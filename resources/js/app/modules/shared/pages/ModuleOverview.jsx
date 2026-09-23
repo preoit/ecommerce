@@ -1,4 +1,4 @@
-import { CheckCircle2, Download, Plus } from 'lucide-react';
+import { CheckCircle2, Clock3, Download, Plus } from 'lucide-react';
 import Seo from '@/app/components/Seo';
 import Button from '@/app/design-system/components/Button';
 import PageHeader from '@/app/design-system/components/PageHeader';
@@ -16,9 +16,9 @@ export default function ModuleOverview({ eyebrow, title, description, actions, f
             <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
                 <section className="min-h-80 rounded-lg border border-dashed border-slate-300 bg-white p-6 sm:p-10">
                     <div className="mx-auto flex max-w-md flex-col items-center justify-center py-12 text-center">
-                        <span className="flex size-12 items-center justify-center rounded-md bg-brand-50 text-brand-700"><CheckCircle2 className="size-6" /></span>
-                        <h2 className="mt-4 text-lg font-bold text-slate-950">{title} module is ready</h2>
-                        <p className="mt-2 text-sm leading-6 text-slate-600">The route, service layer and responsive page boundary are in place. CRUD workflows can now be added without changing the application architecture.</p>
+                        <span className="flex size-12 items-center justify-center rounded-md bg-brand-50 text-brand-700"><Clock3 className="size-6" /></span>
+                        <h2 className="mt-4 text-lg font-bold text-slate-950">{title} is coming soon</h2>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">This module is not available yet. The planned scope is listed here so the interface does not imply unfinished actions are ready to use.</p>
                     </div>
                 </section>
                 <aside>
