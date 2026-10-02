@@ -753,8 +753,21 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         line-height: 16px !important;
     }
     .product-form-page .product-publish-at {
-        font-size: 13px !important;
-        line-height: 18px !important;
+        font-size: 17px !important;
+        line-height: 24px !important;
+    }
+    [data-admin-panel] :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea) {
+        font-size: 17px !important;
+        line-height: 1.5 !important;
+    }
+    [data-admin-panel] .admin-rich-text-editor select {
+        font-size: 14px !important;
+        line-height: 20px !important;
+    }
+    [data-admin-panel] .admin-rich-text-editor .rich-text-content,
+    [data-admin-panel] .admin-rich-text-editor .rich-text-content :is(p, li, blockquote) {
+        font-size: 18px;
+        line-height: 30px;
     }
     main > div.mx-auto.max-w-\[1280px\] > div.mt-12.grid > aside > div:first-child {
         display: none !important;

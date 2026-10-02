@@ -56,7 +56,7 @@ export default function RichTextEditor({ id, value = '', onChange, placeholder =
         editorProps: {
             attributes: {
                 id,
-                class: 'rich-text-content min-h-64 px-4 py-4 text-base leading-7 text-slate-800 focus:outline-none dark:text-slate-200',
+                class: 'rich-text-content min-h-64 px-4 py-4 text-[18px] leading-[30px] text-slate-800 focus:outline-none dark:text-slate-200',
             },
         },
         onUpdate: ({ editor: currentEditor }) => {
@@ -100,7 +100,7 @@ export default function RichTextEditor({ id, value = '', onChange, placeholder =
     };
 
     return (
-        <><div className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500">
+        <><div className="admin-rich-text-editor overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500">
             <div className="flex min-h-11 flex-wrap items-center gap-1 border-b border-slate-200 bg-slate-50 px-2 py-1.5">
                 <ToolbarButton label="Bold" icon={Bold} active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} />
                 <ToolbarButton label="Italic" icon={Italic} active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} />
@@ -110,7 +110,7 @@ export default function RichTextEditor({ id, value = '', onChange, placeholder =
                     title="Text style"
                     value={activeHeading || 0}
                     onChange={changeHeading}
-                    className="h-8 rounded-md border-slate-300 bg-white py-0 pl-2 pr-7 text-xs font-medium text-slate-700 focus:border-brand-500 focus:ring-brand-500"
+                    className="h-8 rounded-md border-slate-300 bg-white py-0 pl-2 pr-7 text-sm font-medium text-slate-700 focus:border-brand-500 focus:ring-brand-500"
                 >
                     <option value="0">Paragraph</option>
                     <option value="1">Large title (H1)</option>
