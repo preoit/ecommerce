@@ -1,19 +1,29 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutPhoneVerificationController;
+use App\Http\Controllers\InstallerController;
+use App\Http\Controllers\ProfileController;
+use App\Modules\Blog\BlogController;
 use App\Modules\Customers\Http\Controllers\CustomerAccountController;
-
-use App\Modules\Settings\Http\Controllers\MediaImageController;
 use App\Modules\Inventories\Products\Http\Controllers\StorefrontProductController;
+use App\Modules\Inventories\Products\Models\Product;
+use App\Modules\Settings\Http\Controllers\MediaImageController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
+
+Route::prefix('install')->name('installer.')->middleware('throttle:20,1')->group(function (): void {
+    Route::get('/', [InstallerController::class, 'index'])->name('index');
+    Route::post('/test-database', [InstallerController::class, 'testDatabase'])->middleware('throttle:6,1')->name('test-database');
+    Route::post('/', [InstallerController::class, 'store'])->middleware('throttle:3,10')->name('store');
+});
 
 Route::get('/', function () {
     return Inertia::render('app/modules/storefront/pages/Home', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'featuredProducts' => \Illuminate\Support\Facades\Schema::hasTable('products') ? \App\Modules\Inventories\Products\Models\Product::with(['categories:id,name','brand:id,name'])->whereIn('status',['Published','Active'])->where('visibility','Public')->latest('published_at')->latest('id')->limit(8)->get()->map(fn($product)=>['id'=>$product->id,'name'=>$product->title,'slug'=>$product->slug,'category'=>$product->categories->first()?->name??'Products','brand'=>$product->brand?->name,'price'=>(float)$product->current_price,'regularPrice'=>(float)$product->regular_price,'discount'=>$product->discount_percentage,'stockStatus'=>$product->stock_status,'isNewArrival'=>$product->is_new_arrival,'image'=>$product->featured_image_path?'/image/'.rawurlencode(basename($product->featured_image_path)):null]) : [],
+        'featuredProducts' => Schema::hasTable('products') ? Product::with(['categories:id,name', 'brand:id,name'])->whereIn('status', ['Published', 'Active'])->where('visibility', 'Public')->latest('published_at')->latest('id')->limit(8)->get()->map(fn ($product) => ['id' => $product->id, 'name' => $product->title, 'slug' => $product->slug, 'category' => $product->categories->first()?->name ?? 'Products', 'brand' => $product->brand?->name, 'price' => (float) $product->current_price, 'regularPrice' => (float) $product->regular_price, 'discount' => $product->discount_percentage, 'stockStatus' => $product->stock_status, 'isNewArrival' => $product->is_new_arrival, 'image' => $product->featured_image_path ? '/image/'.rawurlencode(basename($product->featured_image_path)) : null]) : [],
     ]);
 })->name('storefront.home');
 
@@ -65,21 +75,22 @@ Route::post('/product/{product}/compare', [StorefrontProductController::class, '
 Route::post('/product/{product}/notify', [StorefrontProductController::class, 'notify'])->middleware('throttle:5,1')->name('storefront.products.notify');
 Route::post('/product/{product}/reviews', [StorefrontProductController::class, 'review'])->middleware('throttle:3,1')->name('storefront.products.reviews.store');
 Route::post('/product/{product}/questions', [StorefrontProductController::class, 'question'])->middleware('throttle:5,1')->name('storefront.products.questions.store');
-Route::post('/product/{product}/wishlist', [StorefrontProductController::class, 'wishlist'])->middleware(['auth','throttle:30,1'])->name('storefront.products.wishlist');
+Route::post('/product/{product}/wishlist', [StorefrontProductController::class, 'wishlist'])->middleware(['auth', 'throttle:30,1'])->name('storefront.products.wishlist');
 Route::post('/reviews/{review}/helpful', [StorefrontProductController::class, 'helpful'])->middleware('throttle:20,1')->name('storefront.reviews.helpful');
 Route::get('/wishlist', [StorefrontProductController::class, 'wishlistPage'])->middleware('auth')->name('storefront.wishlist');
 Route::get('/compare', [StorefrontProductController::class, 'comparePage'])->name('storefront.compare');
 
 Route::get('/sitemap-products.xml', function () {
-    $products = \App\Modules\Inventories\Products\Models\Product::whereIn('status',['Published','Active'])->where('visibility','Public')->where('meta_robots','like','index%')->get(['slug','updated_at']);
-    return response()->view('sitemaps.products', compact('products'))->header('Content-Type','application/xml');
+    $products = Product::whereIn('status', ['Published', 'Active'])->where('visibility', 'Public')->where('meta_robots', 'like', 'index%')->get(['slug', 'updated_at']);
+
+    return response()->view('sitemaps.products', compact('products'))->header('Content-Type', 'application/xml');
 })->name('sitemap.products');
 
-Route::get('/blog', [\App\Modules\Blog\BlogController::class, 'listing'])->name('blog.public.index');
-Route::get('/blog/category/{category}', [\App\Modules\Blog\BlogController::class, 'legacyCategory'])->name('blog.public.category.legacy');
-Route::get('/blog/author/{author}', fn (\Illuminate\Http\Request $request, string $author) => app(\App\Modules\Blog\BlogController::class)->listing($request, null, $author))->name('blog.public.author');
-Route::get('/blog/{slug}', [\App\Modules\Blog\BlogController::class, 'show'])->name('blog.public.show');
-Route::get('/sitemap-blog.xml', [\App\Modules\Blog\BlogController::class, 'sitemap'])->name('sitemap.blog');
+Route::get('/blog', [BlogController::class, 'listing'])->name('blog.public.index');
+Route::get('/blog/category/{category}', [BlogController::class, 'legacyCategory'])->name('blog.public.category.legacy');
+Route::get('/blog/author/{author}', fn (Request $request, string $author) => app(BlogController::class)->listing($request, null, $author))->name('blog.public.author');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.public.show');
+Route::get('/sitemap-blog.xml', [BlogController::class, 'sitemap'])->name('sitemap.blog');
 
 Route::get('/{slug}', [StorefrontProductController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')

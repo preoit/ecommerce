@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureApplicationIsInstalled;
+use App\Http\Middleware\EnsureCustomer;
+use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -7,9 +11,6 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Http\Middleware\EnsureAdmin;
-use App\Http\Middleware\EnsureCustomer;
-use App\Http\Middleware\EnsurePermission;
 use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -19,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(prepend: [
+            EnsureApplicationIsInstalled::class,
+        ]);
+
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
@@ -35,7 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
-        $exceptions->respond(function (Response $response, \Throwable $exception, Request $request) {
+        $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
             if (! in_array($response->getStatusCode(), [403, 404], true) || $request->expectsJson()) {
                 return $response;
             }
