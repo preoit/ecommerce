@@ -100,9 +100,9 @@ function Sidebar({ url, onNavigate, website, orderCount = 0, items }) {
             </Link>
             <div className="flex-1 overflow-y-auto py-3"><Navigation url={url} onNavigate={onNavigate} orderCount={orderCount} items={items} /></div>
             <div className="border-t border-violet-100 p-3 dark:border-slate-700">
-                <Link href="/" className="flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+                <a href="/" target="_blank" rel="noopener noreferrer" className="flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
                     <Store className="size-[18px]" strokeWidth={1.8} /> View storefront
-                </Link>
+                </a>
             </div>
         </div>
     );
