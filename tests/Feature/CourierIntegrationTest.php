@@ -13,6 +13,11 @@ class CourierIntegrationTest extends TestCase {
         $id=DB::table('orders')->insertGetId(['order_number'=>'T'.uniqid(),'customer_name'=>'Test Customer','phone'=>'01700000000','address'=>'House 10, Road 2, Dhaka','city'=>'Dhaka','status'=>'confirmed','payment_status'=>'pending','payment_method'=>'cod','subtotal'=>500,'shipping_total'=>80,'total'=>580,'created_at'=>now(),'updated_at'=>now()]);
         DB::table('order_items')->insert(['order_id'=>$id,'product_title'=>'Test','quantity'=>1,'unit_price'=>500,'line_total'=>500,'created_at'=>now(),'updated_at'=>now()]); return $id;
     }
+    public function test_summary_response_skips_booking_list(): void {
+        $this->actingAs(User::factory()->create());
+        $this->getJson(route('couriers.index', ['summary'=>1]))->assertOk()->assertJsonPath('total',0)->assertJsonMissingPath('bookings');
+        $this->getJson(route('couriers.index'))->assertOk()->assertJsonStructure(['bookings'=>['data']]);
+    }
     public function test_settings_protect_secrets_and_reject_untrusted_urls(): void {
         $c=$this->courier();$this->assertStringNotContainsString('private-secret',DB::table('couriers')->value('credentials'));
         $this->actingAs(User::factory()->create())->get(route('couriers.settings'))->assertOk()->assertDontSee('private-secret')->assertDontSee('private-key');

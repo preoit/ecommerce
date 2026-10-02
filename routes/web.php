@@ -29,6 +29,13 @@ Route::get('/', function () {
 
 Route::get('/image/{filename}', MediaImageController::class)
     ->where('filename', '[^/]+')
+    ->withoutMiddleware([
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \App\Http\Middleware\HandleInertiaRequests::class,
+        \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+    ])
     ->name('media.image');
 
 Route::middleware(['auth', 'admin', 'permission'])->group(base_path('app/Modules/routes.php'));

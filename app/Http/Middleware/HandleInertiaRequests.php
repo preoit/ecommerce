@@ -6,6 +6,7 @@ use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Settings\Models\WebsiteMedia;
 use App\Modules\Settings\Models\WebsiteSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
@@ -53,6 +54,11 @@ class HandleInertiaRequests extends Middleware
 
     private function websiteIdentity(): array
     {
+        return Cache::remember('storefront.website_identity.v1', now()->addMinutes(10), fn (): array => $this->loadWebsiteIdentity());
+    }
+
+    private function loadWebsiteIdentity(): array
+    {
         $settings = Schema::hasTable('website_settings') ? WebsiteSetting::find(1) : null;
         $assetPaths = collect([
             $settings?->logo_path,
@@ -92,6 +98,11 @@ class HandleInertiaRequests extends Middleware
 
     /** @return array<int, array{id: int, name: string, slug: string, children: array}> */
     private function storefrontCategoryTree(): array
+    {
+        return Cache::remember('storefront.category_tree.v1', now()->addMinutes(10), fn (): array => $this->loadStorefrontCategoryTree());
+    }
+
+    private function loadStorefrontCategoryTree(): array
     {
         if (! Schema::hasTable('categories')) {
             return [];

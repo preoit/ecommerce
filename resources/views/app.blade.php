@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 @php
-    $websiteSettings = \Illuminate\Support\Facades\Schema::hasTable('website_settings') ? \App\Modules\Settings\Models\WebsiteSetting::find(1) : null;
-    $websiteName = $websiteSettings?->website_name ?: config('app.name', 'Commerce');
-    $websiteFavicon = $websiteSettings?->favicon_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($websiteSettings->favicon_path) ? url('/image/'.rawurlencode(basename($websiteSettings->favicon_path))) : null;
+    $websiteName = data_get($page, 'props.website.name') ?: config('app.name', 'Commerce');
+    $websiteFavicon = data_get($page, 'props.website.favicon');
 @endphp
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

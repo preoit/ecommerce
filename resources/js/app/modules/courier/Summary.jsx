@@ -21,7 +21,7 @@ export default function CourierSummary() {
     useEffect(() => {
         let active = true;
         setLoading(true); setError('');
-        api(route('couriers.index', dateRange(period)))
+        api(route('couriers.index', { ...dateRange(period), summary: 1 }))
             .then(result => { if (active) setData(result); })
             .catch(() => { if (active) setError('Courier overview could not be loaded.'); })
             .finally(() => { if (active) setLoading(false); });

@@ -3,9 +3,16 @@
 namespace App\Modules\Settings\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class WebsiteSetting extends Model
 {
+    protected static function booted(): void
+    {
+        static::saved(fn () => Cache::forget('storefront.website_identity.v1'));
+        static::deleted(fn () => Cache::forget('storefront.website_identity.v1'));
+    }
+
     protected $fillable = [
         'order_whatsapp', 'order_phone',
         'website_name', 'logo_path', 'favicon_path', 'seo_title', 'seo_description', 'seo_image_path',

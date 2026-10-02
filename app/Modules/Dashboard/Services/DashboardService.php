@@ -14,6 +14,12 @@ use Inertia\Response;
 
 class DashboardService
 {
+    /** @var array<string, bool> */
+    private array $tableExists = [];
+
+    /** @var array<string, bool> */
+    private array $columnExists = [];
+
     public function page(): Response
     {
         return Inertia::render('app/modules/dashboard/pages/Index', [
@@ -31,7 +37,7 @@ class DashboardService
         $totalRevenue = $this->hasTable('orders') ? (float) DB::table('orders')->sum('total') : 0;
         $todayRevenue = $this->hasTable('orders') ? (float) DB::table('orders')->whereDate('created_at', today())->sum('total') : 0;
         $orders = $this->hasTable('orders') ? DB::table('orders')->count() : 0;
-        $newOrders = $this->hasTable('orders') && Schema::hasColumn('orders', 'viewed_at') ? DB::table('orders')->whereNull('viewed_at')->count() : 0;
+        $newOrders = $this->hasTable('orders') && $this->hasColumn('orders', 'viewed_at') ? DB::table('orders')->whereNull('viewed_at')->count() : 0;
         $products = $this->hasTable('products') ? Product::query()->count() : 0;
         $published = $this->hasTable('products') ? Product::query()->whereIn('status', ['Active', 'Published', 'active', 'published'])->count() : 0;
         $customerQuery = User::query()->where('is_admin', false);
@@ -69,7 +75,7 @@ class DashboardService
 
         return DB::table('orders')->latest()->limit(5)->get()->map(function (object $order): array {
             $createdAt = Carbon::parse($order->created_at, 'UTC')->setTimezone('Asia/Dhaka');
-            $viewed = Schema::hasColumn('orders', 'viewed_at') ? $order->viewed_at !== null : true;
+            $viewed = $this->hasColumn('orders', 'viewed_at') ? $order->viewed_at !== null : true;
 
             return [
                 'id' => $order->id,
@@ -94,7 +100,7 @@ class DashboardService
             return [];
         }
 
-        $hasThreshold = Schema::hasColumn('products', 'low_stock_threshold');
+        $hasThreshold = $this->hasColumn('products', 'low_stock_threshold');
         $query = Product::query()->select($hasThreshold
             ? ['id', 'title', 'sku', 'stock_quantity', 'low_stock_threshold', 'status']
             : ['id', 'title', 'sku', 'stock_quantity', 'status']
@@ -143,6 +149,11 @@ class DashboardService
 
     private function hasTable(string $table): bool
     {
-        return Schema::hasTable($table);
+        return $this->tableExists[$table] ??= Schema::hasTable($table);
+    }
+
+    private function hasColumn(string $table, string $column): bool
+    {
+        return $this->columnExists[$table.'.'.$column] ??= Schema::hasColumn($table, $column);
     }
 }

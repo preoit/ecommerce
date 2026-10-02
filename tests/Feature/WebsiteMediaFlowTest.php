@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Modules\Settings\Models\WebsiteMedia;
 use App\Modules\Settings\Models\WebsiteSetting;
+use App\Modules\Inventories\Categories\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,30 @@ use Tests\TestCase;
 class WebsiteMediaFlowTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_public_image_is_cacheable_without_starting_a_session(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('image/test-logo.png', 'image bytes');
+        WebsiteMedia::create(['name' => 'Test logo', 'path' => 'image/test-logo.png', 'mime_type' => 'image/png', 'size' => 11]);
+
+        $response = $this->get('/image/test-logo.png')->assertOk()->assertHeader('Cache-Control', 'max-age=86400, public');
+
+        $this->assertFalse($response->headers->has('Set-Cookie'));
+    }
+
+    public function test_shared_storefront_data_refreshes_after_settings_and_category_changes(): void
+    {
+        $settings = WebsiteSetting::create(['id' => 1, 'website_name' => 'First Store']);
+        $this->get('/')->assertInertia(fn ($page) => $page->where('website.name', 'First Store')->where('storefrontCategories', []));
+
+        $settings->update(['website_name' => 'Updated Store']);
+        Category::create(['name' => 'Water Filters', 'slug' => 'water-filters', 'is_active' => true]);
+
+        $this->get('/')->assertInertia(fn ($page) => $page
+            ->where('website.name', 'Updated Store')
+            ->where('storefrontCategories.0.name', 'Water Filters'));
+    }
 
     public function test_admin_can_upload_select_save_render_and_delete_branding_media(): void
     {

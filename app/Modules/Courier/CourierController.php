@@ -88,12 +88,14 @@ class CourierController extends Controller {
         return response()->json(['message'=>'COD settlement recorded.']);
     }
     public function index(Request $r) {
-        $d=$r->validate(['from'=>'nullable|date_format:Y-m-d','to'=>'nullable|date_format:Y-m-d|after_or_equal:from']);
+        $d=$r->validate(['from'=>'nullable|date_format:Y-m-d','to'=>'nullable|date_format:Y-m-d|after_or_equal:from','summary'=>'sometimes|boolean']);
         $q=CourierOrder::where('sandbox_mode',false)->when($d['from']??null,fn($q,$date)=>$q->where('created_at','>=',\Carbon\Carbon::parse($date,'Asia/Dhaka')->utc()))->when($d['to']??null,fn($q,$date)=>$q->where('created_at','<=',\Carbon\Carbon::parse($date,'Asia/Dhaka')->endOfDay()->utc()));
         $stats=(clone $q)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total','status');
         $booked=(clone $q)->whereNotNull('booked_at');
-        $payload=['counts'=>$stats,'total'=>(clone $booked)->count(),'cod'=>(clone $booked)->sum('cod_amount'),'collected'=>(clone $booked)->sum('collected_cod'),'collectionVerified'=>(clone $booked)->whereNotNull('collected_cod')->count(),'filters'=>$d,'bookings'=>$q->with('courier:id,name')->latest()->paginate(25)->withQueryString()];
+        $totals=(clone $booked)->selectRaw('COUNT(*) as total, COALESCE(SUM(cod_amount), 0) as cod, COALESCE(SUM(collected_cod), 0) as collected, COUNT(collected_cod) as collection_verified')->first();
+        $payload=['counts'=>$stats,'total'=>(int)$totals->total,'cod'=>(float)$totals->cod,'collected'=>(float)$totals->collected,'collectionVerified'=>(int)$totals->collection_verified,'filters'=>$d];
         $payload['bookedCounts']=(clone $booked)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total','status');
+        if (!$r->boolean('summary')) $payload['bookings']=$q->with('courier:id,name')->latest()->paginate(25)->withQueryString();
         if ($r->expectsJson()) return response()->json($payload);
         return Inertia::render('app/modules/courier/pages/Dashboard',$payload);
     }
