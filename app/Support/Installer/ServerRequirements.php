@@ -26,6 +26,7 @@ class ServerRequirements
             $this->pathCheck('Composer dependencies', base_path('vendor/autoload.php'), true),
             $this->pathCheck('Compiled frontend assets', public_path('build/manifest.json'), true),
             $this->pathCheck('Storage directory', storage_path(), false),
+            $this->pathCheck('Installer private storage', storage_path('app/private'), false),
             $this->pathCheck('Bootstrap cache directory', base_path('bootstrap/cache'), false),
             [
                 'label' => '.env configuration',

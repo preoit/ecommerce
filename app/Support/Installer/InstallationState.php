@@ -25,7 +25,7 @@ class InstallationState
             return true;
         }
 
-        if (blank(config('app.key'))) {
+        if (config('installer.key_is_temporary') || blank(config('app.key'))) {
             return false;
         }
 

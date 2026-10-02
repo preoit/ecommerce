@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Support\Installer\BootstrapKey;
 use App\Support\Installer\InstallationState;
 use App\Support\Installer\InstallerService;
+use Illuminate\Support\Facades\File;
 use Mockery;
 use Tests\TestCase;
 
@@ -23,6 +25,31 @@ class InstallerTest extends TestCase
             ->assertSee('Server requirements')
             ->assertSee('Application & database', false)
             ->assertSee('Administrator');
+    }
+
+    public function test_fresh_clone_without_an_application_key_displays_the_installer(): void
+    {
+        $this->useUninstalledState();
+        $keyFile = storage_path('framework/testing/installer-'.bin2hex(random_bytes(8)).'.key');
+        config([
+            'app.key' => null,
+            'session.driver' => 'file',
+            'installer.bootstrap_key_file' => $keyFile,
+        ]);
+
+        try {
+            app(BootstrapKey::class)->activate();
+            $firstKey = config('app.key');
+
+            $this->get('/install')->assertOk();
+
+            config(['app.key' => null]);
+            app(BootstrapKey::class)->activate();
+            $this->assertSame($firstKey, config('app.key'));
+            $this->assertFileExists($keyFile);
+        } finally {
+            File::delete($keyFile);
+        }
     }
 
     public function test_installer_rejects_an_invalid_configuration_before_installing(): void

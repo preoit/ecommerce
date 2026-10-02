@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Modules\Settings\Models\CommunicationSetting;
+use App\Support\Installer\BootstrapKey;
 use App\Support\Installer\InstallationState;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Vite;
@@ -25,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
                 'cache.default' => 'file',
                 'queue.default' => 'sync',
             ]);
+        }
+
+        if (! is_file((string) config('installer.lock_file', storage_path('app/private/installed.json')))) {
+            $this->app->make(BootstrapKey::class)->activate();
         }
     }
 

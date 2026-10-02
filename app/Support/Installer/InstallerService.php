@@ -119,6 +119,7 @@ class InstallerService
             'app.url' => $data['app_url'],
             'app.timezone' => $data['timezone'],
             'app.key' => $appKey,
+            'installer.key_is_temporary' => false,
             'database.default' => 'mysql',
             'database.connections.mysql' => $mysql,
             'queue.default' => 'sync',
