@@ -463,6 +463,8 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     .rich-text-content ol { @apply list-decimal pl-6; }
     .rich-text-content blockquote { @apply border-l-4 border-slate-300 pl-4 italic text-slate-600; }
     .rich-text-content a { @apply text-brand-700 underline; }
+    .product-description-content img,
+    .product-rich-text-editor .rich-text-content img { @apply block h-auto max-w-full rounded-lg; }
     .product-description-content :is(h1, h2, h3, h4, h5, h6) {
         @apply text-slate-950 dark:text-white;
     }

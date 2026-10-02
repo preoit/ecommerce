@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
+import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import StarterKit from '@tiptap/starter-kit';
+import DescriptionImagePicker from './DescriptionImagePicker';
 import {
     Bold,
     Italic,
@@ -24,6 +26,7 @@ function ToolbarButton({ label, icon: Icon, active = false, disabled = false, on
             title={label}
             aria-pressed={active}
             disabled={disabled}
+            onMouseDown={(event) => event.preventDefault()}
             onClick={onClick}
             className={`grid size-8 shrink-0 place-items-center rounded-md transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                 active ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -35,6 +38,7 @@ function ToolbarButton({ label, icon: Icon, active = false, disabled = false, on
 }
 
 export default function RichTextEditor({ id, value = '', onChange, placeholder = 'Write a description...' }) {
+    const imageSelection = useRef(null);
     const [, setSelectionVersion] = useState(0);
     const [linkDialog, setLinkDialog] = useState(false);
     const [linkUrl, setLinkUrl] = useState('');
@@ -45,6 +49,7 @@ export default function RichTextEditor({ id, value = '', onChange, placeholder =
         extensions: [
             StarterKit.configure({ link: false }),
             Link.configure({ openOnClick: false, autolink: true, defaultProtocol: 'https' }),
+            Image.configure({ allowBase64: false, HTMLAttributes: { loading: 'lazy' } }),
             Placeholder.configure({ placeholder }),
         ],
         content: value,
@@ -121,6 +126,16 @@ export default function RichTextEditor({ id, value = '', onChange, placeholder =
                 <ToolbarButton label="Quote" icon={Quote} active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} />
                 <ToolbarButton label="Add or edit link" icon={LinkIcon} active={editor.isActive('link')} onClick={editLink} />
                 <ToolbarButton label="Remove link" icon={Unlink} disabled={!editor.isActive('link')} onClick={() => editor.chain().focus().unsetLink().run()} />
+                <DescriptionImagePicker
+                    onOpen={() => { imageSelection.current = { from: editor.state.selection.from, to: editor.state.selection.to }; }}
+                    onSelect={(file) => {
+                        if (!file.url?.startsWith('/image/')) return;
+                        const chain = editor.chain().focus();
+                        if (imageSelection.current) chain.setTextSelection(imageSelection.current);
+                        chain.setImage({ src: file.url, alt: file.altText || file.name, title: file.title || null }).run();
+                        imageSelection.current = null;
+                    }}
+                />
                 <span className="mx-1 h-6 w-px bg-slate-200" aria-hidden="true" />
                 <ToolbarButton label="Undo" icon={Undo2} disabled={!editor.can().chain().focus().undo().run()} onClick={() => editor.chain().focus().undo().run()} />
                 <ToolbarButton label="Redo" icon={Redo2} disabled={!editor.can().chain().focus().redo().run()} onClick={() => editor.chain().focus().redo().run()} />

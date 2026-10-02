@@ -9,11 +9,13 @@ use App\Modules\Inventories\Categories\Http\Requests\StoreCategoryRequest;
 use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Inventories\Products\Models\Product;
 use App\Support\Content\RichTextSanitizer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as CollectionPaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -53,15 +55,32 @@ class CategoryService
             'children' => fn ($query) => $query->where('is_active', true),
         ]);
 
-        $allCategories = Category::query()->where('is_active', true)->get(['id', 'parent_id']);
-        $categoryIds = collect([$category->id]);
-        $appendChildren = function (int $parentId) use (&$appendChildren, $allCategories, $categoryIds): void {
-            foreach ($allCategories->where('parent_id', $parentId) as $child) {
-                $categoryIds->push($child->id);
-                $appendChildren($child->id);
+        $allCategories = Category::query()->where('is_active', true)
+            ->orderBy('sort_order')->orderBy('name')
+            ->get(['id', 'parent_id', 'name', 'slug']);
+        $childrenByParent = $allCategories->groupBy('parent_id');
+        $descendantIds = function (int $parentId) use (&$descendantIds, $childrenByParent): array {
+            $ids = [$parentId];
+            foreach ($childrenByParent->get($parentId, collect()) as $child) {
+                array_push($ids, ...$descendantIds($child->id));
+            }
+            return $ids;
+        };
+        $categoryIds = collect($descendantIds($category->id));
+        $subcategories = [];
+        $appendSubcategories = function (int $parentId, int $depth) use (&$appendSubcategories, &$subcategories, $childrenByParent, $descendantIds): void {
+            foreach ($childrenByParent->get($parentId, collect()) as $child) {
+                $subcategories[] = [
+                    'id' => $child->id,
+                    'name' => $child->name,
+                    'slug' => $child->slug,
+                    'depth' => $depth,
+                    'categoryIds' => $descendantIds($child->id),
+                ];
+                $appendSubcategories($child->id, $depth + 1);
             }
         };
-        $appendChildren($category->id);
+        $appendSubcategories($category->id, 0);
 
         $brandSlug = $request->string('brand')->trim()->toString();
         $brandIds = Product::query()
@@ -83,6 +102,7 @@ class CategoryService
             ->when($brandSlug, fn ($query, $slug) => $query->whereHas('brand', fn ($brandQuery) => $brandQuery->where('slug', $slug)))
             ->whereHas('categories', fn ($query) => $query->whereIn('categories.id', $categoryIds->unique()));
         $priceBounds = \App\Support\ProductListingFilters::apply($products, $request);
+        $subcategories = $this->subcategoryCounts($subcategories, $products, $categoryIds);
         $products = $products->latest('published_at')
             ->latest('id')
             ->paginate(12)
@@ -106,7 +126,39 @@ class CategoryService
             'selectedBrand' => $brandSlug,
             'filters' => $request->only(['brand', 'min_price', 'max_price', 'in_stock']),
             'priceBounds' => $priceBounds,
+            'subcategories' => $subcategories,
         ]);
+    }
+
+    /** @param array<int, array{id: int, name: string, slug: string, depth: int, categoryIds: array<int, int>}> $subcategories */
+    private function subcategoryCounts(array $subcategories, Builder $products, Collection $categoryIds): array
+    {
+        if ($subcategories === []) {
+            return [];
+        }
+
+        $eligibleProducts = (clone $products)->reorder()->select('products.id')->toBase();
+        $countsQuery = DB::table('category_product as membership')
+            ->joinSub($eligibleProducts, 'eligible', fn ($join) => $join->on('eligible.id', '=', 'membership.product_id'))
+            ->whereIn('membership.category_id', $categoryIds);
+
+        foreach ($subcategories as $index => $subcategory) {
+            $placeholders = implode(', ', array_fill(0, count($subcategory['categoryIds']), '?'));
+            $countsQuery->selectRaw(
+                "COUNT(DISTINCT CASE WHEN membership.category_id IN ({$placeholders}) THEN membership.product_id END) AS count_{$index}",
+                $subcategory['categoryIds']
+            );
+        }
+
+        $counts = $countsQuery->first();
+
+        return collect($subcategories)->map(fn (array $subcategory, int $index): array => [
+            'id' => $subcategory['id'],
+            'name' => $subcategory['name'],
+            'slug' => $subcategory['slug'],
+            'depth' => $subcategory['depth'],
+            'productCount' => (int) ($counts->{'count_'.$index} ?? 0),
+        ])->all();
     }
 
     public function create(StoreCategoryRequest $request): Category

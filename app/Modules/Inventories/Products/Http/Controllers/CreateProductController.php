@@ -153,7 +153,7 @@ class CreateProductController extends Controller
             'brand_id' => Brand::query()->where('name', $data['brand'] ?? null)->value('id'),
             'status' => $data['status'],
             'visibility' => $data['visibility'],
-            'description' => $this->sanitizer->sanitize($data['description'] ?? null),
+            'description' => $this->sanitizer->sanitize($data['description'] ?? null, true),
             'tags' => $data['tags'] ?? null,
             'published_at' => $data['published_at'] ?? $product->published_at,
         ];
@@ -238,7 +238,7 @@ class CreateProductController extends Controller
             throw ValidationException::withMessages(['slug' => 'This permalink is already being used.']);
         }
         foreach (['description', 'keyFeatures', 'keyBenefits', 'boxContents', 'howToUse', 'suitableFor', 'careInstructions'] as $richTextField) {
-            $data[$richTextField] = $this->sanitizer->sanitize($data[$richTextField] ?? null);
+            $data[$richTextField] = $this->sanitizer->sanitize($data[$richTextField] ?? null, $richTextField === 'description');
         }
         $slug = filled($data['slug'] ?? null)
             ? $data['slug']

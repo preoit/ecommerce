@@ -7,6 +7,7 @@ use App\Modules\Inventories\Brands\Models\Brand;
 use App\Modules\Inventories\Categories\Models\Category;
 use App\Modules\Inventories\Products\Models\Product;
 use App\Modules\Inventories\Units\Models\Unit;
+use App\Support\Content\RichTextSanitizer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -40,7 +41,7 @@ class ProductManagementTest extends TestCase
 
         $payload = [
             'title' => 'PP Filter 10 Inch', 'slug' => null,
-            'shortDescription' => 'A reliable sediment filter.', 'description' => '<p>Product description</p>',
+            'shortDescription' => 'A reliable sediment filter.', 'description' => '<p>Product <strong>description</strong></p><img src="/image/filter-details.webp?v=1" alt="Filter details">',
             'regular' => '750', 'sale' => '680', 'sku' => 'PP-10', 'barcode' => null,
             'stock' => '20', 'lowStockThreshold' => '5', 'minOrder' => '1', 'maxOrder' => null,
             'quantityStep' => '1', 'unit' => 'Piece', 'brand' => 'Aqua Pro', 'category' => [$category->id],
@@ -68,6 +69,17 @@ class ProductManagementTest extends TestCase
         $this->assertSame('Aqua Pro', $product->brand?->name);
         $this->assertSame('Piece', $product->unit?->name);
         $this->assertTrue($product->categories()->whereKey($category->id)->exists());
+        $this->assertStringContainsString('<strong>description</strong>', $product->description);
+        $this->assertStringContainsString('src="/image/filter-details.webp?v=1"', html_entity_decode($product->description));
+        $this->get(route('storefront.products.show', $product->slug))
+            ->assertInertia(fn ($page) => $page->where('product.description', fn ($description) => str_contains(html_entity_decode($description), '/image/filter-details.webp?v=1')));
+
+        $this->patch(route('inventories.products.update', $product), [
+            'title' => $product->title, 'slug' => $product->slug, 'regular' => 750, 'stock' => 20,
+            'status' => 'Published', 'visibility' => 'Public',
+            'description' => '<p>Updated <strong>details</strong></p><img src="/image/updated-details.webp" alt="Updated details">',
+        ])->assertSessionHasNoErrors();
+        $this->assertStringContainsString('src="/image/updated-details.webp"', $product->fresh()->description);
 
         $payload['sku'] = 'PP-10-SECOND';
 
@@ -80,6 +92,20 @@ class ProductManagementTest extends TestCase
             'title' => 'PP Filter 10 Inch',
             'slug' => 'pp-filter-10-inch-2',
         ]);
+    }
+
+    public function test_product_description_image_sanitization_rejects_unsafe_sources(): void
+    {
+        $description = app(RichTextSanitizer::class)->sanitize(
+            '<p>Safe <strong>text</strong></p><img src="/image/product.webp" alt="Product"><img src="javascript:alert(1)"><img src="data:image/svg+xml;base64,PHN2Zz4="><script>alert(1)</script>',
+            true
+        );
+
+        $this->assertStringContainsString('src="/image/product.webp"', $description);
+        $this->assertStringContainsString('<strong>text</strong>', $description);
+        $this->assertStringNotContainsString('javascript:', $description);
+        $this->assertStringNotContainsString('data:image', $description);
+        $this->assertStringNotContainsString('<script', $description);
     }
 
     public function test_editing_a_product_slug_preserves_the_old_url_redirect(): void

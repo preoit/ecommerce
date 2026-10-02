@@ -15,6 +15,20 @@ class WebsiteMediaFlowTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_file_manager_images_remain_a_list_when_a_media_file_is_missing(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('image/present.png', 'image bytes');
+        $present = WebsiteMedia::create(['name' => 'Present', 'path' => 'image/present.png', 'mime_type' => 'image/png', 'size' => 11]);
+        WebsiteMedia::create(['name' => 'Missing', 'path' => 'image/missing.png', 'mime_type' => 'image/png', 'size' => 11]);
+
+        $this->actingAs(User::factory()->create())
+            ->getJson('/admin/file-manager/media')
+            ->assertOk()
+            ->assertJsonCount(1)
+            ->assertJsonPath('0.id', $present->id);
+    }
+
     public function test_public_image_is_cacheable_without_starting_a_session(): void
     {
         Storage::fake('public');
@@ -50,6 +64,8 @@ class WebsiteMediaFlowTest extends TestCase
 
         Storage::disk('public')->assertExists($upload['path']);
         $this->assertStringStartsWith('/image/brand-logo.png?v=', $upload['url']);
+        $this->getJson('/admin/file-manager/media')->assertOk()
+            ->assertJsonPath('0.path', $upload['path']);
 
         $this->actingAs($user)->patch(route('settings.website.update'), [
             'website_name' => 'Test Store',

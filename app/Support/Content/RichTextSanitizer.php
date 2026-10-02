@@ -7,13 +7,17 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 
 final class RichTextSanitizer
 {
-    public function sanitize(?string $html): ?string
+    public function sanitize(?string $html, bool $allowRelativeImages = false): ?string
     {
         if ($html === null || trim($html) === '') {
             return null;
         }
 
-        $sanitizer = new HtmlSanitizer((new HtmlSanitizerConfig)->allowSafeElements());
+        $config = (new HtmlSanitizerConfig)->allowSafeElements();
+        if ($allowRelativeImages) {
+            $config = $config->allowRelativeMedias()->allowMediaSchemes(['http', 'https']);
+        }
+        $sanitizer = new HtmlSanitizer($config);
         $sanitized = trim($sanitizer->sanitize($html));
 
         return $sanitized === '' ? null : $sanitized;

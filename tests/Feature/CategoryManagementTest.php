@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Modules\Inventories\Categories\Models\Category;
+use App\Modules\Inventories\Products\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -119,6 +120,57 @@ class CategoryManagementTest extends TestCase
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->where('products.data.0.image', '/image/pp%20filter.webp'));
+    }
+
+    public function test_public_category_filter_lists_active_descendants_with_distinct_matching_product_counts(): void
+    {
+        $root = Category::query()->create(['name' => 'Water Filters', 'slug' => 'water-filters']);
+        $child = Category::query()->create(['name' => 'PP Filters', 'slug' => 'pp-filters', 'parent_id' => $root->id, 'sort_order' => 1]);
+        $grandchild = Category::query()->create(['name' => 'Sediment Filters', 'slug' => 'sediment-filters', 'parent_id' => $child->id]);
+        $sibling = Category::query()->create(['name' => 'Carbon Filters', 'slug' => 'carbon-filters', 'parent_id' => $root->id, 'sort_order' => 2]);
+        $inactive = Category::query()->create(['name' => 'Hidden Filters', 'slug' => 'hidden-filters', 'parent_id' => $root->id, 'is_active' => false]);
+
+        $createProduct = function (string $slug, int $price, int $stock, array $categories, string $status = 'Published', string $visibility = 'Public'): void {
+            $product = Product::query()->create([
+                'title' => $slug,
+                'slug' => $slug,
+                'regular_price' => $price,
+                'stock_quantity' => $stock,
+                'status' => $status,
+                'visibility' => $visibility,
+                'published_at' => now(),
+            ]);
+            $product->categories()->attach($categories);
+        };
+
+        $createProduct('pp-filter', 500, 10, [$root->id, $child->id, $grandchild->id]);
+        $createProduct('sediment-filter', 700, 0, [$grandchild->id]);
+        $createProduct('carbon-filter', 900, 5, [$sibling->id]);
+        $createProduct('draft-filter', 400, 5, [$child->id], 'Draft');
+        $createProduct('private-filter', 400, 5, [$child->id], 'Published', 'Private');
+        $createProduct('hidden-filter', 400, 5, [$inactive->id]);
+
+        $this->get('/water-filters')->assertOk()->assertInertia(fn ($page) => $page
+            ->where('products.total', 3)
+            ->has('subcategories', 3)
+            ->where('subcategories.0.slug', 'pp-filters')
+            ->where('subcategories.0.depth', 0)
+            ->where('subcategories.0.productCount', 2)
+            ->where('subcategories.1.slug', 'sediment-filters')
+            ->where('subcategories.1.depth', 1)
+            ->where('subcategories.1.productCount', 2)
+            ->where('subcategories.2.slug', 'carbon-filters')
+            ->where('subcategories.2.productCount', 1));
+
+        $this->get('/water-filters?min_price=600&in_stock=1')->assertOk()->assertInertia(fn ($page) => $page
+            ->where('products.total', 1)
+            ->where('subcategories.0.productCount', 0)
+            ->where('subcategories.1.productCount', 0)
+            ->where('subcategories.2.productCount', 1));
+
+        $this->get('/carbon-filters')->assertOk()->assertInertia(fn ($page) => $page
+            ->where('products.total', 1)
+            ->where('subcategories', []));
     }
     public function test_svg_upload_is_rejected(): void
     {
