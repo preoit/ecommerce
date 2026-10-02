@@ -59,7 +59,7 @@ function Navigation({ url, onNavigate, orderCount = 0, items }) {
                     const isExpanded = expanded === item.label;
                     return (
                         <div key={item.label} className="py-0.5">
-                            <button type="button" onClick={() => setExpanded(isExpanded ? null : item.label)} className={cn('flex min-h-9 w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-semibold leading-5 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:hover:bg-slate-800 dark:hover:text-white', childActive ? 'bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300' : 'text-slate-600 dark:text-slate-300')}>
+                            <button type="button" onClick={() => setExpanded(isExpanded ? null : item.label)} className={cn('flex min-h-9 w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[15px] font-semibold leading-[22px] transition-colors hover:bg-slate-100 hover:text-slate-950 dark:hover:bg-slate-800 dark:hover:text-white', childActive ? 'bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300' : 'text-slate-600 dark:text-slate-300')}>
                                 <Icon className="size-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                                 <span className="flex-1">{item.label}</span>
                                 <ChevronDown className={cn('size-3.5 shrink-0 transition-transform', isExpanded && 'rotate-180')} aria-hidden="true" />
@@ -69,7 +69,7 @@ function Navigation({ url, onNavigate, orderCount = 0, items }) {
                                     const ChildIcon = child.icon;
                                     const active = child.href === activeChildHref;
                                     return (
-                                        <Link key={child.href} href={child.href} onClick={() => { setExpanded(item.label); onNavigate?.(); }} className={cn('flex min-h-8 items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] font-medium leading-5 transition-colors', active ? 'bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white')}>
+                                        <Link key={child.href} href={child.href} onClick={() => { setExpanded(item.label); onNavigate?.(); }} className={cn('flex min-h-8 items-center gap-2 rounded-lg px-2.5 py-1.5 text-[15px] font-medium leading-[22px] transition-colors', active ? 'bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white')}>
                                             <ChildIcon className="size-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                                             {child.label}{child.href === '/admin/orders' && orderCount > 0 && <span className="ml-auto rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold leading-4 text-white">{orderCount > 99 ? '99+' : orderCount}</span>}
                                         </Link>
@@ -82,7 +82,7 @@ function Navigation({ url, onNavigate, orderCount = 0, items }) {
 
                 const active = isCurrent(url, item.href);
                 return (
-                    <Link key={item.href} href={item.href} onClick={onNavigate} className={cn('flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-5 transition-colors', active ? 'bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white')}>
+                    <Link key={item.href} href={item.href} onClick={onNavigate} className={cn('flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[15px] font-semibold leading-[22px] transition-colors', active ? 'bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white')}>
                         <Icon className="size-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                         {item.label}{item.href === '/admin/orders' && orderCount > 0 && <span className="ml-auto rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold leading-4 text-white">{orderCount > 99 ? '99+' : orderCount}</span>}
                     </Link>
@@ -100,7 +100,7 @@ function Sidebar({ url, onNavigate, website, orderCount = 0, items }) {
             </Link>
             <div className="flex-1 overflow-y-auto py-3"><Navigation url={url} onNavigate={onNavigate} orderCount={orderCount} items={items} /></div>
             <div className="border-t border-violet-100 p-3 dark:border-slate-700">
-                <a href="/" target="_blank" rel="noopener noreferrer" className="flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+                <a href="/" target="_blank" rel="noopener noreferrer" className="flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[15px] font-semibold leading-[22px] text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
                     <Store className="size-[18px]" strokeWidth={1.8} /> View storefront
                 </a>
             </div>
@@ -154,11 +154,11 @@ function OrderNotifications({ darkMode, onCountChange, toastEnabled = false }) {
             {error&&<div role="alert" className="p-3 text-xs text-rose-600">{error}<button type="button" onClick={load} className="ml-2 underline">Retry</button></div>}
             <div className="min-h-0 overflow-y-auto overscroll-contain" aria-busy={loading}>
                 {loading&&!orders.length?<p className="p-8 text-center text-sm text-slate-500">Loading notifications…</p>:!orders.length&&!error?<p className="p-8 text-center text-sm text-slate-500">No orders yet.</p>:orders.map(order=><Link key={order.id} href={route('orders.show',order.id)} onClick={visit} className={cn('block border-b border-slate-100 p-4 transition-colors last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800',!order.viewed&&'bg-violet-50/50 dark:bg-violet-950/20')}>
-                    <div className="flex items-center justify-between gap-2"><b className="text-sm text-violet-700">{order.number}</b><span className="text-[11px] text-slate-500">{order.status}</span></div>
+                    <div className="flex items-center justify-between gap-2"><b className="text-sm text-violet-700">{order.number}</b><span className="text-sm text-slate-500">{order.status}</span></div>
                     <div className="mt-2 flex items-start justify-between gap-3"><span className="min-w-0 break-words text-sm text-slate-800">{order.customer}</span><b className="shrink-0 text-sm text-slate-800">৳{Number(order.total).toLocaleString('en-BD')}</b></div>
                     <p className="mt-1 text-xs text-slate-500">{order.phone}</p>
                     {order.hasStockShortage&&<p className="mt-2 text-xs text-amber-700">Stock shortage — review required</p>}
-                    <div className="mt-2 flex justify-between gap-2 text-[11px] text-slate-500"><time title={order.date}>{order.createdAt}</time>{!order.viewed&&<span className="font-semibold text-violet-600">Unread</span>}</div>
+                    <div className="mt-2 flex justify-between gap-2 text-xs text-slate-500"><time title={order.date}>{order.createdAt}</time>{!order.viewed&&<span className="font-semibold text-violet-600">Unread</span>}</div>
                 </Link>)}
             </div>
             <Link href={route('orders.index')} onClick={visit} className="shrink-0 border-t border-slate-200 p-3 text-center text-sm font-semibold text-violet-700 dark:border-slate-700">View all orders</Link>

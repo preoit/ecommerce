@@ -730,17 +730,15 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         font-weight: 700 !important;
         color: #0f172a;
     }
-    .product-form-page label,
-    .product-form-page label > input,
-    .product-form-page label > select,
-    .product-form-page label > textarea {
+    .product-form-page label {
         font-size: 16px !important;
         line-height: 24px !important;
     }
     .product-form-page input,
     .product-form-page select,
     .product-form-page textarea {
-        font-size: 16px !important;
+        font-size: 17px !important;
+        line-height: 1.5 !important;
         font-weight: 400 !important;
     }
     .product-form-page p,

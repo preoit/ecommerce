@@ -15,11 +15,14 @@ body.admin-ui {
     --admin-primary-text: #6d28d9;
     --admin-ring: #8b5cf6;
     --admin-shadow: 0 1px 2px rgb(0 0 0 / .05);
+    --admin-font-body: 16px;
+    --admin-font-secondary: 15px;
+    --admin-font-caption: 14px;
     color: var(--admin-text);
     background: var(--admin-canvas);
     font-family: 'Figtree', ui-sans-serif, system-ui, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: var(--admin-font-body);
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
 }
 html.dark body.admin-ui {
@@ -44,6 +47,11 @@ html.dark body.admin-ui {
 .admin-ui :is(h1, h2, h3, h4) { color: var(--admin-text); letter-spacing: -.025em; }
 .admin-ui h1 { font-size: clamp(1.5rem, 2vw, 1.875rem); font-weight: 700; line-height: 1.25; }
 .admin-ui h2 { font-weight: 600; }
+.admin-ui [class~="text-sm"]:not([class*="rounded-full"]) { font-size: var(--admin-font-secondary); }
+.admin-ui [class~="text-xs"]:not([class*="rounded-full"]):not(.product-form-optional) {
+    font-size: var(--admin-font-caption);
+    line-height: 20px;
+}
 .admin-ui :is([class~="font-black"], [class~="font-extrabold"]) { font-weight: 700; }
 .admin-ui :is([class~="text-slate-950"], [class~="text-slate-900"], [class~="text-slate-800"], [class~="text-slate-700"]) { color: var(--admin-text) !important; }
 .admin-ui :is([class~="text-slate-600"], [class~="text-slate-500"], [class~="text-slate-400"]) { color: var(--admin-muted) !important; }
@@ -78,7 +86,7 @@ html.dark .admin-ui :is(button, a)[class~="from-slate-800"]:hover { background-c
     outline: 2px solid var(--admin-ring); outline-offset: 3px;
 }
 .admin-ui :is(button, a)[class*="rounded"]:not([class*="rounded-full"]) { border-radius: 8px; }
-.admin-ui [data-ui-button] { font-size: 14px; font-weight: 600; box-shadow: var(--admin-shadow); }
+.admin-ui [data-ui-button] { font-size: var(--admin-font-secondary); font-weight: 600; box-shadow: var(--admin-shadow); }
 .admin-ui [data-ui-button="primary"] { background: var(--admin-primary); color: var(--admin-on-primary); border-color: transparent; }
 .admin-ui [data-ui-button="primary"]:hover { background: var(--admin-primary-hover); }
 .admin-ui [data-ui-button="secondary"] { background: var(--admin-surface); color: var(--admin-text); border-color: var(--admin-input-border); }
@@ -102,7 +110,7 @@ html.dark .admin-ui :is(button, a)[class~="from-slate-800"]:hover { background-c
     border-radius: 8px !important;
     background-color: var(--admin-surface) !important;
     color: var(--admin-text) !important;
-    font-size: 14px !important; font-weight: 400 !important; line-height: 1.5;
+    font-size: 17px !important; font-weight: 400 !important; line-height: 1.5;
     box-shadow: var(--admin-shadow);
     transition: border-color 150ms, box-shadow 150ms;
 }
@@ -120,9 +128,9 @@ html.dark .admin-ui :is(button, a)[class~="from-slate-800"]:hover { background-c
     cursor: not-allowed; opacity: .75;
 }
 .admin-ui :is(input, textarea)[readonly] { background: var(--admin-subtle) !important; }
-.admin-ui label { color: var(--admin-text); font-size: 14px; font-weight: 500; }
-.admin-ui .product-form-page label { font-size: 14px !important; line-height: 20px !important; }
-.admin-ui .product-form-page :is(p, small) { font-size: 13px; line-height: 20px; }
+.admin-ui label { color: var(--admin-text); font-size: var(--admin-font-secondary); font-weight: 500; }
+.admin-ui .product-form-page label { font-size: 16px !important; line-height: 24px !important; }
+.admin-ui .product-form-page :is(p, small) { font-size: var(--admin-font-secondary); line-height: 22px; }
 .admin-ui .product-form-page :is(input, select) { min-height: 36px; height: 36px; }
 .admin-ui input:is([type="checkbox"], [type="radio"]) {
     width: 16px; height: 16px; min-height: 0; color: var(--admin-primary);
@@ -131,10 +139,10 @@ html.dark .admin-ui :is(button, a)[class~="from-slate-800"]:hover { background-c
 .admin-ui input[type="checkbox"] { border-radius: 4px; }
 .admin-ui [data-invalid="true"] :is(input, select, textarea),
 .admin-ui :is(input, select, textarea)[aria-invalid="true"] { border-color: #dc2626 !important; }
-.admin-ui table { font-size: 14px; border-color: var(--admin-border); }
+.admin-ui table { font-size: var(--admin-font-secondary); border-color: var(--admin-border); }
 .admin-ui table thead { background: var(--admin-subtle); }
 .admin-ui table thead th {
-    color: var(--admin-muted) !important; font-size: 12px !important;
+    color: var(--admin-muted) !important; font-size: var(--admin-font-caption) !important;
     font-weight: 600 !important; line-height: 20px; padding: 12px 16px;
 }
 .admin-ui table tbody td { padding: 12px 16px; color: var(--admin-text); border-color: var(--admin-border); }
@@ -147,10 +155,12 @@ html.dark .admin-ui .orders-table tbody tr { border-color: #1e293b; }
 .admin-ui [role="dialog"] { color: var(--admin-text); }
 .admin-ui [role="dialog"] [class~="bg-white"] { background-color: var(--admin-surface); }
 .admin-ui [role="dialog"] [class~="shadow-xl"] { border: 1px solid var(--admin-border); border-radius: 12px; }
-.admin-ui .tiptap { color: var(--admin-text); background: var(--admin-surface); font-size: 15px; line-height: 1.75; }
+.admin-ui .tiptap { color: var(--admin-text); background: var(--admin-surface); font-size: 18px; line-height: 1.65; }
+.admin-ui .admin-rich-text-editor .tiptap :is(p, li, blockquote) { font-size: 18px; line-height: 30px; }
+.admin-ui .admin-rich-text-editor select { font-size: 14px !important; line-height: 20px !important; }
 .admin-ui [data-admin-panel] > aside { border-right: 1px solid var(--admin-border); }
 .admin-ui [data-admin-panel] > div > header { box-shadow: none; }
-.admin-ui [data-admin-panel] nav a { font-size: 14px; font-weight: 500; }
+.admin-ui [data-admin-panel] nav :is(a, button) { font-size: var(--admin-font-secondary); line-height: 22px; }
 html.dark .admin-ui :is([class~="bg-violet-500"], [class~="bg-violet-600"], [data-ui-button="primary"], [data-product-publish]) { color: var(--admin-on-primary); }
 html.dark .admin-ui :is(button, a)[class~="from-violet-600"],
 html.dark .admin-ui :is(button, a)[class~="from-violet-500"] { color: var(--admin-on-primary); }
