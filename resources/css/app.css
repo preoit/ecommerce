@@ -544,19 +544,17 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         inset: auto 0 0;
         z-index: 10;
         padding: 8px;
+        transition: opacity .2s ease, transform .2s ease;
     }
     .product-card-actions--inline { margin-top: 12px; }
     .product-card-action-slot {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 44px;
         gap: 6px;
-        padding: 5px;
-        border: 1px solid rgb(255 255 255 / 72%);
-        border-radius: 13px;
-        background: rgb(255 255 255 / 72%);
-        box-shadow: 0 5px 18px rgb(15 23 42 / 12%);
-        -webkit-backdrop-filter: blur(14px) saturate(140%);
-        backdrop-filter: blur(14px) saturate(140%);
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
     }
     .product-card-view, .product-card-buy {
         display: flex;
@@ -592,7 +590,6 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         line-height: 1.35;
     }
     .product-card-message--error { background: rgb(255 241 242 / 96%); color: #be123c; }
-    .dark .product-card-action-slot { border-color: rgb(255 255 255 / 16%); background: rgb(15 23 42 / 75%); }
     .dark .product-card-view { border-color: rgb(255 255 255 / 14%); background: rgb(255 255 255 / 90%); color: #1e293b; }
     .dark .product-card-buy { background: #020617; }
     .dark .product-card-buy:hover { background: #4c1d95; }
@@ -602,6 +599,22 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     }
     .product-card-action-slot :focus-visible {
         outline: 2px solid #7c3aed; outline-offset: 2px;
+    }
+    @media (hover: hover) and (pointer: fine) {
+        .product-card-actions--overlay {
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+        .group:hover .product-card-actions--overlay,
+        .product-card-media:focus-within .product-card-actions--overlay {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .product-card-actions--overlay { transition: none; }
     }
 
     .price-range-input {
