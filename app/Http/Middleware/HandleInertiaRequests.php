@@ -7,6 +7,7 @@ use App\Modules\Settings\Models\WebsiteMedia;
 use App\Modules\Settings\Models\WebsiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
@@ -48,6 +49,9 @@ class HandleInertiaRequests extends Middleware
             ],
             'website' => fn (): array => $this->websiteIdentity(),
             'storefrontCategories' => fn (): array => $this->storefrontCategoryTree(),
+            'storefrontWishlistIds' => fn (): array => $request->user() && $request->routeIs('storefront.home', 'storefront.products.index', 'storefront.products.show', 'storefront.wishlist', 'storefront.compare')
+                ? DB::table('wishlists')->where('user_id', $request->user()->id)->pluck('product_id')->map(fn ($id): int => (int) $id)->all()
+                : [],
             'cartCount' => fn (): int => collect($request->session()->get('cart', []))->sum('quantity'),
         ];
     }

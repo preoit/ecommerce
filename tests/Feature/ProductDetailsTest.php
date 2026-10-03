@@ -8,6 +8,7 @@ use App\Modules\Inventories\Products\Models\Product;
 use App\Modules\Inventories\Products\Models\ProductVariant;
 use App\Modules\Settings\Models\WebsiteSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -39,6 +40,17 @@ class ProductDetailsTest extends TestCase
                 ->component('app/modules/storefront/products/pages/Index', false)
                 ->has('products.data', 1)
                 ->where('products.data.0.title', 'Public Product'));
+    }
+
+    public function test_saved_wishlist_state_is_shared_with_product_cards(): void
+    {
+        $product = Product::create(['title' => 'Saved Product', 'slug' => 'saved-product', 'regular_price' => 100, 'stock_quantity' => 5, 'status' => 'Published', 'visibility' => 'Public']);
+        $user = User::factory()->create();
+        DB::table('wishlists')->insert(['user_id' => $user->id, 'product_id' => $product->id, 'created_at' => now(), 'updated_at' => now()]);
+
+        $this->actingAs($user)->get(route('storefront.products.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->where('storefrontWishlistIds', [$product->id]));
     }
 
     public function test_published_public_product_page_is_available(): void

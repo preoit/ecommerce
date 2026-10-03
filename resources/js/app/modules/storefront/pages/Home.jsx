@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
-import ProductCardActions from '@/app/components/ProductCardActions';
-import { Image as ImageIcon, ShoppingBag } from 'lucide-react';
+import ProductCardMedia from '@/app/components/ProductCardMedia';
+import { ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Seo from '@/app/components/Seo';
 import StorefrontLayout from '@/app/layouts/StorefrontLayout';
@@ -19,11 +19,8 @@ function PrimaryHeroSlider({ images, href }) {
 function ProductCard({ product }) {
     const href = route('storefront.products.show', product.slug);
     return <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-[0_16px_40px_rgba(30,41,59,0.10)]">
-        <Link href={href} className="relative block aspect-square overflow-hidden bg-slate-50">
-            {product.image ? <img src={product.image} alt={product.name} width="520" height="520" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <span className="grid h-full place-items-center text-slate-300"><ImageIcon className="size-12" strokeWidth={1.4} /></span>}
-            <div className="absolute left-3 top-3 flex flex-col items-start gap-2">{product.isNewArrival && <span className="rounded-full bg-slate-950 px-2.5 py-1 text-[11px] font-bold text-white">New</span>}</div>
-        </Link>
-        <div className="flex flex-1 flex-col p-3 sm:p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{product.brand || product.category}</p><h3 className="mt-1.5 line-clamp-2 min-h-11 text-[15px] font-medium leading-[1.45] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.name}</Link></h3><div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700">৳{Number(product.price).toLocaleString('en-BD')}</span>{product.discount > 0 && <><span className="text-xs font-semibold text-slate-400 line-through">৳{Number(product.regularPrice).toLocaleString('en-BD')}</span><span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">-{product.discount}%</span></>}</div><ProductCardActions product={product}/></div>
+        <ProductCardMedia product={product}/>
+        <div className="flex flex-1 flex-col p-3 sm:p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{product.brand || product.category}</p><h3 className="mt-1.5 line-clamp-2 min-h-11 text-[15px] font-medium leading-[1.45] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.name}</Link></h3><div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700">৳{Number(product.price).toLocaleString('en-BD')}</span>{product.discount > 0 && <><span className="text-xs font-semibold text-slate-400 line-through">৳{Number(product.regularPrice).toLocaleString('en-BD')}</span></>}</div></div>
     </article>;
 }
 
