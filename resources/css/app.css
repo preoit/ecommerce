@@ -498,7 +498,7 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         border-radius: 7px;
         padding: 5px 8px;
         color: #fff;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 800;
         line-height: 1;
         box-shadow: 0 2px 8px rgb(15 23 42 / 12%);
@@ -514,16 +514,14 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         width: 44px;
         height: 44px;
         place-items: center;
-        border: 1px solid rgb(255 255 255 / 75%);
+        border: 0;
         border-radius: 50%;
-        background: rgb(255 255 255 / 82%);
-        color: #64748b;
-        box-shadow: 0 3px 12px rgb(15 23 42 / 10%);
-        -webkit-backdrop-filter: blur(12px);
-        backdrop-filter: blur(12px);
-        transition: color .15s, background-color .15s;
+        background: transparent;
+        color: #fff;
+        filter: drop-shadow(0 1px 2px rgb(15 23 42 / 80%));
+        transition: color .15s, opacity .2s ease, transform .2s ease;
     }
-    .product-card-wishlist:hover, .product-card-wishlist--active { background: #fff; color: #e11d48; }
+    .product-card-wishlist:hover, .product-card-wishlist--active { color: #e11d48; }
     .product-card-wishlist:disabled { opacity: .6; cursor: wait; }
     .product-card-wishlist:focus-visible { outline: 2px solid #7c3aed; outline-offset: 2px; }
     .product-card-wishlist-error {
@@ -564,7 +562,7 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         min-width: 0;
         min-height: 44px;
         border-radius: 9px;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 700;
         line-height: 1.2;
         text-align: center;
@@ -585,7 +583,7 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         background: rgb(240 253 244 / 94%);
         padding: 6px 8px;
         color: #166534;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         line-height: 1.35;
     }
@@ -595,17 +593,24 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     .dark .product-card-buy:hover { background: #4c1d95; }
     @container (max-width: 185px) {
         .product-card-buy svg { display: none; }
-        .product-card-buy { padding: 0 3px; font-size: 11px; }
+        .product-card-buy { padding: 0 3px; font-size: 13px; }
     }
     .product-card-action-slot :focus-visible {
         outline: 2px solid #7c3aed; outline-offset: 2px;
     }
     @media (hover: hover) and (pointer: fine) {
+        .product-card-wishlist {
+            opacity: 0;
+            transform: translateY(-6px);
+            pointer-events: none;
+        }
         .product-card-actions--overlay {
             opacity: 0;
             transform: translateY(10px);
             pointer-events: none;
         }
+        .group:hover .product-card-wishlist,
+        .product-card-media:focus-within .product-card-wishlist,
         .group:hover .product-card-actions--overlay,
         .product-card-media:focus-within .product-card-actions--overlay {
             opacity: 1;
@@ -614,7 +619,7 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         }
     }
     @media (prefers-reduced-motion: reduce) {
-        .product-card-actions--overlay { transition: none; }
+        .product-card-actions--overlay, .product-card-wishlist { transition: none; }
     }
 
     .price-range-input {

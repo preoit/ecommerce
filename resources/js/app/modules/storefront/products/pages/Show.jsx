@@ -26,9 +26,9 @@ function ProductCard({ product }) {
     return <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-[0_16px_40px_rgba(30,41,59,0.10)]">
         <ProductCardMedia product={product}/>
         <div className="flex flex-1 flex-col p-3 sm:p-4">
-            <p className="truncate text-xs font-semibold uppercase tracking-wide text-slate-500">{product.brand || 'Products'}</p>
-            <h3 className="mt-1.5 line-clamp-2 min-h-11 text-[15px] font-medium leading-[1.45] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.title}</Link></h3>
-            <div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700">{money(product.price)}</span>{product.discount > 0 && <span className="text-xs font-semibold text-slate-400 line-through">{money(product.regularPrice)}</span>}</div>
+            <p className="truncate text-[13px] font-semibold uppercase tracking-wide text-slate-500 sm:text-sm">{product.brand || 'Products'}</p>
+            <h3 className="mt-1.5 line-clamp-2 min-h-11 text-base font-medium leading-[1.45] sm:text-[17px] text-slate-900 transition group-hover:text-violet-700"><Link href={href}>{product.title}</Link></h3>
+            <div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700 sm:text-xl">{money(product.price)}</span>{product.discount > 0 && <span className="text-[13px] font-semibold text-slate-400 line-through">{money(product.regularPrice)}</span>}</div>
 
         </div>
     </article>;
@@ -36,8 +36,8 @@ function ProductCard({ product }) {
 function RelatedProductItem({ product }) {
     const href = route('storefront.products.show', product.slug);
     return <article className="group w-full min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white p-2 transition hover:border-violet-200 hover:shadow-sm"><Link href={href} className="block">
-        <span className="relative block h-28 w-full overflow-hidden rounded-lg bg-slate-50">{product.image ? <img src={product.image} alt={product.title} loading="lazy" className="h-full w-full max-w-full object-contain transition group-hover:scale-105" /> : <span className="grid h-full place-items-center text-slate-300"><ImageIcon className="size-6" /></span>}{product.discount > 0 && <small className="absolute left-1.5 top-1.5 rounded-full bg-violet-600 px-1.5 py-0.5 text-[9px] font-bold text-white">-{product.discount}%</small>}</span>
-        <span className="block min-w-0 px-1 pb-1 pt-2"><strong className="line-clamp-2 text-xs font-semibold leading-4 text-slate-900 group-hover:text-violet-700">{product.title}</strong><span className="mt-1 flex flex-wrap items-baseline gap-2"><b className="text-sm text-violet-700">{money(product.price)}</b>{product.discount > 0 && <small className="text-[11px] text-slate-400 line-through">{money(product.regularPrice)}</small>}</span></span>
+        <span className="relative block h-28 w-full overflow-hidden rounded-lg bg-slate-50">{product.image ? <img src={product.image} alt={product.title} loading="lazy" className="h-full w-full max-w-full object-contain transition group-hover:scale-105" /> : <span className="grid h-full place-items-center text-slate-300"><ImageIcon className="size-6" /></span>}{product.discount > 0 && <small className="absolute left-1.5 top-1.5 rounded-full bg-violet-600 px-1.5 py-0.5 text-[11px] font-bold text-white">-{product.discount}%</small>}</span>
+        <span className="block min-w-0 px-1 pb-1 pt-2"><strong className="line-clamp-2 text-sm font-semibold leading-5 text-slate-900 group-hover:text-violet-700">{product.title}</strong><span className="mt-1 flex flex-wrap items-baseline gap-2"><b className="text-base text-violet-700">{money(product.price)}</b>{product.discount > 0 && <small className="text-[13px] text-slate-400 line-through">{money(product.regularPrice)}</small>}</span></span>
     </Link><ProductCardActions product={product}/></article>;
 }
 function HtmlSection({ title, content, hideTitle = false }) {
