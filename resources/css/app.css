@@ -145,6 +145,59 @@
     }
 }
 
+/* Storefront-wide type scale. Keep the administration interface unchanged. */
+body.storefront-theme {
+    font-size: 17px;
+}
+
+body.storefront-theme [class*="text-xs"] {
+    font-size: 13px !important;
+    line-height: 1.125rem;
+}
+
+body.storefront-theme [class*="text-sm"] {
+    font-size: 15px !important;
+    line-height: 1.375rem;
+}
+
+body.storefront-theme [class*="text-base"] {
+    font-size: 17px !important;
+    line-height: 1.625rem;
+}
+
+body.storefront-theme [class*="text-lg"] {
+    font-size: 19px !important;
+    line-height: 1.75rem;
+}
+
+body.storefront-theme [class*="text-xl"] {
+    font-size: 21px !important;
+    line-height: 1.875rem;
+}
+
+body.storefront-theme [class*="text-2xl"] {
+    font-size: 25px !important;
+    line-height: 2rem;
+}
+
+body.storefront-theme [class*="text-3xl"] {
+    font-size: 31px !important;
+    line-height: 2.375rem;
+}
+
+body.storefront-theme [class*="text-4xl"] {
+    font-size: 38px !important;
+    line-height: 2.625rem;
+}
+
+body.storefront-theme [class*="text-[8px]"] { font-size: 9px !important; }
+body.storefront-theme [class*="text-[10px]"] { font-size: 11px !important; }
+body.storefront-theme [class*="text-[11px]"] { font-size: 12px !important; }
+body.storefront-theme [class*="text-[13px]"] { font-size: 14px !important; }
+body.storefront-theme [class*="text-[15px]"] { font-size: 16px !important; }
+body.storefront-theme [class*="text-[17px]"] { font-size: 18px !important; }
+body.storefront-theme [class*="text-[2rem]"] { font-size: 34px !important; }
+
 @media (max-width: 767px) {
     header[data-storefront-header] > div:first-of-type {
         height: 112px !important;
