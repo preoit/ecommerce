@@ -137,7 +137,7 @@ class ProductDetailsTest extends TestCase
     {
         WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false]);
         $product = Product::create([
-            'title' => 'Drawer Product', 'slug' => 'drawer-product', 'regular_price' => 300,
+            'title' => 'Drawer Product', 'slug' => 'drawer-product', 'sku' => 'DRAWER-001', 'regular_price' => 300,
             'stock_quantity' => 5, 'min_order_quantity' => 1, 'quantity_step' => 1,
             'status' => 'Published', 'visibility' => 'Public',
         ]);
@@ -147,7 +147,8 @@ class ProductDetailsTest extends TestCase
             ->assertOk()
             ->assertJsonPath('cartCount', 1)
             ->assertJsonPath('subtotal', 300)
-            ->assertJsonPath('items.0.title', 'Drawer Product');
+            ->assertJsonPath('items.0.title', 'Drawer Product')
+            ->assertJsonPath('items.0.sku', 'DRAWER-001');
 
         $cartKey = $summary->json('items.0.cart_key');
         $this->patchJson(route('storefront.cart.update', $cartKey), ['quantity' => 2])
