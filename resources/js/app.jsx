@@ -14,7 +14,9 @@ const pages = import.meta.glob([
 createInertiaApp({
     title: (title) => `${title} | ${appName}`,
     resolve: (name) => {
-        const pagePath = name.startsWith('app/')
+        const pagePath = name === 'app/modules/storefront/products/pages/Index'
+            ? './Pages/StorefrontProducts.jsx'
+            : name.startsWith('app/')
             ? `./${name}.jsx`
             : `./Pages/${name}.jsx`;
 

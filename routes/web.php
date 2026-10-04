@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CheckoutPhoneVerificationController;
+use App\Http\Controllers\StorefrontProductListingController;
 use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\ProfileController;
 use App\Modules\Blog\BlogController;
@@ -65,7 +66,7 @@ Route::middleware(['auth', 'customer'])->prefix('account')->name('account.')->gr
     Route::get('/reviews', [CustomerAccountController::class, 'reviews'])->name('reviews');
 });
 
-Route::get('/products', [StorefrontProductController::class, 'index'])->name('storefront.products.index');
+Route::get('/products', StorefrontProductListingController::class)->name('storefront.products.index');
 Route::get('/cart', [StorefrontProductController::class, 'cartPage'])->name('storefront.cart');
 Route::get('/cart/summary', [StorefrontProductController::class, 'cartSummaryJson'])->name('storefront.cart.summary');
 Route::patch('/cart/{cartKey}', [StorefrontProductController::class, 'updateCart'])->middleware('throttle:30,1')->name('storefront.cart.update');
