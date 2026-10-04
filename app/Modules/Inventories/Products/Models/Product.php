@@ -15,7 +15,18 @@ class Product extends Model
     protected $guarded = [];
     protected $casts = ['gallery'=>'array','regular_price'=>'decimal:2','sale_price'=>'decimal:2','weight'=>'decimal:3','length'=>'decimal:2','width'=>'decimal:2','height'=>'decimal:2','is_featured'=>'boolean','is_new_arrival'=>'boolean','is_best_seller'=>'boolean','cash_on_delivery'=>'boolean','published_at'=>'datetime'];
     protected $appends = ['current_price','discount_percentage','stock_status'];
-    protected static function booted(): void { static::updating(function (Product $product) { if ($product->isDirty('slug') && $product->getOriginal('slug')) \Illuminate\Support\Facades\DB::table('product_url_redirects')->updateOrInsert(['old_slug'=>$product->getOriginal('slug')],['product_id'=>$product->id,'created_at'=>now(),'updated_at'=>now()]); }); }
+    protected static function booted(): void
+    {
+        static::updating(function (Product $product): void {
+            if ($product->isDirty('slug') && $product->getOriginal('slug')) {
+                \Illuminate\Support\Facades\DB::table('product_url_redirects')->updateOrInsert(['old_slug' => $product->getOriginal('slug')], ['product_id' => $product->id, 'created_at' => now(), 'updated_at' => now()]);
+            }
+        });
+        $clearHomepageCache = fn () => \Illuminate\Support\Facades\Cache::forget('storefront.home_category_sections.v1');
+        static::saved($clearHomepageCache);
+        static::deleted($clearHomepageCache);
+        static::restored($clearHomepageCache);
+    }
     public function categories(): BelongsToMany { return $this->belongsToMany(\App\Modules\Inventories\Categories\Models\Category::class); }
     public function brand(): BelongsTo { return $this->belongsTo(\App\Modules\Inventories\Brands\Models\Brand::class); }
     public function unit(): BelongsTo { return $this->belongsTo(\App\Modules\Inventories\Units\Models\Unit::class); }

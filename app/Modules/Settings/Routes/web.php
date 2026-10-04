@@ -4,6 +4,7 @@ use App\Modules\Settings\Http\Controllers\WebsiteSettingController;
 use App\Modules\Settings\Http\Controllers\CommunicationSettingController;
 use App\Modules\Settings\Http\Controllers\HeroSectionController;
 use App\Modules\Settings\Http\Controllers\FooterSectionController;
+use App\Modules\Settings\Http\Controllers\HomepageCategorySectionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/admin/settings', [WebsiteSettingController::class, 'index'])->name('settings.index');
@@ -14,6 +15,8 @@ Route::post('/admin/settings/website/media', [WebsiteSettingController::class, '
 
 Route::get('/admin/website-design/hero-section', [HeroSectionController::class, 'edit'])->name('website-design.hero.edit');
 Route::patch('/admin/website-design/hero-section', [HeroSectionController::class, 'update'])->name('website-design.hero.update');
+Route::get('/admin/website-design/homepage-categories', [HomepageCategorySectionController::class, 'edit'])->name('website-design.homepage-categories.edit');
+Route::patch('/admin/website-design/homepage-categories', [HomepageCategorySectionController::class, 'update'])->name('website-design.homepage-categories.update');
 Route::get('/admin/website-design/footer', [FooterSectionController::class, 'edit'])->name('website-design.footer.edit');
 Route::patch('/admin/website-design/footer', [FooterSectionController::class, 'update'])->name('website-design.footer.update');
 

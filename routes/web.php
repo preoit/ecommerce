@@ -10,6 +10,7 @@ use App\Modules\Customers\Http\Controllers\CustomerAccountController;
 use App\Modules\Inventories\Products\Http\Controllers\StorefrontProductController;
 use App\Modules\Inventories\Products\Models\Product;
 use App\Modules\Settings\Http\Controllers\MediaImageController;
+use App\Services\StorefrontHomepageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
@@ -21,11 +22,13 @@ Route::prefix('install')->name('installer.')->middleware('throttle:20,1')->group
     Route::post('/', [InstallerController::class, 'store'])->middleware('throttle:3,10')->name('store');
 });
 
-Route::get('/', function () {
+Route::get('/', function (StorefrontHomepageService $homepage) {
     return Inertia::render('app/modules/storefront/pages/Home', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'featuredProducts' => Schema::hasTable('products') ? Product::with(['categories:id,name', 'brand:id,name'])->whereIn('status', ['Published', 'Active'])->where('visibility', 'Public')->latest('published_at')->latest('id')->limit(8)->get()->map(fn ($product) => ['id' => $product->id, 'name' => $product->title, 'slug' => $product->slug, 'category' => $product->categories->first()?->name ?? 'Products', 'brand' => $product->brand?->name, 'price' => (float) $product->current_price, 'regularPrice' => (float) $product->regular_price, 'discount' => $product->discount_percentage, 'stockStatus' => $product->stock_status, 'isNewArrival' => $product->is_new_arrival, 'image' => $product->featured_image_path ? '/image/'.rawurlencode(basename($product->featured_image_path)) : null]) : [],
+        ...Schema::hasTable('products') && Schema::hasColumn('website_settings', 'homepage_category_sections')
+            ? $homepage->payload()
+            : ['featuredProducts' => [], 'categorySections' => []],
     ]);
 })->name('storefront.home');
 

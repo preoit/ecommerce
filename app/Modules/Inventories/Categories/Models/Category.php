@@ -18,9 +18,13 @@ class Category extends Model
 
     protected static function booted(): void
     {
-        static::saved(fn () => Cache::forget('storefront.category_tree.v1'));
-        static::deleted(fn () => Cache::forget('storefront.category_tree.v1'));
-        static::restored(fn () => Cache::forget('storefront.category_tree.v1'));
+        $clearStorefrontCache = function (): void {
+            Cache::forget('storefront.category_tree.v1');
+            Cache::forget('storefront.home_category_sections.v1');
+        };
+        static::saved($clearStorefrontCache);
+        static::deleted($clearStorefrontCache);
+        static::restored($clearStorefrontCache);
     }
 
     protected $fillable = [

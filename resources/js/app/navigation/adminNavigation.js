@@ -11,6 +11,7 @@ import {
     Package,
     PanelsTopLeft,
     GalleryHorizontalEnd,
+    LayoutGrid,
     Ruler,
     Settings,
     ShieldCheck,
@@ -54,6 +55,7 @@ export const adminNavigation = [
         icon: PanelsTopLeft,
         children: [
             { label: 'Hero Section', href: '/admin/website-design/hero-section', icon: GalleryHorizontalEnd, permission: 'website_design.view' },
+            { label: 'Homepage Categories', href: '/admin/website-design/homepage-categories', icon: LayoutGrid, permission: 'website_design.view' },
             { label: 'Footer', href: '/admin/website-design/footer', icon: PanelsTopLeft, permission: 'website_design.view' },
         ],
     },
