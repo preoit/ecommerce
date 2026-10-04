@@ -8,7 +8,6 @@ use App\Modules\Settings\Models\WebsiteSetting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class StorefrontHomepageService
 {
@@ -31,7 +30,7 @@ class StorefrontHomepageService
                 ->whereNull('parent_id')
                 ->where('is_active', true)
                 ->whereIn('id', $configured->pluck('category_id')->map(fn ($id): int => (int) $id))
-                ->get(['id', 'parent_id', 'name', 'slug', 'short_description'])
+                ->get(['id', 'parent_id', 'name', 'slug'])
                 ->keyBy('id');
             $allCategories = Category::query()->where('is_active', true)->get(['id', 'parent_id']);
             $children = $allCategories->groupBy('parent_id');
@@ -50,7 +49,6 @@ class StorefrontHomepageService
                     'id' => $category->id,
                     'name' => $category->name,
                     'slug' => $category->slug,
-                    'description' => Str::limit(trim(strip_tags((string) $category->short_description)), 150),
                     'products' => $products->map(fn (Product $product): array => $this->card($product, $category->name))->all(),
                 ];
             })->filter()->values()->all();
