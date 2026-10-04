@@ -7,6 +7,12 @@
     max-width: 1440px;
 }
 
+/* Product rich-text sections should use the full details column. */
+.product-description-content {
+    width: 100%;
+    max-width: none !important;
+}
+
 @media (max-width: 1023px) {
     body:has([data-mobile-menu]) > div {
         overflow-x: hidden;
