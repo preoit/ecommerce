@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Keep every storefront shell aligned to the wider desktop design grid. */
+.max-w-\[1280px\] {
+    max-width: 1440px;
+}
+
 @media (max-width: 1023px) {
     body:has([data-mobile-menu]) > div {
         overflow-x: hidden;
