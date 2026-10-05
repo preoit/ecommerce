@@ -2,6 +2,24 @@ export const bangladeshDistricts = [
     'Bagerhat','Bandarban','Barguna','Barishal','Bhola','Bogura','Brahmanbaria','Chandpur','Chapainawabganj','Chattogram','Chuadanga','Cox’s Bazar','Cumilla','Dhaka','Dinajpur','Faridpur','Feni','Gaibandha','Gazipur','Gopalganj','Habiganj','Jamalpur','Jashore','Jhalokati','Jhenaidah','Joypurhat','Khagrachhari','Khulna','Kishoreganj','Kurigram','Kushtia','Lakshmipur','Lalmonirhat','Madaripur','Magura','Manikganj','Meherpur','Moulvibazar','Munshiganj','Mymensingh','Naogaon','Narail','Narayanganj','Narsingdi','Natore','Netrokona','Nilphamari','Noakhali','Pabna','Panchagarh','Patuakhali','Pirojpur','Rajbari','Rajshahi','Rangamati','Rangpur','Satkhira','Shariatpur','Sherpur','Sirajganj','Sunamganj','Sylhet','Tangail','Thakurgaon'
 ];
 
+const coxsBazarDistrict = bangladeshDistricts.find(district => district.startsWith('Cox'));
+
+export const districtsByDivision = {
+    Barishal: ['Barguna', 'Barishal', 'Bhola', 'Jhalokati', 'Patuakhali', 'Pirojpur'],
+    Chattogram: ['Bandarban', 'Brahmanbaria', 'Chandpur', 'Chattogram', 'Cumilla', coxsBazarDistrict, 'Feni', 'Khagrachhari', 'Lakshmipur', 'Noakhali', 'Rangamati'].filter(Boolean),
+    Dhaka: ['Dhaka', 'Faridpur', 'Gazipur', 'Gopalganj', 'Kishoreganj', 'Madaripur', 'Manikganj', 'Munshiganj', 'Narayanganj', 'Narsingdi', 'Rajbari', 'Shariatpur', 'Tangail'],
+    Khulna: ['Bagerhat', 'Chuadanga', 'Jashore', 'Jhenaidah', 'Khulna', 'Kushtia', 'Magura', 'Meherpur', 'Narail', 'Satkhira'],
+    Mymensingh: ['Jamalpur', 'Mymensingh', 'Netrokona', 'Sherpur'],
+    Rajshahi: ['Bogura', 'Chapainawabganj', 'Joypurhat', 'Naogaon', 'Natore', 'Pabna', 'Rajshahi', 'Sirajganj'],
+    Rangpur: ['Dinajpur', 'Gaibandha', 'Kurigram', 'Lalmonirhat', 'Nilphamari', 'Panchagarh', 'Rangpur', 'Thakurgaon'],
+    Sylhet: ['Habiganj', 'Moulvibazar', 'Sunamganj', 'Sylhet'],
+};
+
+export const bangladeshDivisions = Object.keys(districtsByDivision);
+
+export const divisionForDistrict = district => Object.entries(districtsByDivision)
+    .find(([, districts]) => districts.includes(district))?.[0] || '';
+
 // Upazila data: Open Admin Data Bangladesh (CC BY 4.0).
 // https://github.com/open-admin-data/bangladesh-administrative-divisions
 export const thanasByDistrict = {
