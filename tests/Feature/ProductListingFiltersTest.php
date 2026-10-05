@@ -37,4 +37,29 @@ class ProductListingFiltersTest extends TestCase
         $this->getJson($url.'?min_price=-1')->assertUnprocessable()->assertJsonValidationErrors('min_price');
         $this->get($url)->assertOk()->assertInertia(fn ($page) => $page->has('products.data', 0)->where('priceBounds.min', 0)->where('priceBounds.max', 0));
     }
+
+    public function test_active_brand_has_a_working_public_permalink(): void
+    {
+        $brand = Brand::create(['name' => 'Aqua Pro', 'slug' => 'aqua-pro', 'is_active' => true]);
+        Product::create([
+            'title' => 'Aqua Product',
+            'slug' => 'aqua-product',
+            'regular_price' => 500,
+            'stock_quantity' => 3,
+            'status' => 'Published',
+            'visibility' => 'Public',
+            'brand_id' => $brand->id,
+        ]);
+
+        $this->get(route('storefront.brands.show', $brand))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('app/modules/storefront/products/pages/Index', false)
+                ->where('filters.brand', 'aqua-pro')
+                ->has('products.data', 1)
+                ->where('products.data.0.title', 'Aqua Product'));
+
+        $brand->update(['is_active' => false]);
+        $this->get(route('storefront.brands.show', $brand))->assertNotFound();
+    }
 }

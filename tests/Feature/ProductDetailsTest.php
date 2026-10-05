@@ -133,6 +133,25 @@ class ProductDetailsTest extends TestCase
         $this->assertDatabaseHas('orders', ['subtotal' => 500, 'shipping_total' => 0, 'cod_surcharge' => 15, 'total' => 515]);
     }
 
+    public function test_checkout_uses_the_district_zone_instead_of_the_submitted_zone(): void
+    {
+        WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false, 'delivery_enabled' => true, 'delivery_inside_dhaka' => 80, 'delivery_outside_dhaka' => 150]);
+        $product = Product::create(['title' => 'District Product', 'slug' => 'district-product', 'regular_price' => 500, 'stock_quantity' => 2, 'status' => 'Published', 'visibility' => 'Public']);
+        $this->postJson(route('storefront.products.cart', $product), ['quantity' => 1])->assertOk();
+
+        $this->post(route('storefront.checkout.place-order'), $this->checkoutData([
+            'customer_name' => 'Customer',
+            'phone' => '01700000000',
+            'address' => 'Gazipur Sadar',
+            'city' => 'Gazipur Sadar',
+            'district' => 'Gazipur',
+            'delivery_zone' => 'inside_dhaka',
+            'payment_method' => 'cod',
+        ]))->assertRedirect();
+
+        $this->assertDatabaseHas('orders', ['delivery_zone' => 'outside_dhaka', 'shipping_total' => 150]);
+    }
+
     public function test_cart_drawer_summary_can_be_loaded_updated_and_cleared_without_a_page_reload(): void
     {
         WebsiteSetting::create(['id' => 1, 'allow_out_of_stock_orders' => false]);

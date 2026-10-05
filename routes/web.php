@@ -71,6 +71,7 @@ Route::middleware(['auth', 'customer'])->prefix('account')->name('account.')->gr
 });
 
 Route::get('/products', StorefrontProductListingController::class)->name('storefront.products.index');
+Route::get('/brand/{brand:slug}', [StorefrontProductListingController::class, 'brand'])->name('storefront.brands.show');
 Route::get('/products/search-suggestions', StorefrontProductSuggestionController::class)->middleware('throttle:60,1')->name('storefront.products.suggestions');
 Route::get('/cart', [StorefrontProductController::class, 'cartPage'])->name('storefront.cart');
 Route::get('/cart/summary', [StorefrontProductController::class, 'cartSummaryJson'])->name('storefront.cart.summary');

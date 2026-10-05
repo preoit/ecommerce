@@ -14,6 +14,14 @@ use Inertia\Response;
 
 class StorefrontProductListingController extends Controller
 {
+    public function brand(Request $request, Brand $brand): Response
+    {
+        abort_unless($brand->is_active, 404);
+        $request->query->set('brand', $brand->slug);
+
+        return $this($request);
+    }
+
     public function __invoke(Request $request): Response
     {
         $search = Str::of((string) $request->query('search', ''))
