@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ArrowRight, ShoppingBag } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import ProductCardMedia from '@/app/components/ProductCardMedia';
 import Seo from '@/app/components/Seo';
 import StorefrontLayout from '@/app/layouts/StorefrontLayout';
@@ -23,24 +23,51 @@ function PrimaryHeroSlider({ images, href }) {
 function ProductCard({ product }) {
     const href = route('storefront.products.show', product.slug);
 
-    return <article className="group flex h-full snap-start flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-[0_16px_40px_rgba(30,41,59,0.10)]">
+    return <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-[0_16px_40px_rgba(30,41,59,0.10)] sm:rounded-2xl">
         <ProductCardMedia product={product}/>
-        <div className="flex flex-1 flex-col p-3 sm:p-4">
-            <p className="text-[13px] font-semibold uppercase tracking-wide text-slate-500 sm:text-sm">{product.brand || product.category}</p>
-            <h3 className="mt-1.5 line-clamp-2 min-h-11 text-base font-medium leading-[1.45] text-slate-900 transition group-hover:text-violet-700 sm:text-[17px]"><Link href={href}>{product.name}</Link></h3>
+        <div className="flex flex-1 flex-col p-2.5 sm:p-4">
+            <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-slate-500 sm:text-sm">{product.brand || product.category}</p>
+            <h3 className="mt-1 line-clamp-2 min-h-10 text-sm font-medium leading-5 text-slate-900 transition group-hover:text-violet-700 sm:mt-1.5 sm:min-h-11 sm:text-[17px] sm:leading-[1.45]"><Link href={href}>{product.name}</Link></h3>
             <div className="mt-3 flex flex-wrap items-baseline gap-2"><span className="text-lg font-extrabold text-violet-700 sm:text-xl">৳{Number(product.price).toLocaleString('en-BD')}</span>{product.discount > 0 && <span className="text-[13px] font-semibold text-slate-400 line-through">৳{Number(product.regularPrice).toLocaleString('en-BD')}</span>}</div>
         </div>
     </article>;
 }
 
 function ProductSection({ title, href, products, index = 0, latest = false }) {
+    const trackRef = useRef(null);
+    const [canPrevious, setCanPrevious] = useState(false);
+    const [canNext, setCanNext] = useState(false);
+
+    useEffect(() => {
+        const track = trackRef.current;
+        if (!track) return undefined;
+        const updateControls = () => {
+            setCanPrevious(track.scrollLeft > 2);
+            setCanNext(track.scrollLeft + track.clientWidth < track.scrollWidth - 2);
+        };
+        const frame = window.requestAnimationFrame(updateControls);
+        track.addEventListener('scroll', updateControls, { passive: true });
+        window.addEventListener('resize', updateControls);
+        const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateControls) : null;
+        observer?.observe(track);
+        return () => {
+            window.cancelAnimationFrame(frame);
+            track.removeEventListener('scroll', updateControls);
+            window.removeEventListener('resize', updateControls);
+            observer?.disconnect();
+        };
+    }, [products.length]);
+
+    const slide = direction => trackRef.current?.scrollBy({ left: direction * trackRef.current.clientWidth, behavior: 'smooth' });
+
     return <section id={index === 0 ? 'products' : undefined} className={index % 2 ? 'bg-slate-50/70' : 'bg-white'}>
         <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
             <header className="flex items-end justify-between gap-4">
                 <div className="flex min-w-0 items-start gap-3"><span className="mt-1 grid size-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-700"><ShoppingBag className="size-5" /></span><div className="min-w-0"><p className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600">{latest ? 'Products' : 'Shop by category'}</p><h2 className="mt-1 truncate text-2xl font-extrabold text-slate-950">{title}</h2></div></div>
-                <Link href={href} className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border border-violet-200 px-3 text-sm font-bold text-violet-700 transition hover:bg-violet-600 hover:text-white sm:px-4">View all<ArrowRight className="size-4" /></Link>
+                <div className="flex shrink-0 items-center gap-2"><div className="hidden items-center gap-1 sm:flex"><button type="button" onClick={() => slide(-1)} disabled={!canPrevious} aria-label={`Previous ${title} products`} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-violet-300 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-35"><ChevronLeft className="size-4"/></button><button type="button" onClick={() => slide(1)} disabled={!canNext} aria-label={`Next ${title} products`} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-violet-300 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-35"><ChevronRight className="size-4"/></button></div><Link href={href} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-violet-200 px-3 text-sm font-bold text-violet-700 transition hover:bg-violet-600 hover:text-white sm:px-4">View all<ArrowRight className="size-4" /></Link></div>
             </header>
-            <div className="mt-7 grid snap-x snap-mandatory grid-flow-col gap-4 overflow-x-auto pb-3 [grid-auto-columns:minmax(245px,82vw)] sm:grid-flow-row sm:grid-cols-2 sm:overflow-visible sm:pb-0 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">{products.map(product => <ProductCard key={product.id} product={product} />)}</div>
+            <div ref={trackRef} role="region" aria-label={`${title} product slider`} className="product-carousel mt-7 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth sm:gap-4 lg:gap-6">{products.map(product => <div key={product.id} className="product-carousel-slide shrink-0 snap-start"><ProductCard product={product} /></div>)}</div>
+            <div className="mt-4 flex items-center justify-center gap-2 sm:hidden"><button type="button" onClick={() => slide(-1)} disabled={!canPrevious} aria-label={`Previous ${title} products`} className="grid size-9 place-items-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-35"><ChevronLeft className="size-4"/></button><button type="button" onClick={() => slide(1)} disabled={!canNext} aria-label={`Next ${title} products`} className="grid size-9 place-items-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-35"><ChevronRight className="size-4"/></button></div>
         </div>
     </section>;
 }

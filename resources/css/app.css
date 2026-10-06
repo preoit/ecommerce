@@ -709,6 +709,23 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         min-width: 0;
     }
 
+    .product-carousel {
+        scrollbar-width: none;
+        overscroll-behavior-inline: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+    .product-carousel::-webkit-scrollbar { display: none; }
+    .product-carousel-slide { width: calc((100% - 12px) / 2); }
+    @media (min-width: 640px) {
+        .product-carousel-slide { width: calc((100% - 16px) / 2); }
+    }
+    @media (min-width: 768px) {
+        .product-carousel-slide { width: calc((100% - 32px) / 3); }
+    }
+    @media (min-width: 1024px) {
+        .product-carousel-slide { width: calc((100% - 72px) / 4); }
+    }
+
     .product-card-actions { container-type: inline-size; }
     .product-card-media {
         position: relative;
@@ -834,6 +851,40 @@ html.dark body.storefront-theme header[data-storefront-header] button {
     @container (max-width: 185px) {
         .product-card-buy svg { display: none; }
         .product-card-buy { padding: 0 3px; font-size: 13px; }
+    }
+    @media (hover: none), (pointer: coarse) {
+        .product-card-actions--overlay {
+            inset: auto 8px 8px auto;
+            padding: 0;
+        }
+        .product-card-actions--overlay .product-card-action-slot { display: block; }
+        .product-card-actions--overlay .product-card-buy {
+            width: 38px;
+            height: 38px;
+            min-height: 38px;
+            padding: 0;
+            border: 1px solid rgb(255 255 255 / 45%);
+            border-radius: 10px;
+            background: rgb(30 41 59 / 88%);
+            box-shadow: 0 6px 18px rgb(15 23 42 / 18%);
+            backdrop-filter: blur(10px);
+        }
+        .product-card-actions--overlay .product-card-buy svg { display: block; }
+        .product-card-actions--overlay .product-card-buy span,
+        .product-card-actions--overlay .product-card-view { display: none; }
+        .product-card-actions--overlay .product-card-message {
+            position: absolute;
+            right: 0;
+            bottom: 44px;
+            width: max-content;
+            max-width: min(220px, calc(100vw - 32px));
+        }
+        .product-card-wishlist {
+            top: 8px;
+            right: 8px;
+            width: 36px;
+            height: 36px;
+        }
     }
     .product-card-action-slot :focus-visible {
         outline: 2px solid #7c3aed; outline-offset: 2px;
