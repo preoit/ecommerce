@@ -43,12 +43,17 @@ function ProductSection({ title, href, products, index = 0, latest = false }) {
         if (!track) return undefined;
         const updateControls = () => {
             setCanPrevious(track.scrollLeft > 2);
-            setCanNext(track.scrollLeft + track.clientWidth < track.scrollWidth - 2);
+            setCanNext(
+                track.scrollLeft + track.clientWidth < track.scrollWidth - 2,
+            );
         };
         const frame = window.requestAnimationFrame(updateControls);
         track.addEventListener('scroll', updateControls, { passive: true });
         window.addEventListener('resize', updateControls);
-        const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateControls) : null;
+        const observer =
+            typeof ResizeObserver !== 'undefined'
+                ? new ResizeObserver(updateControls)
+                : null;
         observer?.observe(track);
         return () => {
             window.cancelAnimationFrame(frame);
@@ -58,18 +63,124 @@ function ProductSection({ title, href, products, index = 0, latest = false }) {
         };
     }, [products.length]);
 
-    const slide = direction => trackRef.current?.scrollBy({ left: direction * trackRef.current.clientWidth, behavior: 'smooth' });
+    const slide = (direction) =>
+        trackRef.current?.scrollBy({
+            left: direction * trackRef.current.clientWidth,
+            behavior: 'smooth',
+        });
 
-    return <section id={index === 0 ? 'products' : undefined} className={index % 2 ? 'bg-slate-50/70' : 'bg-white'}>
-        <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
-            <header className="flex items-end justify-between gap-4">
-                <div className="flex min-w-0 items-start gap-3"><span className="mt-1 grid size-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-700"><ShoppingBag className="size-5" /></span><div className="min-w-0"><p className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600">{latest ? 'Products' : 'Shop by category'}</p><h2 className="mt-1 truncate text-2xl font-extrabold text-slate-950">{title}</h2></div></div>
-                <div className="flex shrink-0 items-center gap-2"><div className="hidden items-center gap-1 sm:flex"><button type="button" onClick={() => slide(-1)} disabled={!canPrevious} aria-label={`Previous ${title} products`} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-violet-300 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-35"><ChevronLeft className="size-4"/></button><button type="button" onClick={() => slide(1)} disabled={!canNext} aria-label={`Next ${title} products`} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-violet-300 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-35"><ChevronRight className="size-4"/></button></div><Link href={href} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-violet-200 px-3 text-sm font-bold text-violet-700 transition hover:bg-violet-600 hover:text-white sm:px-4">View all<ArrowRight className="size-4" /></Link></div>
-            </header>
-            <div ref={trackRef} role="region" aria-label={`${title} product slider`} className="product-carousel mt-7 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth sm:gap-4 lg:gap-6">{products.map(product => <div key={product.id} className="product-carousel-slide shrink-0 snap-start"><ProductCard product={product} /></div>)}</div>
-            <div className="mt-4 flex items-center justify-center gap-2 sm:hidden"><button type="button" onClick={() => slide(-1)} disabled={!canPrevious} aria-label={`Previous ${title} products`} className="grid size-9 place-items-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-35"><ChevronLeft className="size-4"/></button><button type="button" onClick={() => slide(1)} disabled={!canNext} aria-label={`Next ${title} products`} className="grid size-9 place-items-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-35"><ChevronRight className="size-4"/></button></div>
-        </div>
-    </section>;
+    return (
+        <section
+            id={index === 0 ? 'products' : undefined}
+            className={index % 2 ? 'bg-slate-50/70' : 'bg-white'}
+        >
+            <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+                <header className="flex items-end justify-between gap-4">
+                    <div className="flex min-w-0 items-start gap-3">
+                        <span className="mt-1 grid size-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-700">
+                            <ShoppingBag className="size-5" />
+                        </span>
+                        <div className="min-w-0">
+                            <p className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600">
+                                {latest ? 'Products' : 'Shop by category'}
+                            </p>
+                            <h2 className="mt-1 truncate text-2xl font-extrabold text-slate-950">
+                                {title}
+                            </h2>
+                        </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                        <div className="hidden items-center gap-1 sm:flex">
+                            <button
+                                type="button"
+                                onClick={() => slide(-1)}
+                                disabled={!canPrevious}
+                                aria-label={`Previous ${title} products`}
+                                className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-violet-300 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-35"
+                            >
+                                <ChevronLeft className="size-4" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => slide(1)}
+                                disabled={!canNext}
+                                aria-label={`Next ${title} products`}
+                                className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-violet-300 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-35"
+                            >
+                                <ChevronRight className="size-4" />
+                            </button>
+                        </div>
+                        <Link
+                            href={href}
+                            className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-violet-200 px-3 text-sm font-bold text-violet-700 transition hover:bg-violet-600 hover:text-white sm:px-4"
+                        >
+                            View all
+                            <ArrowRight className="size-4" />
+                        </Link>
+                    </div>
+                </header>
+                <div className="relative flow-root">
+                    <div
+                        ref={trackRef}
+                        role="region"
+                        aria-label={`${title} product slider`}
+                        className="product-carousel mt-7 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth sm:gap-4 lg:gap-6"
+                    >
+                        {products.map((product) => (
+                            <div
+                                key={product.id}
+                                className="product-carousel-slide shrink-0 snap-start"
+                            >
+                                <ProductCard product={product} />
+                            </div>
+                        ))}
+                    </div>
+                    {products.length > 2 && (
+                        <div className="pointer-events-none absolute inset-x-0 top-7 bottom-0 flex items-center justify-between sm:hidden">
+                            <button
+                                type="button"
+                                onClick={() => slide(-1)}
+                                disabled={!canPrevious}
+                                aria-label={`Previous ${title} products`}
+                                className="pointer-events-auto ml-1 grid size-9 place-items-center rounded-full border border-slate-200 bg-white/95 text-slate-700 shadow-md backdrop-blur disabled:cursor-not-allowed disabled:opacity-35"
+                            >
+                                <ChevronLeft className="size-4" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => slide(1)}
+                                disabled={!canNext}
+                                aria-label={`Next ${title} products`}
+                                className="pointer-events-auto mr-1 grid size-9 place-items-center rounded-full border border-slate-200 bg-white/95 text-slate-700 shadow-md backdrop-blur disabled:cursor-not-allowed disabled:opacity-35"
+                            >
+                                <ChevronRight className="size-4" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <div className="mt-4 flex items-center justify-center gap-2 sm:hidden">
+                    <button
+                        type="button"
+                        onClick={() => slide(-1)}
+                        disabled={!canPrevious}
+                        aria-label={`Previous ${title} products`}
+                        className="grid size-9 place-items-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-35"
+                    >
+                        <ChevronLeft className="size-4" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => slide(1)}
+                        disabled={!canNext}
+                        aria-label={`Next ${title} products`}
+                        className="grid size-9 place-items-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm disabled:cursor-not-allowed disabled:opacity-35"
+                    >
+                        <ChevronRight className="size-4" />
+                    </button>
+                </div>
+            </div>
+        </section>
+    );
 }
 
 export default function Home({ featuredProducts = [], categorySections = [] }) {

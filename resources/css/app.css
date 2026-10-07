@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+.relative.flow-root + .mt-4 { display: none !important; }
+
 /* Keep every storefront shell aligned to the wider desktop design grid. */
 .max-w-\[1280px\] {
     max-width: 1440px;
@@ -1260,5 +1262,79 @@ html.dark body.storefront-theme header[data-storefront-header] button {
         background: #fff;
         color: #64748b;
         font-weight: 600;
+    }
+}
+
+@media (max-width: 767px) {
+    body.storefront-theme { font-size: 15px; }
+    body.storefront-theme main input,
+    body.storefront-theme main select,
+    body.storefront-theme main textarea { font-size: 16px !important; }
+    body.storefront-theme [class*=text-xs] { font-size: 11px !important; line-height: 1rem; }
+    body.storefront-theme [class*=text-sm] { font-size: 14px !important; line-height: 1.25rem; }
+    body.storefront-theme [class*=text-base] { font-size: 16px !important; line-height: 1.5rem; }
+    body.storefront-theme [class*=text-lg] { font-size: 17px !important; line-height: 1.625rem; }
+    body.storefront-theme [class*=text-xl] { font-size: 19px !important; line-height: 1.75rem; }
+    body.storefront-theme [class*=text-2xl] { font-size: 22px !important; line-height: 1.875rem; }
+    body.storefront-theme [class*=text-3xl] { font-size: 27px !important; line-height: 2.125rem; }
+    body.storefront-theme [class*=text-4xl] { font-size: 33px !important; line-height: 2.5rem; }
+    body.storefront-theme .text-\[2rem\] { font-size: 28px !important; }
+
+    header[data-storefront-header] > div:first-of-type {
+        height: 64px !important;
+    }
+
+    header[data-storefront-header] > div:first-of-type form[role=search] {
+        order: 3;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        overflow: hidden;
+        border-radius: 9999px;
+        background: #f1f3f6;
+        padding: 0;
+    }
+
+    header[data-storefront-header] > div:first-of-type form[role=search][data-mobile-search-open=true] {
+        order: 6;
+        flex: 0 0 100%;
+        width: 100%;
+        height: 40px;
+        border-color: #ddd6fe;
+        padding: 0.125rem;
+    }
+
+    header[data-storefront-header] > div:first-of-type form[role=search][data-mobile-search-open=false] input {
+        display: none;
+    }
+
+    header[data-storefront-header] > div:first-of-type:has(form[data-mobile-search-open=true]) {
+        height: 112px !important;
+    }
+
+    header[data-storefront-header] > div:first-of-type {
+        column-gap: 0.25rem !important;
+        padding-right: 0.5rem !important;
+        padding-left: 0.5rem !important;
+    }
+
+    header[data-storefront-header] > div:first-of-type .size-10,
+    header[data-storefront-header] .mobile-account-action {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    header[data-storefront-header] > div:first-of-type form[role=search][data-mobile-search-open=false] {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+    }
+
+    header[data-storefront-header] img {
+        width: 76px;
+    }
+
+    body:has([data-mobile-menu]) header[data-storefront-header] > div:first-of-type form[role=search] {
+        display: none !important;
     }
 }

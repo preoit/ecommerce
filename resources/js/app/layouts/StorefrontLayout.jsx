@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Apple, ArrowUp, ChevronDown, Mail, Menu, MessageCircle, Moon, Music2, Phone, Play, Search, ShoppingCart, Sun, UserRound, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CartDrawer from '@/app/components/CartDrawer';
 
 const footerGroups = [
@@ -24,21 +24,84 @@ function Brand({ website }) {
 }
 
 function ThemeAction({ darkMode, onToggle, mobile = false }) {
-    return <button type="button" onClick={onToggle} className={`${mobile ? 'storefront-theme-action hidden md:hidden' : 'hidden md:grid'} size-10 shrink-0 place-items-center rounded-lg text-slate-600 transition hover:bg-violet-50 hover:text-violet-700 dark:text-slate-200 dark:hover:bg-slate-800`} aria-label={darkMode ? 'Use light mode' : 'Use dark mode'} title={darkMode ? 'Light mode' : 'Dark mode'}>{darkMode ? <Sun className="size-5" /> : <Moon className="size-5" />}</button>;
+    return (
+        <button
+            type="button"
+            onClick={onToggle}
+            className={`${mobile ? "storefront-theme-action hidden md:hidden" : "hidden md:grid"} size-10 shrink-0 place-items-center rounded-lg text-slate-600 transition hover:bg-violet-50 hover:text-violet-700 dark:text-slate-200 dark:hover:bg-slate-800`}
+            aria-label={darkMode ? "Use light mode" : "Use dark mode"}
+            title={darkMode ? "Light mode" : "Dark mode"}
+        >
+            {darkMode ? (
+                <Sun className="size-5" />
+            ) : (
+                <Moon className="size-5" />
+            )}
+        </button>
+    );
 }
 
 function SearchBar() {
-    const [query, setQuery] = useState(() => new URLSearchParams(window.location.search).get('search') || '');
+    const [query, setQuery] = useState(
+        () => new URLSearchParams(window.location.search).get('search') || '',
+    );
+    const [expanded, setExpanded] = useState(false);
+    const inputRef = useRef(null);
+    useEffect(() => {
+        if (expanded) inputRef.current?.focus();
+    }, [expanded]);
     const submit = (event) => {
         event.preventDefault();
         const search = query.trim();
-        router.get(route('storefront.products.index'), search ? { search } : {}, { preserveState: false });
+        router.get(
+            route('storefront.products.index'),
+            search ? { search } : {},
+            { preserveState: false },
+        );
+        setExpanded(false);
     };
 
-    return <form className="flex h-12 min-w-0 flex-1 items-stretch rounded-full border-2 border-transparent bg-[#f1f3f6] p-0.5 transition-colors hover:border-violet-500 focus-within:border-violet-500 lg:max-w-[760px]" role="search" onSubmit={submit}>
-        <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search products or SKU..." className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-slate-800 placeholder:text-slate-500 focus:ring-0" />
-        <button type="submit" className="inline-flex aspect-square h-full shrink-0 items-center justify-center rounded-full bg-transparent text-[#172231] transition-colors hover:bg-slate-200" aria-label="Search"><Search className="size-5" /></button>
-    </form>;
+    return (
+        <form
+            data-mobile-search-open={expanded ? 'true' : 'false'}
+            className="flex h-12 min-w-0 flex-1 items-stretch rounded-full border-2 border-transparent bg-[#f1f3f6] p-0.5 transition-colors hover:border-violet-500 focus-within:border-violet-500 lg:max-w-[760px]"
+            role="search"
+            onSubmit={submit}
+            onClick={(event) => {
+                const submitButton = event.target.closest(
+                    'button[type=submit]',
+                );
+                if (
+                    submitButton &&
+                    window.matchMedia('(max-width: 767px)').matches &&
+                    !expanded
+                ) {
+                    event.preventDefault();
+                    setExpanded(true);
+                }
+            }}
+        >
+            <input
+                ref={inputRef}
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                onKeyDown={(event) =>
+                    event.key === 'Escape' &&
+                    (setExpanded(false), event.currentTarget.blur())
+                }
+                placeholder="Search products or SKU..."
+                className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-slate-800 placeholder:text-slate-500 focus:ring-0"
+            />
+            <button
+                type="submit"
+                className="inline-flex aspect-square h-full shrink-0 items-center justify-center rounded-full bg-transparent text-[#172231] transition-colors hover:bg-slate-200"
+                aria-label="Search"
+            >
+                <Search className="size-5" />
+            </button>
+        </form>
+    );
 }
 
 function HeaderAction({ href = '/', icon: Icon, label, count = 0, onClick }) {
