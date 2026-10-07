@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-DG3jzLV4.js";import{t}from"./StorefrontLayout-CV33HJFK.js";var n=e();function r({children:e}){return(0,n.jsx)(t,{children:(0,n.jsx)(`main`,{className:`mx-auto max-w-[1400px] px-4 py-8 sm:px-6 sm:py-10 lg:px-8`,children:e})})}export{r as t};
