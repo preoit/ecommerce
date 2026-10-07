@@ -77,4 +77,28 @@ class AuthenticationTest extends TestCase
         $customer = User::factory()->create(['is_admin' => false]);
         $this->post('/admin/login', ['email' => $customer->email, 'password' => 'password'])->assertSessionHasErrors('email');
         $this->assertGuest();
-    }}
+    }
+
+    public function test_admin_can_switch_to_the_customer_login_from_checkout(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $response = $this->actingAs($admin)->post(route('customer.switch-portal'), [
+            'destination' => 'login',
+        ]);
+
+        $this->assertGuest();
+        $response->assertRedirect(route('customer.login'));
+    }
+
+    public function test_customer_cannot_use_the_admin_portal_switch(): void
+    {
+        $customer = User::factory()->create(['is_admin' => false]);
+
+        $this->actingAs($customer)
+            ->post(route('customer.switch-portal'), ['destination' => 'login'])
+            ->assertForbidden();
+
+        $this->assertAuthenticatedAs($customer);
+    }
+}

@@ -42,6 +42,24 @@ class ProductDetailsTest extends TestCase
                 ->where('products.data.0.title', 'Public Product'));
     }
 
+    public function test_admin_session_is_not_treated_as_a_checkout_customer(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $product = Product::create(['title' => 'Admin Checkout Product', 'slug' => 'admin-checkout-product', 'regular_price' => 100, 'stock_quantity' => 5, 'status' => 'Published', 'visibility' => 'Public']);
+
+        $this->actingAs($admin)
+            ->postJson(route('storefront.products.cart', $product), ['quantity' => 1])
+            ->assertOk();
+
+        $this->get(route('storefront.checkout'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('app/modules/storefront/checkout/pages/Index', false)
+                ->where('customer', null)
+                ->where('adminSession', true)
+                ->has('addresses', 0));
+    }
+
     public function test_saved_wishlist_state_is_shared_with_product_cards(): void
     {
         $product = Product::create(['title' => 'Saved Product', 'slug' => 'saved-product', 'regular_price' => 100, 'stock_quantity' => 5, 'status' => 'Published', 'visibility' => 'Public']);

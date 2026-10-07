@@ -4,43 +4,141 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import CheckoutLayout from '@/app/layouts/CheckoutLayout';
 import { bangladeshDivisions, detectDeliveryZone, districtsByDivision, divisionForDistrict, thanasByDistrict } from '@/app/utils/deliveryZone';
 
-const money = value => `৳${Number(value || 0).toLocaleString('en-BD', { maximumFractionDigits: 2 })}`;
+const money = (value) => `৳${Number(value || 0).toLocaleString('en-BD', { maximumFractionDigits: 2 })}`;
 
 function FloatingField({ name, label, value, error, onChange, type = 'text', required = false, children }) {
-    return <label className="block min-w-0" data-field={name}><span className={`relative block rounded-xl border bg-white transition focus-within:ring-2 ${error ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-100' : 'border-slate-300 focus-within:border-violet-500 focus-within:ring-violet-100'}`}><span className={`pointer-events-none absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 text-[11px] font-medium ${error ? 'text-rose-600' : 'text-slate-500'}`}>{label}{required && <span className="ml-0.5 text-rose-500">*</span>}</span>{children || <input name={name} value={value} type={type} onChange={event => onChange(event.target.value)} aria-invalid={Boolean(error)} aria-describedby={error ? `${name}-error` : undefined} className="h-12 w-full rounded-xl border-0 bg-transparent px-4 text-sm text-slate-900 focus:ring-0" />}{error && <AlertCircle className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-rose-500" />}</span>{error && <small id={`${name}-error`} className="mt-1.5 block text-xs font-medium text-rose-600">{error}</small>}</label>;
+    return (
+        <label className="block min-w-0" data-field={name}>
+            <span className={`relative block rounded-xl border bg-white transition focus-within:ring-2 ${error ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-100' : 'border-slate-300 focus-within:border-violet-500 focus-within:ring-violet-100'}`}>
+                <span className={`pointer-events-none absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 text-[11px] font-medium ${error ? 'text-rose-600' : 'text-slate-500'}`}>
+                    {label}
+                    {required && <span className="ml-0.5 text-rose-500">*</span>}
+                </span>
+                {children || <input name={name} value={value} type={type} onChange={(event) => onChange(event.target.value)} aria-invalid={Boolean(error)} aria-describedby={error ? `${name}-error` : undefined} className="h-12 w-full rounded-xl border-0 bg-transparent px-4 text-sm text-slate-900 focus:ring-0" />}
+                {error && <AlertCircle className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-rose-500" />}
+            </span>
+            {error && (
+                <small id={`${name}-error`} className="mt-1.5 block text-xs font-medium text-rose-600">
+                    {error}
+                </small>
+            )}
+        </label>
+    );
 }
 
 function SearchableSelect({ name, value, options, placeholder, onChange, error, disabled = false }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState(value || '');
     const root = useRef(null);
-    useEffect(() => { if (!open) setQuery(value || ''); }, [value, open]);
+    useEffect(() => {
+        if (!open) setQuery(value || '');
+    }, [value, open]);
     useEffect(() => {
         if (!open) return;
-        const close = event => { if (!root.current?.contains(event.target)) setOpen(false); };
+        const close = (event) => {
+            if (!root.current?.contains(event.target)) setOpen(false);
+        };
         document.addEventListener('pointerdown', close);
         return () => document.removeEventListener('pointerdown', close);
     }, [open]);
-    const filtered = options.filter(option => option.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 80);
-    const choose = option => { onChange(option); setQuery(option); setOpen(false); };
-    return <div ref={root} className="relative"><Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400"/><input name={name} value={query} disabled={disabled} autoComplete="off" autoCorrect="off" spellCheck={false} role="combobox" aria-expanded={open && !disabled} aria-controls={`${name}-options`} aria-autocomplete="none" aria-invalid={Boolean(error)} aria-describedby={error ? `${name}-error` : undefined} placeholder={placeholder} onFocus={() => { if (!disabled) setOpen(true); }} onChange={event => { setQuery(event.target.value); if (value) onChange(''); setOpen(true); }} onKeyDown={event => { if (event.key === 'Escape') setOpen(false); if (event.key === 'Enter' && open) event.preventDefault(); }} className="h-12 w-full rounded-xl border-0 bg-transparent pl-11 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-0 disabled:cursor-not-allowed disabled:bg-slate-50/70 disabled:text-slate-400"/><ChevronDown className={`pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400 transition ${open ? 'rotate-180' : ''}`}/>{open && !disabled && <div id={`${name}-options`} role="listbox" className="absolute z-40 mt-2 max-h-64 w-full overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-2 shadow-xl">{filtered.map(option => <button key={option} type="button" role="option" aria-selected={option === value} onClick={() => choose(option)} className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm ${option === value ? 'bg-violet-50 font-semibold text-violet-700' : 'text-slate-700 hover:bg-slate-50'}`}>{option}</button>)}{!filtered.length && <p className="px-3 py-6 text-center text-sm text-slate-500">No matching option found.</p>}</div>}</div>;
+    const filtered = options.filter((option) => option.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 80);
+    const choose = (option) => {
+        onChange(option);
+        setQuery(option);
+        setOpen(false);
+    };
+    return (
+        <div ref={root} className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+            <input
+                name={name}
+                value={query}
+                disabled={disabled}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                role="combobox"
+                aria-expanded={open && !disabled}
+                aria-controls={`${name}-options`}
+                aria-autocomplete="none"
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? `${name}-error` : undefined}
+                placeholder={placeholder}
+                onFocus={() => {
+                    if (!disabled) setOpen(true);
+                }}
+                onChange={(event) => {
+                    setQuery(event.target.value);
+                    if (value) onChange('');
+                    setOpen(true);
+                }}
+                onKeyDown={(event) => {
+                    if (event.key === 'Escape') setOpen(false);
+                    if (event.key === 'Enter' && open) event.preventDefault();
+                }}
+                className="h-12 w-full rounded-xl border-0 bg-transparent pl-11 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-0 disabled:cursor-not-allowed disabled:bg-slate-50/70 disabled:text-slate-400"
+            />
+            <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400 transition ${open ? 'rotate-180' : ''}`} />
+            {open && !disabled && (
+                <div id={`${name}-options`} role="listbox" className="absolute z-40 mt-2 max-h-64 w-full overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+                    {filtered.map((option) => (
+                        <button key={option} type="button" role="option" aria-selected={option === value} onClick={() => choose(option)} className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm ${option === value ? 'bg-violet-50 font-semibold text-violet-700' : 'text-slate-700 hover:bg-slate-50'}`}>
+                            {option}
+                        </button>
+                    ))}
+                    {!filtered.length && <p className="px-3 py-6 text-center text-sm text-slate-500">No matching option found.</p>}
+                </div>
+            )}
+        </div>
+    );
 }
 
-export default function CheckoutPage({ items: initialItems = [], subtotal: initialSubtotal = 0, deliverySettings = {}, addresses = [], customer = null, phoneVerification = {}, checkoutToken = '', cartNotice: initialCartNotice = '' }) {
-    const defaultAddress = addresses.find(address => address.is_default) || null;
-    const defaultZone = defaultAddress
-        ? (defaultAddress.district ? detectDeliveryZone(defaultAddress) : defaultAddress.delivery_zone || detectDeliveryZone(defaultAddress))
-        : '';
+export default function CheckoutPage({ items: initialItems = [], subtotal: initialSubtotal = 0, deliverySettings = {}, addresses = [], customer = null, adminSession = false, phoneVerification = {}, checkoutToken = '', cartNotice: initialCartNotice = '' }) {
+    const defaultAddress = addresses.find((address) => address.is_default) || null;
+    const defaultZone = defaultAddress ? (defaultAddress.district ? detectDeliveryZone(defaultAddress) : defaultAddress.delivery_zone || detectDeliveryZone(defaultAddress)) : '';
     const defaultDivision = divisionForDistrict(defaultAddress?.district || '');
-    const { data, setData } = useForm({ customer_name: defaultAddress?.recipient_name || customer?.name || '', phone: defaultAddress?.phone || customer?.phone || '', email: customer?.email || '', city: defaultAddress?.city || '', address: defaultAddress?.address || '', note: '', delivery_zone: defaultZone, payment_method: 'cod', address_id: defaultAddress?.id || null, division: defaultDivision, district: defaultAddress?.district || '', area: defaultAddress?.area || '', postal_code: defaultAddress?.postal_code || '', landmark: defaultAddress?.landmark || '', checkout_token: checkoutToken });
-    const chooseAddress = address => setData({ ...data, address_id: address.id, customer_name: address.recipient_name, phone: address.phone, city: address.city, address: address.address, delivery_zone: address.district ? detectDeliveryZone(address) : address.delivery_zone || detectDeliveryZone(address), division: divisionForDistrict(address.district || ''), district: address.district || '', area: address.area || '', postal_code: address.postal_code || '', landmark: address.landmark || '' });
+    const { data, setData } = useForm({
+        customer_name: defaultAddress?.recipient_name || customer?.name || '',
+        phone: defaultAddress?.phone || customer?.phone || '',
+        email: customer?.email || '',
+        city: defaultAddress?.city || '',
+        address: defaultAddress?.address || '',
+        note: '',
+        delivery_zone: defaultZone,
+        payment_method: 'cod',
+        address_id: defaultAddress?.id || null,
+        division: defaultDivision,
+        district: defaultAddress?.district || '',
+        area: defaultAddress?.area || '',
+        postal_code: defaultAddress?.postal_code || '',
+        landmark: defaultAddress?.landmark || '',
+        checkout_token: checkoutToken,
+    });
+    const chooseAddress = (address) =>
+        setData({
+            ...data,
+            address_id: address.id,
+            customer_name: address.recipient_name,
+            phone: address.phone,
+            city: address.city,
+            address: address.address,
+            delivery_zone: address.district ? detectDeliveryZone(address) : address.delivery_zone || detectDeliveryZone(address),
+            division: divisionForDistrict(address.district || ''),
+            district: address.district || '',
+            area: address.area || '',
+            postal_code: address.postal_code || '',
+            landmark: address.landmark || '',
+        });
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState({});
     const [items, setItems] = useState(initialItems);
     const [subtotal, setSubtotal] = useState(Number(initialSubtotal));
     const [pendingItem, setPendingItem] = useState(null);
     const [cartNotice, setCartNotice] = useState(initialCartNotice || '');
-    const normalizePhone = value => String(value || '').replace(/\D/g, '').replace(/^880/, '0');
+    const normalizePhone = (value) =>
+        String(value || '')
+            .replace(/\D/g, '')
+            .replace(/^880/, '0');
     const [verifiedPhone, setVerifiedPhone] = useState(phoneVerification.verified ? normalizePhone(phoneVerification.phone) : '');
     const [otpCode, setOtpCode] = useState('');
     const [otpSent, setOtpSent] = useState(false);
@@ -54,13 +152,27 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
         const controller = new AbortController();
         const timer = setTimeout(async () => {
             try {
-                const response = await fetch(route('storefront.checkout.phone-verification.check'), { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }, body: JSON.stringify({ phone }) });
+                const response = await fetch(route('storefront.checkout.phone-verification.check'), {
+                    method: 'POST',
+                    signal: controller.signal,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    body: JSON.stringify({ phone }),
+                });
                 if (!response.ok) return;
                 const result = await response.json();
-                setVerifiedPhone(current => result.verified ? phone : (current === phone ? '' : current));
-            } catch (error) { if (error.name !== 'AbortError') console.error(error); }
+                setVerifiedPhone((current) => (result.verified ? phone : current === phone ? '' : current));
+            } catch (error) {
+                if (error.name !== 'AbortError') console.error(error);
+            }
         }, 450);
-        return () => { clearTimeout(timer); controller.abort(); };
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
     }, [data.phone]);
     useEffect(() => {
         if (!data.address_id && (data.district || data.city || data.address)) {
@@ -76,57 +188,127 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
     }, [errors]);
     const updateField = (key, value) => {
         setData(key, value);
-        if (errors[key]) setErrors(current => { const next = { ...current }; delete next[key]; return next; });
+        if (errors[key])
+            setErrors((current) => {
+                const next = { ...current };
+                delete next[key];
+                return next;
+            });
     };
     const updateCart = async (item, quantity = null) => {
-        setPendingItem(item.cart_key); setCartNotice('');
+        setPendingItem(item.cart_key);
+        setCartNotice('');
         try {
-            const response = await fetch(route(quantity === null ? 'storefront.cart.remove' : 'storefront.cart.update', item.cart_key), { method: quantity === null ? 'DELETE' : 'PATCH', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }, body: quantity === null ? undefined : JSON.stringify({ quantity }) });
-            const result = await response.json(); if (!response.ok) throw new Error(result.message || 'Cart could not be updated.');
-            setItems(result.items || []); setSubtotal(Number(result.subtotal || 0)); if (!(result.items || []).length) router.visit(route('storefront.cart'));
-        } catch (error) { setCartNotice(error.message); } finally { setPendingItem(null); }
+            const response = await fetch(route(quantity === null ? 'storefront.cart.remove' : 'storefront.cart.update', item.cart_key), {
+                method: quantity === null ? 'DELETE' : 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                },
+                body: quantity === null ? undefined : JSON.stringify({ quantity }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Cart could not be updated.');
+            setItems(result.items || []);
+            setSubtotal(Number(result.subtotal || 0));
+            if (!(result.items || []).length) router.visit(route('storefront.cart'));
+        } catch (error) {
+            setCartNotice(error.message);
+        } finally {
+            setPendingItem(null);
+        }
     };
     const deliveryReady = Boolean(data.address_id || String(data.district || '').trim());
     const deliveryZoneLabel = data.delivery_zone === 'inside_dhaka' ? 'Inside Dhaka' : 'Outside Dhaka';
     const delivery = useMemo(() => {
-        if (!deliveryReady || !data.delivery_zone) return { shipping: 0, cod: 0, total: 0, free: false, heavy: 0, pending: true };
-        if (!deliverySettings.enabled) return { shipping: 0, cod: 0, total: 0, free: true, heavy: 0, pending: false };
+        if (!deliveryReady || !data.delivery_zone)
+            return {
+                shipping: 0,
+                cod: 0,
+                total: 0,
+                free: false,
+                heavy: 0,
+                pending: true,
+            };
+        if (!deliverySettings.enabled)
+            return {
+                shipping: 0,
+                cod: 0,
+                total: 0,
+                free: true,
+                heavy: 0,
+                pending: false,
+            };
         const zoneField = data.delivery_zone === 'inside_dhaka' ? 'delivery_inside_dhaka' : 'delivery_outside_dhaka';
         const base = Number(data.delivery_zone === 'inside_dhaka' ? deliverySettings.insideDhaka : deliverySettings.outsideDhaka);
-        const override = deliverySettings.productOverrideEnabled ? Math.max(0, ...items.map(item => Number(item[zoneField] || 0))) : 0;
+        const override = deliverySettings.productOverrideEnabled ? Math.max(0, ...items.map((item) => Number(item[zoneField] || 0))) : 0;
         const weight = items.reduce((sum, item) => sum + Number(item.weight || 0) * Number(item.quantity || 0), 0);
         const heavy = deliverySettings.heavyEnabled && weight > Number(deliverySettings.heavyThreshold || 0) ? Math.ceil(weight - Number(deliverySettings.heavyThreshold || 0)) * Number(deliverySettings.heavyPerKg || 0) : 0;
         const free = deliverySettings.freeEnabled && deliverySettings.freeThreshold !== null && Number(subtotal) >= Number(deliverySettings.freeThreshold);
         const shipping = free ? 0 : (override || base) + heavy;
         const cod = deliverySettings.codEnabled && data.payment_method === 'cod' ? Number(deliverySettings.codSurcharge || 0) : 0;
-        return { shipping, cod, total: shipping + cod, free, heavy, pending: false };
+        return {
+            shipping,
+            cod,
+            total: shipping + cod,
+            free,
+            heavy,
+            pending: false,
+        };
     }, [data.delivery_zone, data.payment_method, deliveryReady, deliverySettings, items, subtotal]);
     const districtOptions = districtsByDivision[data.division] || [];
     const thanaOptions = thanasByDistrict[data.district] || (data.delivery_zone === 'inside_dhaka' ? thanasByDistrict.Dhaka : null);
     const otpRequest = async (url, payload) => {
-        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }, body: JSON.stringify(payload) });
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+            },
+            body: JSON.stringify(payload),
+        });
         const result = await response.json();
         if (!response.ok) throw new Error(Object.values(result.errors || {}).flat()[0] || result.message || 'Phone verification could not be completed.');
         return result;
     };
     const sendOtp = async () => {
-        setOtpError(''); setOtpNotice('');
-        if (!/^(?:\+?88)?01[3-9]\d{8}$/.test(data.phone.replace(/[\s-]/g, ''))) { setOtpError('Enter a valid Bangladesh phone number first.'); return; }
+        setOtpError('');
+        setOtpNotice('');
+        if (!/^(?:\+?88)?01[3-9]\d{8}$/.test(data.phone.replace(/[\s-]/g, ''))) {
+            setOtpError('Enter a valid Bangladesh phone number first.');
+            return;
+        }
         setOtpBusy(true);
         try {
             const result = await otpRequest(route('storefront.checkout.phone-verification.send'), { phone: data.phone });
-            setOtpNotice(result.message); setOtpSent(Boolean(result.sent));
+            setOtpNotice(result.message);
+            setOtpSent(Boolean(result.sent));
             if (result.verified) setVerifiedPhone(normalizePhone(data.phone));
-        } catch (error) { setOtpError(error.message); } finally { setOtpBusy(false); }
+        } catch (error) {
+            setOtpError(error.message);
+        } finally {
+            setOtpBusy(false);
+        }
     };
     const verifyOtp = async () => {
-        setOtpError(''); setOtpNotice(''); setOtpBusy(true);
+        setOtpError('');
+        setOtpNotice('');
+        setOtpBusy(true);
         try {
             const result = await otpRequest(route('storefront.checkout.phone-verification.verify'), { phone: data.phone, code: otpCode });
-            setVerifiedPhone(normalizePhone(data.phone)); setOtpSent(false); setOtpCode(''); setOtpNotice(result.message);
-        } catch (error) { setOtpError(error.message); } finally { setOtpBusy(false); }
+            setVerifiedPhone(normalizePhone(data.phone));
+            setOtpSent(false);
+            setOtpCode('');
+            setOtpNotice(result.message);
+        } catch (error) {
+            setOtpError(error.message);
+        } finally {
+            setOtpBusy(false);
+        }
     };
-    const submit = event => {
+    const submit = (event) => {
         event.preventDefault();
         const validation = {};
         if (!data.customer_name.trim()) validation.customer_name = 'Full name is required.';
@@ -137,31 +319,344 @@ export default function CheckoutPage({ items: initialItems = [], subtotal: initi
         if (!data.address_id && !data.district.trim()) validation.district = 'District is required.';
         if (!data.city.trim()) validation.city = data.district === 'Dhaka' ? 'Thana or area is required.' : 'City or area is required.';
         if (!data.address.trim()) validation.address = 'Full delivery address is required.';
-        if (Object.keys(validation).length) { setErrors(validation); return; }
-        setProcessing(true); setErrors({});
-        router.post(route('storefront.checkout.place-order'), data, { onError: validationErrors => { setErrors(validationErrors); if (validationErrors.checkout_token) setCartNotice(validationErrors.checkout_token); }, onFinish: () => setProcessing(false) });
+        if (Object.keys(validation).length) {
+            setErrors(validation);
+            return;
+        }
+        setProcessing(true);
+        setErrors({});
+        router.post(route('storefront.checkout.place-order'), data, {
+            onError: (validationErrors) => {
+                setErrors(validationErrors);
+                if (validationErrors.checkout_token) setCartNotice(validationErrors.checkout_token);
+            },
+            onFinish: () => setProcessing(false),
+        });
     };
 
-    return <CheckoutLayout><Head title="Checkout" /><div className="grid gap-7 lg:grid-cols-[1fr_360px]"><form id="checkout-form" onSubmit={submit} className="order-2 rounded-2xl border border-slate-200 bg-white p-6 lg:order-1"><h1 className="text-2xl font-bold">Delivery information</h1><p className="mt-1 text-sm text-slate-500">Enter your details to place the order.</p>{!customer && <section className="mt-6 flex flex-col gap-4 rounded-xl border border-violet-100 bg-violet-50/60 p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex min-w-0 items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-violet-600 shadow-sm"><UserRound className="size-5"/></span><div className="min-w-0"><p className="font-bold text-slate-900">Have an account?</p><p className="mt-0.5 text-sm text-slate-500">Log in for a faster checkout and access to your order history.</p></div></div><div className="flex shrink-0 items-center gap-2"><Link href={route('login')} className="inline-flex h-10 items-center justify-center rounded-lg border border-violet-200 bg-white px-4 text-sm font-bold text-violet-700 transition hover:border-violet-600 hover:bg-violet-50">Log in</Link><Link href={route('register')} className="inline-flex h-10 items-center justify-center rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-violet-700">Register</Link></div></section>}{addresses.length > 0 && <section className="mt-6"><div className="flex items-center justify-between"><h2 className="font-bold">Choose a saved address</h2><button type="button" onClick={()=>setData('address_id',null)} className="text-sm font-bold text-violet-600">Use new address</button></div><div className="mt-3 grid gap-3 sm:grid-cols-2">{addresses.map(address=><button type="button" key={address.id} onClick={()=>chooseAddress(address)} className={`rounded-xl border-2 p-4 text-left transition ${data.address_id===address.id?'border-violet-600 bg-violet-50':'border-slate-200 hover:border-violet-300'}`}><span className="flex items-center justify-between"><b>{address.label}</b>{address.is_default&&<small className="rounded-full bg-emerald-50 px-2 py-1 font-bold text-emerald-700">Default</small>}</span><span className="mt-2 block text-sm font-semibold">{address.recipient_name} · {address.phone}</span><span className="mt-1 line-clamp-2 block text-xs leading-5 text-slate-500">{address.address}, {address.city}</span></button>)}</div></section>}<div className="mt-7 grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2 lg:grid-cols-6">
-    <div className="sm:col-span-1 lg:col-span-3"><FloatingField name="customer_name" label="Full name" value={data.customer_name} error={errors.customer_name} onChange={value => updateField('customer_name', value)} required /></div>
-    <div className="sm:col-span-1 lg:col-span-3"><FloatingField name="phone" label="Phone number" value={data.phone} error={errors.phone} required>
-        <div className="relative"><input name="phone" value={data.phone} type="tel" onChange={event => { updateField('phone', event.target.value); setOtpSent(false); setOtpCode(''); setOtpNotice(''); setOtpError(''); }} aria-invalid={Boolean(errors.phone)} aria-describedby={errors.phone ? 'phone-error' : undefined} className={`h-12 w-full rounded-xl border-0 bg-transparent px-4 text-sm text-slate-900 focus:ring-0 ${errors.phone ? 'pr-11' : 'pr-32'}`}/>{!errors.phone && <span className="absolute right-2 top-1/2 -translate-y-1/2">{phoneIsVerified ? <span className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 text-[11px] font-bold text-emerald-700"><CheckCircle2 className="size-3.5"/>Verified phone</span> : <button type="button" onClick={sendOtp} disabled={otpBusy || !data.phone} title="Phone verification is optional" className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-2.5 text-[11px] font-bold text-violet-700 transition hover:border-violet-300 hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50">{otpBusy && !otpSent ? <LoaderCircle className="size-3.5 animate-spin"/> : <ShieldCheck className="size-3.5"/>}Verify phone</button>}</span>}</div>
-    </FloatingField>
-        {otpSent && !phoneIsVerified && <div className="mt-2 flex gap-2"><input value={otpCode} onChange={event=>setOtpCode(event.target.value.replace(/\D/g,'').slice(0,4))} inputMode="numeric" autoComplete="one-time-code" maxLength={4} placeholder="4-digit OTP" className="h-10 min-w-0 flex-1 rounded-lg border-slate-300 text-sm"/><button type="button" onClick={verifyOtp} disabled={otpBusy || otpCode.length !== 4} className="inline-flex h-10 items-center justify-center rounded-lg bg-violet-600 px-4 text-xs font-bold text-white disabled:opacity-50">{otpBusy?<LoaderCircle className="size-4 animate-spin"/>:'Confirm'}</button></div>}
-        {otpNotice && <p className="mt-2 text-xs font-semibold text-emerald-600">{otpNotice}</p>}{otpError && <p className="mt-2 text-xs font-semibold text-rose-600">{otpError}</p>}
-    </div>
-    <div className="sm:col-span-2 lg:col-span-6"><FloatingField name="email" label="Email (optional)" value={data.email} error={errors.email} onChange={value => updateField('email', value)} type="email" /></div>
-    <div className="lg:col-span-2"><FloatingField name="division" label="Division" value={data.division} error={errors.division} required={!data.address_id}>
-        <SearchableSelect name="division" value={data.division} options={bangladeshDivisions} placeholder="Search division..." error={errors.division} onChange={value => { setData(current => ({ ...current, division: value, district: '', city: '', area: '', delivery_zone: '', address_id: null })); setErrors(current => { const next = { ...current }; delete next.division; delete next.district; delete next.city; delete next.delivery_zone; return next; }); }} />
-    </FloatingField></div>
-    <div className="lg:col-span-2"><FloatingField name="district" label="District" value={data.district} error={errors.district} required={!data.address_id}>
-        <SearchableSelect name="district" value={data.district} options={districtOptions} placeholder={data.division ? 'Search district...' : 'Select division first'} error={errors.district} disabled={!data.division} onChange={value => { setData(current => ({ ...current, district: value, city: '', area: '', address_id: null })); if (errors.district) setErrors(current => { const next = { ...current }; delete next.district; return next; }); }} />
-    </FloatingField></div>
-    <div className="sm:col-span-2 lg:col-span-2">{thanaOptions ? <FloatingField name="city" label="Thana / area" value={data.city} error={errors.city} required>
-        <SearchableSelect name="city" value={data.city} options={!thanaOptions.includes(data.city) && data.city ? [data.city, ...thanaOptions] : thanaOptions} placeholder="Search thana / upazila..." error={errors.city} onChange={value => { setData(current => ({ ...current, city: value, area: value, address_id: null })); if (errors.city) setErrors(current => { const next = { ...current }; delete next.city; return next; }); }} />
-    </FloatingField> : <FloatingField name="city" label="City / thana / area" value={data.city} error={errors.city} onChange={value => { updateField('city', value); setData('area', value); }} required />}</div>
-    <div className="sm:col-span-2 lg:col-span-6"><FloatingField name="address" label="Full delivery address" value={data.address} error={errors.address} required>
-        <textarea name="address" value={data.address} onChange={event => updateField('address', event.target.value)} aria-invalid={Boolean(errors.address)} aria-describedby={errors.address ? 'address-error' : undefined} rows="3" className="min-h-24 w-full resize-y rounded-xl border-0 bg-transparent px-4 py-3 text-sm text-slate-900 focus:ring-0" />
-    </FloatingField></div>
-</div><section data-field="delivery_zone" className="mt-5 flex flex-col gap-3 rounded-xl border border-violet-100 bg-violet-50/60 p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-violet-600 shadow-sm"><Truck className="size-5"/></span><div><h2 className="font-bold text-slate-900">Delivery area</h2><p className="mt-0.5 text-sm text-slate-500">{deliveryReady ? deliveryZoneLabel : 'Select a district to calculate delivery.'}</p></div></div><div className="sm:text-right"><p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">Delivery charge</p><b className={!deliveryReady ? 'text-sm text-slate-500' : delivery.free ? 'text-sm text-emerald-600' : 'text-base text-violet-700'}>{!deliveryReady ? 'Not calculated' : delivery.free ? 'Free Delivery' : money(delivery.shipping)}</b></div>{errors.delivery_zone && <small className="text-rose-600">{errors.delivery_zone}</small>}</section><label className="mt-4 block text-sm font-semibold">Order note (optional)<textarea value={data.note} onChange={event => setData('note', event.target.value)} className="mt-2 min-h-20 w-full rounded-xl border-slate-300" /></label></form><aside className="order-1 h-fit overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_16px_45px_rgba(15,23,42,.08)] lg:sticky lg:top-24 lg:order-2"><section data-field="payment_method" className="border-b border-slate-200 bg-slate-50/70 p-5 sm:p-7"><div className="flex items-center gap-3"><span className="h-6 w-1 rounded-full bg-violet-600"/><h2 className="text-lg font-extrabold text-slate-950">Payment method</h2></div><label className={'mt-4 flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition ' + (data.payment_method === 'cod' ? 'border-violet-500 bg-violet-50 shadow-[0_0_0_1px_rgba(124,58,237,.08)]' : 'border-slate-200 bg-white hover:border-violet-300')}><input type="radio" name="payment_method" value="cod" checked={data.payment_method === 'cod'} onChange={() => setData('payment_method', 'cod')} className="sr-only"/><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-white text-violet-600 shadow-sm"><Banknote className="size-5"/></span><span className="min-w-0 flex-1"><b className="block text-sm text-slate-900">Cash on Delivery</b><small className="mt-0.5 block text-xs text-slate-500">Pay when your order arrives.</small></span><CheckCircle2 className="size-5 shrink-0 text-violet-600"/></label>{errors.payment_method && <small className="mt-2 block text-xs font-medium text-rose-600">{errors.payment_method}</small>}</section><div className="p-5 sm:p-7"><div className="flex items-center justify-between"><h2 className="text-xl font-extrabold text-slate-950">Order Summary</h2><span className="grid size-7 place-items-center rounded-full border border-slate-300 text-slate-400"><Info className="size-4"/></span></div>{cartNotice && <p className="mt-4 rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-600">{cartNotice}</p>}<div className="mt-6 space-y-5">{items.map(item => <article key={item.cart_key || item.product_id} className="grid grid-cols-[64px_minmax(0,1fr)_auto] items-center gap-3"><div className="size-16 overflow-hidden rounded-xl bg-slate-50">{item.image ? <img src={item.image} alt={item.title} className="h-full w-full object-contain p-1"/> : <span className="grid h-full place-items-center text-xs text-slate-400">No image</span>}</div><div className="min-w-0"><b className="block truncate text-sm text-slate-900">{item.title}</b>{item.variant_name && <small className="mt-0.5 block truncate text-slate-500">{item.variant_name}</small>}<span className="mt-1 block text-sm font-semibold text-slate-500">{money(item.unit_price)}</span></div><div className="flex flex-col items-end gap-3"><button type="button" onClick={()=>updateCart(item)} disabled={pendingItem===item.cart_key} className="text-slate-500 transition hover:text-rose-600 disabled:opacity-40" aria-label={`Remove ${item.title}`}><X className="size-4"/></button><div className="inline-flex h-9 items-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"><button type="button" onClick={()=>updateCart(item,Math.max(item.min_quantity || 1,item.quantity-(item.quantity_step || 1)))} disabled={pendingItem===item.cart_key || item.quantity<=(item.min_quantity || 1)} className="grid size-9 place-items-center text-slate-500 hover:bg-violet-50 disabled:opacity-30"><Minus className="size-3.5"/></button><b className="min-w-7 text-center text-sm">{item.quantity}</b><button type="button" onClick={()=>updateCart(item,item.quantity+(item.quantity_step || 1))} disabled={pendingItem===item.cart_key || (item.max_quantity && item.quantity>=item.max_quantity)} className="grid size-9 place-items-center text-slate-500 hover:bg-violet-50 disabled:opacity-30"><Plus className="size-3.5"/></button></div></div></article>)}</div><section className="mt-7"><h3 className="text-lg font-extrabold text-slate-950">Promotion Code</h3><div className="mt-3 flex h-12 items-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50"><input disabled placeholder="Add Promo Code" className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-slate-500 focus:ring-0 disabled:cursor-not-allowed"/><span className="mx-3 grid size-8 place-items-center border-l border-slate-200 pl-3 text-slate-700"><ArrowRight className="size-5"/></span></div><p className="mt-2 text-xs text-slate-400">Promotion codes are coming soon.</p></section><section className="mt-7"><h3 className="text-lg font-extrabold text-slate-950">Order Total</h3><div className="mt-5 space-y-3 border-b border-slate-200 pb-4 text-sm"><div className="flex justify-between"><span className="text-slate-500">Subtotal</span><b className="text-slate-700">{money(subtotal)}</b></div><div className="flex justify-between gap-4"><span className="text-slate-500">{deliveryReady ? `${deliveryZoneLabel} delivery` : 'Delivery'}</span><b className={!deliveryReady ? 'text-slate-400' : delivery.free ? 'text-emerald-600' : 'text-slate-700'}>{!deliveryReady ? 'Select district' : delivery.free ? 'Free' : money(delivery.shipping)}</b></div>{delivery.cod > 0 && <div className="flex justify-between"><span className="text-slate-500">COD charge</span><b className="text-slate-700">{money(delivery.cod)}</b></div>}{delivery.heavy > 0 && !delivery.free && <p className="text-xs text-slate-400">Delivery includes {money(delivery.heavy)} heavy-item surcharge.</p>}</div><div className="mt-4 flex items-end justify-between"><b className="text-base text-slate-950">Total</b><strong className="text-xl text-violet-600">{money(Number(subtotal)+delivery.total)}</strong></div></section><button type="submit" form="checkout-form" disabled={processing || items.length === 0} className="mt-6 h-12 w-full rounded-xl bg-violet-600 text-sm font-bold text-white shadow-sm transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60">{processing ? 'Placing order...' : 'Place order'}</button></div></aside></div></CheckoutLayout>;
+    return (
+        <CheckoutLayout>
+            <Head title="Checkout" />
+            <div className="grid gap-7 lg:grid-cols-[1fr_360px]">
+                <form id="checkout-form" onSubmit={submit} className="order-2 rounded-2xl border border-slate-200 bg-white p-6 lg:order-1">
+                    <h1 className="text-2xl font-bold">Delivery information</h1>
+                    <p className="mt-1 text-sm text-slate-500">Enter your details to place the order.</p>
+                    {!customer && (
+                        <section className="mt-6 flex flex-col gap-4 rounded-xl border border-violet-100 bg-violet-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex min-w-0 items-center gap-3">
+                                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-violet-600 shadow-sm">
+                                    <UserRound className="size-5" />
+                                </span>
+                                <div className="min-w-0">
+                                    <p className="font-bold text-slate-900">Have an account?</p>
+                                    <p className="mt-0.5 text-sm text-slate-500">{adminSession ? 'Continue with a customer account to save this order.' : 'Log in for a faster checkout and access to your order history.'}</p>
+                                </div>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-2">
+                                <Link href={adminSession ? route('customer.switch-portal') : route('customer.login')} method={adminSession ? 'post' : 'get'} as={adminSession ? 'button' : 'a'} data={adminSession ? { destination: 'login' } : {}} className="inline-flex h-10 items-center justify-center rounded-lg border border-violet-200 bg-white px-4 text-sm font-bold text-violet-700 transition hover:border-violet-600 hover:bg-violet-50">
+                                    Log in
+                                </Link>
+                                <Link href={adminSession ? route('customer.switch-portal') : route('customer.register')} method={adminSession ? 'post' : 'get'} as={adminSession ? 'button' : 'a'} data={adminSession ? { destination: 'register' } : {}} className="inline-flex h-10 items-center justify-center rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-violet-700">
+                                    Register
+                                </Link>
+                            </div>
+                        </section>
+                    )}
+                    {addresses.length > 0 && (
+                        <section className="mt-6">
+                            <div className="flex items-center justify-between">
+                                <h2 className="font-bold">Choose a saved address</h2>
+                                <button type="button" onClick={() => setData('address_id', null)} className="text-sm font-bold text-violet-600">
+                                    Use new address
+                                </button>
+                            </div>
+                            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                                {addresses.map((address) => (
+                                    <button type="button" key={address.id} onClick={() => chooseAddress(address)} className={`rounded-xl border-2 p-4 text-left transition ${data.address_id === address.id ? 'border-violet-600 bg-violet-50' : 'border-slate-200 hover:border-violet-300'}`}>
+                                        <span className="flex items-center justify-between">
+                                            <b>{address.label}</b>
+                                            {address.is_default && <small className="rounded-full bg-emerald-50 px-2 py-1 font-bold text-emerald-700">Default</small>}
+                                        </span>
+                                        <span className="mt-2 block text-sm font-semibold">
+                                            {address.recipient_name} · {address.phone}
+                                        </span>
+                                        <span className="mt-1 line-clamp-2 block text-xs leading-5 text-slate-500">
+                                            {address.address}, {address.city}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+                    <div className="mt-7 grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2 lg:grid-cols-6">
+                        <div className="sm:col-span-1 lg:col-span-3">
+                            <FloatingField name="customer_name" label="Full name" value={data.customer_name} error={errors.customer_name} onChange={(value) => updateField('customer_name', value)} required />
+                        </div>
+                        <div className="sm:col-span-1 lg:col-span-3">
+                            <FloatingField name="phone" label="Phone number" value={data.phone} error={errors.phone} required>
+                                <div className="relative">
+                                    <input
+                                        name="phone"
+                                        value={data.phone}
+                                        type="tel"
+                                        onChange={(event) => {
+                                            updateField('phone', event.target.value);
+                                            setOtpSent(false);
+                                            setOtpCode('');
+                                            setOtpNotice('');
+                                            setOtpError('');
+                                        }}
+                                        aria-invalid={Boolean(errors.phone)}
+                                        aria-describedby={errors.phone ? 'phone-error' : undefined}
+                                        className={`h-12 w-full rounded-xl border-0 bg-transparent px-4 text-sm text-slate-900 focus:ring-0 ${errors.phone ? 'pr-11' : 'pr-32'}`}
+                                    />
+                                    {!errors.phone && (
+                                        <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                                            {phoneIsVerified ? (
+                                                <span className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 text-[11px] font-bold text-emerald-700">
+                                                    <CheckCircle2 className="size-3.5" />
+                                                    Verified phone
+                                                </span>
+                                            ) : (
+                                                <button type="button" onClick={sendOtp} disabled={otpBusy || !data.phone} title="Phone verification is optional" className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-2.5 text-[11px] font-bold text-violet-700 transition hover:border-violet-300 hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50">
+                                                    {otpBusy && !otpSent ? <LoaderCircle className="size-3.5 animate-spin" /> : <ShieldCheck className="size-3.5" />}
+                                                    Verify phone
+                                                </button>
+                                            )}
+                                        </span>
+                                    )}
+                                </div>
+                            </FloatingField>
+                            {otpSent && !phoneIsVerified && (
+                                <div className="mt-2 flex gap-2">
+                                    <input value={otpCode} onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, '').slice(0, 4))} inputMode="numeric" autoComplete="one-time-code" maxLength={4} placeholder="4-digit OTP" className="h-10 min-w-0 flex-1 rounded-lg border-slate-300 text-sm" />
+                                    <button type="button" onClick={verifyOtp} disabled={otpBusy || otpCode.length !== 4} className="inline-flex h-10 items-center justify-center rounded-lg bg-violet-600 px-4 text-xs font-bold text-white disabled:opacity-50">
+                                        {otpBusy ? <LoaderCircle className="size-4 animate-spin" /> : 'Confirm'}
+                                    </button>
+                                </div>
+                            )}
+                            {otpNotice && <p className="mt-2 text-xs font-semibold text-emerald-600">{otpNotice}</p>}
+                            {otpError && <p className="mt-2 text-xs font-semibold text-rose-600">{otpError}</p>}
+                        </div>
+                        <div className="sm:col-span-2 lg:col-span-6">
+                            <FloatingField name="email" label="Email (optional)" value={data.email} error={errors.email} onChange={(value) => updateField('email', value)} type="email" />
+                        </div>
+                        <div className="lg:col-span-2">
+                            <FloatingField name="division" label="Division" value={data.division} error={errors.division} required={!data.address_id}>
+                                <SearchableSelect
+                                    name="division"
+                                    value={data.division}
+                                    options={bangladeshDivisions}
+                                    placeholder="Search division..."
+                                    error={errors.division}
+                                    onChange={(value) => {
+                                        setData((current) => ({
+                                            ...current,
+                                            division: value,
+                                            district: '',
+                                            city: '',
+                                            area: '',
+                                            delivery_zone: '',
+                                            address_id: null,
+                                        }));
+                                        setErrors((current) => {
+                                            const next = { ...current };
+                                            delete next.division;
+                                            delete next.district;
+                                            delete next.city;
+                                            delete next.delivery_zone;
+                                            return next;
+                                        });
+                                    }}
+                                />
+                            </FloatingField>
+                        </div>
+                        <div className="lg:col-span-2">
+                            <FloatingField name="district" label="District" value={data.district} error={errors.district} required={!data.address_id}>
+                                <SearchableSelect
+                                    name="district"
+                                    value={data.district}
+                                    options={districtOptions}
+                                    placeholder={data.division ? 'Search district...' : 'Select division first'}
+                                    error={errors.district}
+                                    disabled={!data.division}
+                                    onChange={(value) => {
+                                        setData((current) => ({
+                                            ...current,
+                                            district: value,
+                                            city: '',
+                                            area: '',
+                                            address_id: null,
+                                        }));
+                                        if (errors.district)
+                                            setErrors((current) => {
+                                                const next = { ...current };
+                                                delete next.district;
+                                                return next;
+                                            });
+                                    }}
+                                />
+                            </FloatingField>
+                        </div>
+                        <div className="sm:col-span-2 lg:col-span-2">
+                            {thanaOptions ? (
+                                <FloatingField name="city" label="Thana / area" value={data.city} error={errors.city} required>
+                                    <SearchableSelect
+                                        name="city"
+                                        value={data.city}
+                                        options={!thanaOptions.includes(data.city) && data.city ? [data.city, ...thanaOptions] : thanaOptions}
+                                        placeholder="Search thana / upazila..."
+                                        error={errors.city}
+                                        onChange={(value) => {
+                                            setData((current) => ({
+                                                ...current,
+                                                city: value,
+                                                area: value,
+                                                address_id: null,
+                                            }));
+                                            if (errors.city)
+                                                setErrors((current) => {
+                                                    const next = { ...current };
+                                                    delete next.city;
+                                                    return next;
+                                                });
+                                        }}
+                                    />
+                                </FloatingField>
+                            ) : (
+                                <FloatingField
+                                    name="city"
+                                    label="City / thana / area"
+                                    value={data.city}
+                                    error={errors.city}
+                                    onChange={(value) => {
+                                        updateField('city', value);
+                                        setData('area', value);
+                                    }}
+                                    required
+                                />
+                            )}
+                        </div>
+                        <div className="sm:col-span-2 lg:col-span-6">
+                            <FloatingField name="address" label="Full delivery address" value={data.address} error={errors.address} required>
+                                <textarea name="address" value={data.address} onChange={(event) => updateField('address', event.target.value)} aria-invalid={Boolean(errors.address)} aria-describedby={errors.address ? 'address-error' : undefined} rows="3" className="min-h-24 w-full resize-y rounded-xl border-0 bg-transparent px-4 py-3 text-sm text-slate-900 focus:ring-0" />
+                            </FloatingField>
+                        </div>
+                    </div>
+                    <section data-field="delivery_zone" className="mt-5 flex flex-col gap-3 rounded-xl border border-violet-100 bg-violet-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-3">
+                            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-violet-600 shadow-sm">
+                                <Truck className="size-5" />
+                            </span>
+                            <div>
+                                <h2 className="font-bold text-slate-900">Delivery area</h2>
+                                <p className="mt-0.5 text-sm text-slate-500">{deliveryReady ? deliveryZoneLabel : 'Select a district to calculate delivery.'}</p>
+                            </div>
+                        </div>
+                        <div className="sm:text-right">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">Delivery charge</p>
+                            <b className={!deliveryReady ? 'text-sm text-slate-500' : delivery.free ? 'text-sm text-emerald-600' : 'text-base text-violet-700'}>{!deliveryReady ? 'Not calculated' : delivery.free ? 'Free Delivery' : money(delivery.shipping)}</b>
+                        </div>
+                        {errors.delivery_zone && <small className="text-rose-600">{errors.delivery_zone}</small>}
+                    </section>
+                    <label className="mt-4 block text-sm font-semibold">
+                        Order note (optional)
+                        <textarea value={data.note} onChange={(event) => setData('note', event.target.value)} className="mt-2 min-h-20 w-full rounded-xl border-slate-300" />
+                    </label>
+                </form>
+                <aside className="order-1 h-fit overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_16px_45px_rgba(15,23,42,.08)] lg:sticky lg:top-24 lg:order-2">
+                    <section data-field="payment_method" className="border-b border-slate-200 bg-slate-50/70 p-5 sm:p-7">
+                        <div className="flex items-center gap-3">
+                            <span className="h-6 w-1 rounded-full bg-violet-600" />
+                            <h2 className="text-lg font-extrabold text-slate-950">Payment method</h2>
+                        </div>
+                        <label className={'mt-4 flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition ' + (data.payment_method === 'cod' ? 'border-violet-500 bg-violet-50 shadow-[0_0_0_1px_rgba(124,58,237,.08)]' : 'border-slate-200 bg-white hover:border-violet-300')}>
+                            <input type="radio" name="payment_method" value="cod" checked={data.payment_method === 'cod'} onChange={() => setData('payment_method', 'cod')} className="sr-only" />
+                            <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-white text-violet-600 shadow-sm">
+                                <Banknote className="size-5" />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                                <b className="block text-sm text-slate-900">Cash on Delivery</b>
+                                <small className="mt-0.5 block text-xs text-slate-500">Pay when your order arrives.</small>
+                            </span>
+                            <CheckCircle2 className="size-5 shrink-0 text-violet-600" />
+                        </label>
+                        {errors.payment_method && <small className="mt-2 block text-xs font-medium text-rose-600">{errors.payment_method}</small>}
+                    </section>
+                    <div className="p-5 sm:p-7">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-extrabold text-slate-950">Order Summary</h2>
+                            <span className="grid size-7 place-items-center rounded-full border border-slate-300 text-slate-400">
+                                <Info className="size-4" />
+                            </span>
+                        </div>
+                        {cartNotice && <p className="mt-4 rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-600">{cartNotice}</p>}
+                        <div className="mt-6 space-y-5">
+                            {items.map((item) => (
+                                <article key={item.cart_key || item.product_id} className="grid grid-cols-[64px_minmax(0,1fr)_auto] items-center gap-3">
+                                    <div className="size-16 overflow-hidden rounded-xl bg-slate-50">{item.image ? <img src={item.image} alt={item.title} className="h-full w-full object-contain p-1" /> : <span className="grid h-full place-items-center text-xs text-slate-400">No image</span>}</div>
+                                    <div className="min-w-0">
+                                        <b className="block truncate text-sm text-slate-900">{item.title}</b>
+                                        {item.variant_name && <small className="mt-0.5 block truncate text-slate-500">{item.variant_name}</small>}
+                                        <span className="mt-1 block text-sm font-semibold text-slate-500">{money(item.unit_price)}</span>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-3">
+                                        <button type="button" onClick={() => updateCart(item)} disabled={pendingItem === item.cart_key} className="text-slate-500 transition hover:text-rose-600 disabled:opacity-40" aria-label={`Remove ${item.title}`}>
+                                            <X className="size-4" />
+                                        </button>
+                                        <div className="inline-flex h-9 items-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                                            <button type="button" onClick={() => updateCart(item, Math.max(item.min_quantity || 1, item.quantity - (item.quantity_step || 1)))} disabled={pendingItem === item.cart_key || item.quantity <= (item.min_quantity || 1)} className="grid size-9 place-items-center text-slate-500 hover:bg-violet-50 disabled:opacity-30">
+                                                <Minus className="size-3.5" />
+                                            </button>
+                                            <b className="min-w-7 text-center text-sm">{item.quantity}</b>
+                                            <button type="button" onClick={() => updateCart(item, item.quantity + (item.quantity_step || 1))} disabled={pendingItem === item.cart_key || (item.max_quantity && item.quantity >= item.max_quantity)} className="grid size-9 place-items-center text-slate-500 hover:bg-violet-50 disabled:opacity-30">
+                                                <Plus className="size-3.5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                        <section className="mt-7">
+                            <h3 className="text-lg font-extrabold text-slate-950">Promotion Code</h3>
+                            <div className="mt-3 flex h-12 items-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                                <input disabled placeholder="Add Promo Code" className="min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-slate-500 focus:ring-0 disabled:cursor-not-allowed" />
+                                <span className="mx-3 grid size-8 place-items-center border-l border-slate-200 pl-3 text-slate-700">
+                                    <ArrowRight className="size-5" />
+                                </span>
+                            </div>
+                            <p className="mt-2 text-xs text-slate-400">Promotion codes are coming soon.</p>
+                        </section>
+                        <section className="mt-7">
+                            <h3 className="text-lg font-extrabold text-slate-950">Order Total</h3>
+                            <div className="mt-5 space-y-3 border-b border-slate-200 pb-4 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">Subtotal</span>
+                                    <b className="text-slate-700">{money(subtotal)}</b>
+                                </div>
+                                <div className="flex justify-between gap-4">
+                                    <span className="text-slate-500">{deliveryReady ? `${deliveryZoneLabel} delivery` : 'Delivery'}</span>
+                                    <b className={!deliveryReady ? 'text-slate-400' : delivery.free ? 'text-emerald-600' : 'text-slate-700'}>{!deliveryReady ? 'Select district' : delivery.free ? 'Free' : money(delivery.shipping)}</b>
+                                </div>
+                                {delivery.cod > 0 && (
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">COD charge</span>
+                                        <b className="text-slate-700">{money(delivery.cod)}</b>
+                                    </div>
+                                )}
+                                {delivery.heavy > 0 && !delivery.free && <p className="text-xs text-slate-400">Delivery includes {money(delivery.heavy)} heavy-item surcharge.</p>}
+                            </div>
+                            <div className="mt-4 flex items-end justify-between">
+                                <b className="text-base text-slate-950">Total</b>
+                                <strong className="text-xl text-violet-600">{money(Number(subtotal) + delivery.total)}</strong>
+                            </div>
+                        </section>
+                        <button type="submit" form="checkout-form" disabled={processing || items.length === 0} className="mt-6 h-12 w-full rounded-xl bg-violet-600 text-sm font-bold text-white shadow-sm transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60">
+                            {processing ? 'Placing order...' : 'Place order'}
+                        </button>
+                    </div>
+                </aside>
+            </div>
+        </CheckoutLayout>
+    );
 }

@@ -14,6 +14,18 @@ class AuthenticatedSessionController
     public function createAdmin(): Response { return Inertia::render('Auth/Login',['canResetPassword'=>true,'status'=>session('status'),'portal'=>'admin','loginRoute'=>'admin.login.store','registerRoute'=>null]); }
     public function storeCustomer(LoginRequest $request): RedirectResponse { return $this->authenticateForPortal($request,false); }
     public function storeAdmin(LoginRequest $request): RedirectResponse { return $this->authenticateForPortal($request,true); }
+    public function switchToCustomerPortal(Request $request): RedirectResponse
+    {
+        abort_unless((bool) $request->user()?->is_admin, 403);
+
+        $destination = $request->validate(['destination' => ['required', 'in:login,register']])['destination'];
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route($destination === 'register' ? 'customer.register' : 'customer.login');
+    }
     private function authenticateForPortal(LoginRequest $request,bool $admin): RedirectResponse
     {
         $request->authenticate();

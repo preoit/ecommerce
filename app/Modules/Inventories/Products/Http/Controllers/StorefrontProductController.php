@@ -215,8 +215,12 @@ class StorefrontProductController extends Controller
             $request->session()->put('checkout_token', $checkoutToken);
         }
 
-        $summary['addresses'] = $request->user()?->addresses()->latest('is_default')->latest()->get() ?? [];
-        $summary['customer'] = $request->user() ? ['name' => $request->user()->name, 'phone' => $request->user()->phone, 'email' => $request->user()->email] : null;
+        $authenticatedUser = $request->user();
+        $customer = $authenticatedUser && ! $authenticatedUser->is_admin ? $authenticatedUser : null;
+
+        $summary['addresses'] = $customer?->addresses()->latest('is_default')->latest()->get() ?? [];
+        $summary['customer'] = $customer ? ['name' => $customer->name, 'phone' => $customer->phone, 'email' => $customer->email] : null;
+        $summary['adminSession'] = (bool) $authenticatedUser?->is_admin;
         $initialPhone = collect($summary['addresses'])->firstWhere('is_default', true)?->phone ?? ($summary['customer']['phone'] ?? '');
         $summary['phoneVerification'] = ['phone' => $initialPhone, 'verified' => $phoneVerification->isVerified($request, $initialPhone)];
         $summary['checkoutToken'] = $checkoutToken;
